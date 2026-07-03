@@ -1,0 +1,228 @@
+"""闪传 API 的 Tool 组件。
+
+包含 8 个闪传 Tool，对应 NapCat 闪传 API：
+    - create_flash_task: 创建闪传任务
+    - send_flash_msg: 发送闪传消息
+    - get_flash_file_list: 获取闪传文件列表
+    - get_flash_file_url: 获取闪传文件URL
+    - get_share_link: 获取文件分享链接
+    - download_fileset: 下载文件集
+    - get_fileset_info: 获取文件集信息
+    - get_fileset_id: 从分享码获取fileset_id
+
+Tool 不检查配置开关，配置开关由 Service 层统一检查。
+"""
+
+from __future__ import annotations
+
+from typing import Annotated, Any
+
+from src.app.plugin_system.base import BaseTool
+
+from . import _call_onebot_api
+
+__all__ = [
+    "CreateFlashTaskTool",
+    "SendFlashMsgTool",
+    "GetFlashFileListTool",
+    "GetFlashFileUrlTool",
+    "GetShareLinkTool",
+    "DownloadFilesetTool",
+    "GetFilesetInfoTool",
+    "GetFilesetIdTool",
+]
+
+
+class CreateFlashTaskTool(BaseTool):
+    """创建闪传任务的 Tool。
+
+    对应 NapCat API: ``create_flash_task``。
+    创建一个闪传文件传输任务。
+    """
+
+    tool_name = "create_flash_task"
+    tool_description = "创建一个闪传文件传输任务"
+
+    async def execute(
+        self,
+        files: Annotated[list[dict[str, Any]], "文件列表（每项含path和name）"],
+        name: Annotated[str, "任务名称（可选）"] = "",
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行创建闪传任务。"""
+        params: dict[str, Any] = {"files": files}
+        if name:
+            params["name"] = name
+        result = await _call_onebot_api("create_flash_task", params)
+        if result.get("status") == "ok":
+            data = result.get("data", {})
+            return True, data
+        return False, f"创建闪传任务失败: {result.get('msg', '未知错误')}"
+
+
+class SendFlashMsgTool(BaseTool):
+    """发送闪传消息的 Tool。
+
+    对应 NapCat API: ``send_flash_msg``。
+    发送闪传文件消息到指定用户或群。
+    """
+
+    tool_name = "send_flash_msg"
+    tool_description = "发送闪传文件消息到指定用户或群"
+
+    async def execute(
+        self,
+        fileset_id: Annotated[str, "文件集ID"],
+        user_id: Annotated[int, "目标用户QQ号（可选）"] = 0,
+        group_id: Annotated[int, "目标群号（可选）"] = 0,
+    ) -> tuple[bool, str]:
+        """执行发送闪传消息。"""
+        params: dict[str, Any] = {"fileset_id": fileset_id}
+        if user_id:
+            params["user_id"] = user_id
+        if group_id:
+            params["group_id"] = group_id
+        result = await _call_onebot_api("send_flash_msg", params)
+        if result.get("status") == "ok":
+            return True, "闪传消息已发送"
+        return False, f"发送闪传消息失败: {result.get('msg', '未知错误')}"
+
+
+class GetFlashFileListTool(BaseTool):
+    """获取闪传文件列表的 Tool。
+
+    对应 NapCat API: ``get_flash_file_list``。
+    获取指定文件集的文件列表。
+    """
+
+    tool_name = "get_flash_file_list"
+    tool_description = "获取指定文件集的文件列表"
+
+    async def execute(
+        self,
+        fileset_id: Annotated[str, "文件集ID"],
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行获取闪传文件列表。"""
+        params: dict[str, Any] = {"fileset_id": fileset_id}
+        result = await _call_onebot_api("get_flash_file_list", params)
+        if result.get("status") == "ok":
+            data = result.get("data", [])
+            return True, data
+        return False, f"获取闪传文件列表失败: {result.get('msg', '未知错误')}"
+
+
+class GetFlashFileUrlTool(BaseTool):
+    """获取闪传文件URL的 Tool。
+
+    对应 NapCat API: ``get_flash_file_url``。
+    获取指定文件集中文件的下载 URL。
+    """
+
+    tool_name = "get_flash_file_url"
+    tool_description = "获取指定文件集中文件的下载URL"
+
+    async def execute(
+        self,
+        fileset_id: Annotated[str, "文件集ID"],
+        file_name: Annotated[str, "文件名（可选）"] = "",
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行获取闪传文件URL。"""
+        params: dict[str, Any] = {"fileset_id": fileset_id}
+        if file_name:
+            params["file_name"] = file_name
+        result = await _call_onebot_api("get_flash_file_url", params)
+        if result.get("status") == "ok":
+            data = result.get("data", {})
+            return True, data
+        return False, f"获取闪传文件URL失败: {result.get('msg', '未知错误')}"
+
+
+class GetShareLinkTool(BaseTool):
+    """获取文件分享链接的 Tool。
+
+    对应 NapCat API: ``get_share_link``。
+    获取指定文件集的分享链接。
+    """
+
+    tool_name = "get_share_link"
+    tool_description = "获取指定文件集的分享链接"
+
+    async def execute(
+        self,
+        fileset_id: Annotated[str, "文件集ID"],
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行获取文件分享链接。"""
+        params: dict[str, Any] = {"fileset_id": fileset_id}
+        result = await _call_onebot_api("get_share_link", params)
+        if result.get("status") == "ok":
+            data = result.get("data", {})
+            return True, data
+        return False, f"获取分享链接失败: {result.get('msg', '未知错误')}"
+
+
+class DownloadFilesetTool(BaseTool):
+    """下载文件集的 Tool。
+
+    对应 NapCat API: ``download_fileset``。
+    下载指定文件集的全部文件。
+    """
+
+    tool_name = "download_fileset"
+    tool_description = "下载指定文件集的全部文件"
+
+    async def execute(
+        self,
+        fileset_id: Annotated[str, "文件集ID"],
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行下载文件集。"""
+        params: dict[str, Any] = {"fileset_id": fileset_id}
+        result = await _call_onebot_api("download_fileset", params)
+        if result.get("status") == "ok":
+            data = result.get("data", {})
+            return True, data
+        return False, f"下载文件集失败: {result.get('msg', '未知错误')}"
+
+
+class GetFilesetInfoTool(BaseTool):
+    """获取文件集信息的 Tool。
+
+    对应 NapCat API: ``get_fileset_info``。
+    获取指定文件集的详细信息。
+    """
+
+    tool_name = "get_fileset_info"
+    tool_description = "获取指定文件集的详细信息"
+
+    async def execute(
+        self,
+        fileset_id: Annotated[str, "文件集ID"],
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行获取文件集信息。"""
+        params: dict[str, Any] = {"fileset_id": fileset_id}
+        result = await _call_onebot_api("get_fileset_info", params)
+        if result.get("status") == "ok":
+            data = result.get("data", {})
+            return True, data
+        return False, f"获取文件集信息失败: {result.get('msg', '未知错误')}"
+
+
+class GetFilesetIdTool(BaseTool):
+    """从分享码获取fileset_id的 Tool。
+
+    对应 NapCat API: ``get_fileset_id``。
+    根据分享码解析出文件集 ID。
+    """
+
+    tool_name = "get_fileset_id"
+    tool_description = "根据分享码解析出文件集ID"
+
+    async def execute(
+        self,
+        share_code: Annotated[str, "分享码"],
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行从分享码获取fileset_id。"""
+        params: dict[str, Any] = {"share_code": share_code}
+        result = await _call_onebot_api("get_fileset_id", params)
+        if result.get("status") == "ok":
+            data = result.get("data", {})
+            return True, data
+        return False, f"获取fileset_id失败: {result.get('msg', '未知错误')}"

@@ -1,0 +1,211 @@
+"""闪传服务。
+
+封装 NapCat 闪传 API，提供闪传任务创建、消息发送、
+文件列表查询、文件下载、分享链接等功能。
+
+API 列表 (8):
+    - create_flash_task: 创建闪传任务
+    - send_flash_msg: 发送闪传消息
+    - get_flash_file_list: 获取闪传文件列表
+    - get_flash_file_url: 获取闪传文件URL
+    - get_share_link: 获取文件分享链接
+    - download_fileset: 下载文件集
+    - get_fileset_info: 获取文件集信息
+    - get_fileset_id: 从分享码获取fileset_id
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+from src.app.plugin_system.base import BaseService
+
+from ..tools import _call_onebot_api
+
+__all__ = ["FlashService"]
+
+
+class FlashService(BaseService):
+    """闪传服务。
+
+    封装全部闪传 API 调用，提供配置开关检查和统一调用入口。
+    Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
+    """
+
+    service_name: str = "flash_service"
+    service_description: str = "闪传服务"
+    version: str = "1.0.0"
+
+    def _is_api_enabled(self, api_name: str) -> bool:
+        """检查 API 是否在配置中启用。
+
+        1.3.0 起支持别名：传入别名时会先解析为主名再查询配置开关。
+        """
+        from ..api_defs import resolve_action
+
+        config = self.plugin.config
+        if config is None:
+            return True
+        switches = getattr(config, "api_switches", None)
+        if switches is None:
+            return True
+        primary = resolve_action(api_name) or api_name
+        return getattr(switches, f"enable_{primary}", True)
+
+    @staticmethod
+    def _disabled_response(api_name: str) -> dict[str, Any]:
+        """构造 API 禁用时的标准响应。"""
+        return {"status": "error", "retcode": -1, "msg": f"API {api_name} 已禁用"}
+
+    async def create_flash_task(
+        self,
+        files: list[dict[str, Any]],
+        name: str = "",
+    ) -> dict[str, Any]:
+        """创建闪传任务。
+
+        对应 NapCat 扩展 API: ``create_flash_task``。
+
+        Args:
+            files: 文件列表（每项含 path 和 name）。
+            name: 任务名称，默认为空字符串。
+
+        Returns:
+            适配器返回的响应字典，包含任务信息。
+        """
+        if not self._is_api_enabled("create_flash_task"):
+            return self._disabled_response("create_flash_task")
+        params: dict[str, Any] = {"files": files}
+        if name:
+            params["name"] = name
+        return await _call_onebot_api("create_flash_task", params)
+
+    async def send_flash_msg(
+        self,
+        fileset_id: str,
+        user_id: int | None = None,
+        group_id: int | None = None,
+    ) -> dict[str, Any]:
+        """发送闪传消息。
+
+        对应 NapCat 扩展 API: ``send_flash_msg``。
+
+        Args:
+            fileset_id: 文件集 ID。
+            user_id: 目标用户 QQ 号，默认为 None。
+            group_id: 目标群号，默认为 None。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        if not self._is_api_enabled("send_flash_msg"):
+            return self._disabled_response("send_flash_msg")
+        params: dict[str, Any] = {"fileset_id": fileset_id}
+        if user_id is not None:
+            params["user_id"] = user_id
+        if group_id is not None:
+            params["group_id"] = group_id
+        return await _call_onebot_api("send_flash_msg", params)
+
+    async def get_flash_file_list(self, fileset_id: str) -> dict[str, Any]:
+        """获取闪传文件列表。
+
+        对应 NapCat 扩展 API: ``get_flash_file_list``。
+
+        Args:
+            fileset_id: 文件集 ID。
+
+        Returns:
+            适配器返回的响应字典，包含文件列表。
+        """
+        if not self._is_api_enabled("get_flash_file_list"):
+            return self._disabled_response("get_flash_file_list")
+        params: dict[str, Any] = {"fileset_id": fileset_id}
+        return await _call_onebot_api("get_flash_file_list", params)
+
+    async def get_flash_file_url(
+        self,
+        fileset_id: str,
+        file_name: str = "",
+    ) -> dict[str, Any]:
+        """获取闪传文件URL。
+
+        对应 NapCat 扩展 API: ``get_flash_file_url``。
+
+        Args:
+            fileset_id: 文件集 ID。
+            file_name: 文件名，默认为空字符串。
+
+        Returns:
+            适配器返回的响应字典，包含文件下载 URL。
+        """
+        if not self._is_api_enabled("get_flash_file_url"):
+            return self._disabled_response("get_flash_file_url")
+        params: dict[str, Any] = {"fileset_id": fileset_id}
+        if file_name:
+            params["file_name"] = file_name
+        return await _call_onebot_api("get_flash_file_url", params)
+
+    async def get_share_link(self, fileset_id: str) -> dict[str, Any]:
+        """获取文件分享链接。
+
+        对应 NapCat 扩展 API: ``get_share_link``。
+
+        Args:
+            fileset_id: 文件集 ID。
+
+        Returns:
+            适配器返回的响应字典，包含分享链接。
+        """
+        if not self._is_api_enabled("get_share_link"):
+            return self._disabled_response("get_share_link")
+        params: dict[str, Any] = {"fileset_id": fileset_id}
+        return await _call_onebot_api("get_share_link", params)
+
+    async def download_fileset(self, fileset_id: str) -> dict[str, Any]:
+        """下载文件集。
+
+        对应 NapCat 扩展 API: ``download_fileset``。
+
+        Args:
+            fileset_id: 文件集 ID。
+
+        Returns:
+            适配器返回的响应字典，包含下载结果。
+        """
+        if not self._is_api_enabled("download_fileset"):
+            return self._disabled_response("download_fileset")
+        params: dict[str, Any] = {"fileset_id": fileset_id}
+        return await _call_onebot_api("download_fileset", params)
+
+    async def get_fileset_info(self, fileset_id: str) -> dict[str, Any]:
+        """获取文件集信息。
+
+        对应 NapCat 扩展 API: ``get_fileset_info``。
+
+        Args:
+            fileset_id: 文件集 ID。
+
+        Returns:
+            适配器返回的响应字典，包含文件集详细信息。
+        """
+        if not self._is_api_enabled("get_fileset_info"):
+            return self._disabled_response("get_fileset_info")
+        params: dict[str, Any] = {"fileset_id": fileset_id}
+        return await _call_onebot_api("get_fileset_info", params)
+
+    async def get_fileset_id(self, share_code: str) -> dict[str, Any]:
+        """从分享码获取fileset_id。
+
+        对应 NapCat 扩展 API: ``get_fileset_id``。
+
+        Args:
+            share_code: 分享码。
+
+        Returns:
+            适配器返回的响应字典，包含文件集 ID。
+        """
+        if not self._is_api_enabled("get_fileset_id"):
+            return self._disabled_response("get_fileset_id")
+        params: dict[str, Any] = {"share_code": share_code}
+        return await _call_onebot_api("get_fileset_id", params)
