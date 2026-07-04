@@ -1,9 +1,10 @@
 """凭证/安全/下载 API 的 Tool 组件。
 
-包含 6 个凭证/安全/下载 Tool，对应 NapCat 凭证/安全/下载 API：
+包含 7 个凭证/安全/下载 Tool，对应 NapCat 凭证/安全/下载 API：
     - get_clientkey: 获取clientkey
     - get_credentials: 获取凭证
     - get_rkey: 获取rkey
+    - get_rkey_server: 获取rkey服务器信息
     - check_url_safely: 检查链接安全性
     - ocr_image: OCR图片
     - download_file: 下载文件
@@ -23,6 +24,7 @@ __all__ = [
     "GetClientkeyTool",
     "GetCredentialsTool",
     "GetRkeyTool",
+    "GetRkeyServerTool",
     "CheckUrlSafelyTool",
     "OcrImageTool",
     "DownloadFileTool",
@@ -94,6 +96,28 @@ class GetRkeyTool(BaseTool):
             data = result.get("data", {})
             return True, data
         return False, f"获取rkey失败: {result.get('msg', '未知错误')}"
+
+
+class GetRkeyServerTool(BaseTool):
+    """获取rkey服务器信息的 Tool。
+
+    对应 API: ``get_rkey_server``。
+    返回 rkey 服务器信息（含过期时间和服务器名），比 get_rkey 多返回元数据。
+    """
+
+    tool_name = "get_rkey_server"
+    tool_description = "获取rkey服务器信息（含过期时间和服务器名）"
+
+    async def execute(
+        self,
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行获取rkey服务器信息。"""
+        params: dict[str, Any] = {}
+        result = await _call_onebot_api("get_rkey_server", params)
+        if result.get("status") == "ok":
+            data = result.get("data", {})
+            return True, data
+        return False, f"获取rkey服务器信息失败: {result.get('msg', '未知错误')}"
 
 
 class CheckUrlSafelyTool(BaseTool):

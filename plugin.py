@@ -1,12 +1,12 @@
 """onebot_expand 插件入口。
 
 OneBot v11 + NapCat 扩展 API 的完整封装插件。
-通过 onebot_adapter 的 WebSocket 连接调用全部 158 个 OneBot API。
+通过 onebot_adapter 的 WebSocket 连接调用全部 173 个 OneBot API。
 所有功能以 Tool + Service 双层组件形式提供。
 
-1.3.0 起引入别名机制：5 组纯别名（get_rkey/set_group_sign/send_packet/
+引入别名机制：5 组纯别名（get_rkey/set_group_sign/send_packet/
 ocr_image/fetch_ptt_text）合并为同一开关与同一 handler；同 handler 数组
-别名不再作为独立 action 注册。共 158 主名 + 6 别名 action 串。
+别名不再作为独立 action 注册。共 173 主名 + 7 别名 action 串。
 """
 
 from __future__ import annotations
@@ -39,10 +39,10 @@ class OnebotExpandPlugin(BasePlugin):
     plugin_name: str = "onebot_expand"
     plugin_description: str = (
         "OneBot v11 + NapCat 扩展 API 完整封装，"
-        "提供 158 个 Tool 组件和 23 个 Service 组件，"
+        "提供 173 个 Tool 组件和 23 个 Service 组件，"
         "含 5 组别名机制"
     )
-    plugin_version: str = "1.3.0"
+    plugin_version: str = "1.0.0"
 
     configs: list[type] = [OnebotExpandConfig]
     dependent_components: list[str] = []
@@ -51,7 +51,7 @@ class OnebotExpandPlugin(BasePlugin):
         """返回插件提供的全部组件类。
 
         Returns:
-            全部 Tool 和 Service 组件类的列表（共 181 个）
+            全部 Tool 和 Service 组件类的列表（共 196 个）
         """
         return ALL_TOOLS + ALL_SERVICES
 

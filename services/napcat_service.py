@@ -36,7 +36,7 @@ __all__ = ["NapcatExtService"]
 class NapcatExtService(BaseService):
     """NapCat 扩展功能服务。
 
-    封装全部 NapCat 扩展 API 调用，提供配置开关检查和统一调用入口。
+    封装全部 NapCat 扩展 API 调用，提供统一调用入口，始终可用（不受 Tool 开关影响）。
     set_msg_emoji_like 方法会使用 emoji_tables 验证 emoji_id 的有效性。
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
@@ -44,30 +44,6 @@ class NapcatExtService(BaseService):
     service_name: str = "napcat_ext_service"
     service_description: str = "NapCat 扩展功能服务"
     version: str = "1.0.0"
-
-    def _is_api_enabled(self, api_name: str) -> bool:
-        """检查 API 是否在配置中启用。
-
-        1.3.0 起支持别名：传入别名时会先解析为主名再查询配置开关，
-        保证主名与别名共用同一开关。
-
-        Args:
-            api_name: API 名称（主名或别名，对应配置中 ``enable_<api_name>`` 字段）。
-
-        Returns:
-            True 表示启用，False 表示禁用。无配置时默认启用。
-        """
-        from ..api_defs import resolve_action
-
-        config = self.plugin.config
-        if config is None:
-            return True
-        switches = getattr(config, "api_switches", None)
-        if switches is None:
-            return True
-        # 别名解析为主名
-        primary = resolve_action(api_name) or api_name
-        return getattr(switches, f"enable_{primary}", True)
 
     def _is_reaction_emoji_enabled(self, emoji_id: int) -> bool:
         """检查表情回应功能及指定表情 ID 是否启用。
@@ -95,18 +71,6 @@ class NapcatExtService(BaseService):
             return True
         return emoji_id in enabled_ids
 
-    @staticmethod
-    def _disabled_response(api_name: str) -> dict[str, Any]:
-        """构造 API 禁用时的标准响应。
-
-        Args:
-            api_name: 被禁用的 API 名称。
-
-        Returns:
-            包含错误状态和提示信息的字典。
-        """
-        return {"status": "error", "retcode": -1, "msg": f"API {api_name} 已禁用"}
-
     async def set_msg_emoji_like(
         self,
         message_id: int,
@@ -126,8 +90,6 @@ class NapcatExtService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("set_msg_emoji_like"):
-            return self._disabled_response("set_msg_emoji_like")
 
         # 使用 emoji_tables 验证 emoji_id 是否为合法的回应表情
         entry = get_emoji_by_id(emoji_id, table_type="reaction")
@@ -164,8 +126,6 @@ class NapcatExtService(BaseService):
         Returns:
             适配器返回的响应字典，包含精华消息列表。
         """
-        if not self._is_api_enabled("get_essence_msg_list"):
-            return self._disabled_response("get_essence_msg_list")
         params: dict[str, Any] = {"group_id": group_id}
         return await _call_onebot_api("get_essence_msg_list", params)
 
@@ -178,8 +138,6 @@ class NapcatExtService(BaseService):
         Returns:
             适配器返回的响应字典，包含在线客户端列表。
         """
-        if not self._is_api_enabled("get_online_clients"):
-            return self._disabled_response("get_online_clients")
         return await _call_onebot_api("get_online_clients", {})
 
     async def get_cookies(self, domain: str = "") -> dict[str, Any]:
@@ -193,8 +151,6 @@ class NapcatExtService(BaseService):
         Returns:
             适配器返回的响应字典，包含 Cookies 信息。
         """
-        if not self._is_api_enabled("get_cookies"):
-            return self._disabled_response("get_cookies")
         params: dict[str, Any] = {"domain": domain}
         return await _call_onebot_api("get_cookies", params)
 
@@ -206,8 +162,6 @@ class NapcatExtService(BaseService):
         Returns:
             适配器返回的响应字典，包含 CSRF Token。
         """
-        if not self._is_api_enabled("get_csrf_token"):
-            return self._disabled_response("get_csrf_token")
         return await _call_onebot_api("get_csrf_token", {})
 
     async def get_status(self) -> dict[str, Any]:
@@ -218,8 +172,6 @@ class NapcatExtService(BaseService):
         Returns:
             适配器返回的响应字典，包含运行状态信息。
         """
-        if not self._is_api_enabled("get_status"):
-            return self._disabled_response("get_status")
         return await _call_onebot_api("get_status", {})
 
     async def set_restart(self, delay: int = 0) -> dict[str, Any]:
@@ -233,8 +185,6 @@ class NapcatExtService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("set_restart"):
-            return self._disabled_response("set_restart")
         params: dict[str, Any] = {"delay": delay}
         return await _call_onebot_api("set_restart", params)
 
@@ -246,8 +196,6 @@ class NapcatExtService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("clean_cache"):
-            return self._disabled_response("clean_cache")
         return await _call_onebot_api("clean_cache", {})
 
     async def can_send_image(self) -> dict[str, Any]:
@@ -258,8 +206,6 @@ class NapcatExtService(BaseService):
         Returns:
             适配器返回的响应字典，包含是否支持发送图片的布尔值。
         """
-        if not self._is_api_enabled("can_send_image"):
-            return self._disabled_response("can_send_image")
         return await _call_onebot_api("can_send_image", {})
 
     async def can_send_record(self) -> dict[str, Any]:
@@ -270,8 +216,6 @@ class NapcatExtService(BaseService):
         Returns:
             适配器返回的响应字典，包含是否支持发送语音的布尔值。
         """
-        if not self._is_api_enabled("can_send_record"):
-            return self._disabled_response("can_send_record")
         return await _call_onebot_api("can_send_record", {})
 
     async def get_version_info(self) -> dict[str, Any]:
@@ -282,8 +226,6 @@ class NapcatExtService(BaseService):
         Returns:
             适配器返回的响应字典，包含协议端版本信息。
         """
-        if not self._is_api_enabled("get_version_info"):
-            return self._disabled_response("get_version_info")
         return await _call_onebot_api("get_version_info", {})
 
     async def set_essence_msg(self, message_id: int) -> dict[str, Any]:
@@ -297,8 +239,6 @@ class NapcatExtService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("set_essence_msg"):
-            return self._disabled_response("set_essence_msg")
         params: dict[str, Any] = {"message_id": message_id}
         return await _call_onebot_api("set_essence_msg", params)
 
@@ -313,8 +253,6 @@ class NapcatExtService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("delete_essence_msg"):
-            return self._disabled_response("delete_essence_msg")
         params: dict[str, Any] = {"message_id": message_id}
         return await _call_onebot_api("delete_essence_msg", params)
 
@@ -329,8 +267,6 @@ class NapcatExtService(BaseService):
         Returns:
             适配器返回的响应字典，包含@全体剩余次数信息。
         """
-        if not self._is_api_enabled("get_group_at_all_remain"):
-            return self._disabled_response("get_group_at_all_remain")
         params: dict[str, Any] = {"group_id": group_id}
         return await _call_onebot_api("get_group_at_all_remain", params)
 
@@ -345,7 +281,5 @@ class NapcatExtService(BaseService):
         Returns:
             适配器返回的响应字典，包含语音转文字结果。
         """
-        if not self._is_api_enabled("fetch_ptt_text"):
-            return self._disabled_response("fetch_ptt_text")
         params: dict[str, Any] = {"message_id": message_id}
         return await _call_onebot_api("fetch_ptt_text", params)

@@ -36,6 +36,7 @@ __all__ = [
     "GetGroupIgnoreAddRequestTool",
     "GetGroupInfoExTool",
     "SetGroupSignTool",
+    "GetGroupSignedListTool",
 ]
 
 
@@ -314,3 +315,26 @@ class SetGroupSignTool(BaseTool):
         if result.get("status") == "ok":
             return True, f"已在群 {group_id} 签到"
         return False, f"群签到失败: {result.get('msg', '未知错误')}"
+
+
+class GetGroupSignedListTool(BaseTool):
+    """获取群今日打卡列表的 Tool。
+
+    对应 API: ``get_group_signed_list``。
+    获取指定群今日已签到的成员列表。
+    """
+
+    tool_name = "get_group_signed_list"
+    tool_description = "获取群今日打卡列表"
+
+    async def execute(
+        self,
+        group_id: Annotated[int, "目标群号"],
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行获取群今日打卡列表。"""
+        params: dict[str, Any] = {"group_id": group_id}
+        result = await _call_onebot_api("get_group_signed_list", params)
+        if result.get("status") == "ok":
+            data = result.get("data", [])
+            return True, data
+        return False, f"获取群今日打卡列表失败: {result.get('msg', '未知错误')}"

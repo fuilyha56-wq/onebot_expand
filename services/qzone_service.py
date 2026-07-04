@@ -27,34 +27,13 @@ __all__ = ["QzoneService"]
 class QzoneService(BaseService):
     """QQ空间服务。
 
-    封装全部 QQ 空间 API 调用，提供配置开关检查和统一调用入口。
+    封装全部 QQ 空间 API 调用，提供统一调用入口，始终可用（不受 Tool 开关影响）。
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
     service_name: str = "qzone_service"
     service_description: str = "QQ空间服务"
     version: str = "1.0.0"
-
-    def _is_api_enabled(self, api_name: str) -> bool:
-        """检查 API 是否在配置中启用。
-
-        1.3.0 起支持别名：传入别名时会先解析为主名再查询配置开关。
-        """
-        from ..api_defs import resolve_action
-
-        config = self.plugin.config
-        if config is None:
-            return True
-        switches = getattr(config, "api_switches", None)
-        if switches is None:
-            return True
-        primary = resolve_action(api_name) or api_name
-        return getattr(switches, f"enable_{primary}", True)
-
-    @staticmethod
-    def _disabled_response(api_name: str) -> dict[str, Any]:
-        """构造 API 禁用时的标准响应。"""
-        return {"status": "error", "retcode": -1, "msg": f"API {api_name} 已禁用"}
 
     async def get_qzone_msg_list(
         self,
@@ -72,8 +51,6 @@ class QzoneService(BaseService):
         Returns:
             适配器返回的响应字典，包含说说列表。
         """
-        if not self._is_api_enabled("get_qzone_msg_list"):
-            return self._disabled_response("get_qzone_msg_list")
         params: dict[str, Any] = {
             "pos": pos,
             "num": num,
@@ -96,8 +73,6 @@ class QzoneService(BaseService):
         Returns:
             适配器返回的响应字典，包含好友动态列表。
         """
-        if not self._is_api_enabled("get_qzone_feeds"):
-            return self._disabled_response("get_qzone_feeds")
         params: dict[str, Any] = {
             "page_num": page_num,
             "count": count,
@@ -115,8 +90,6 @@ class QzoneService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("send_qzone_msg"):
-            return self._disabled_response("send_qzone_msg")
         params: dict[str, Any] = {"content": content}
         return await _call_onebot_api("send_qzone_msg", params)
 
@@ -131,8 +104,6 @@ class QzoneService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("delete_qzone_msg"):
-            return self._disabled_response("delete_qzone_msg")
         params: dict[str, Any] = {"tid": tid}
         return await _call_onebot_api("delete_qzone_msg", params)
 
@@ -152,8 +123,6 @@ class QzoneService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("like_qzone"):
-            return self._disabled_response("like_qzone")
         params: dict[str, Any] = {"tid": tid}
         if target_uin is not None:
             params["target_uin"] = target_uin
@@ -175,8 +144,6 @@ class QzoneService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("unlike_qzone"):
-            return self._disabled_response("unlike_qzone")
         params: dict[str, Any] = {"tid": tid}
         if target_uin is not None:
             params["target_uin"] = target_uin
@@ -200,8 +167,6 @@ class QzoneService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("comment_qzone"):
-            return self._disabled_response("comment_qzone")
         params: dict[str, Any] = {
             "tid": tid,
             "content": content,

@@ -29,48 +29,13 @@ __all__ = ["UserExtService"]
 class UserExtService(BaseService):
     """用户信息扩展服务。
 
-    封装全部用户信息扩展 API 调用，提供配置开关检查和统一调用入口。
+    封装全部用户信息扩展 API 调用，提供统一调用入口，始终可用（不受 Tool 开关影响）。
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
     service_name: str = "user_ext_service"
     service_description: str = "用户信息扩展服务"
     version: str = "1.0.0"
-
-    def _is_api_enabled(self, api_name: str) -> bool:
-        """检查 API 是否在配置中启用。
-
-        1.3.0 起支持别名：传入别名时会先解析为主名再查询配置开关，
-        保证主名与别名共用同一开关。
-
-        Args:
-            api_name: API 名称（主名或别名，对应配置中 ``enable_<api_name>`` 字段）。
-
-        Returns:
-            True 表示启用，False 表示禁用。无配置时默认启用。
-        """
-        from ..api_defs import resolve_action
-
-        config = self.plugin.config
-        if config is None:
-            return True
-        switches = getattr(config, "api_switches", None)
-        if switches is None:
-            return True
-        primary = resolve_action(api_name) or api_name
-        return getattr(switches, f"enable_{primary}", True)
-
-    @staticmethod
-    def _disabled_response(api_name: str) -> dict[str, Any]:
-        """构造 API 禁用时的标准响应。
-
-        Args:
-            api_name: 被禁用的 API 名称。
-
-        Returns:
-            包含错误状态和提示信息的字典。
-        """
-        return {"status": "error", "retcode": -1, "msg": f"API {api_name} 已禁用"}
 
     async def delete_friend(
         self,
@@ -88,8 +53,6 @@ class UserExtService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("delete_friend"):
-            return self._disabled_response("delete_friend")
         params: dict[str, Any] = {
             "user_id": user_id,
             "block": block,
@@ -112,8 +75,6 @@ class UserExtService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("set_friend_remark"):
-            return self._disabled_response("set_friend_remark")
         params: dict[str, Any] = {
             "user_id": user_id,
             "remark": remark,
@@ -128,8 +89,6 @@ class UserExtService(BaseService):
         Returns:
             适配器返回的响应字典，包含分组好友列表。
         """
-        if not self._is_api_enabled("get_friends_with_category"):
-            return self._disabled_response("get_friends_with_category")
         return await _call_onebot_api("get_friends_with_category", {})
 
     async def get_unidirectional_friend_list(self) -> dict[str, Any]:
@@ -140,8 +99,6 @@ class UserExtService(BaseService):
         Returns:
             适配器返回的响应字典，包含单向好友列表。
         """
-        if not self._is_api_enabled("get_unidirectional_friend_list"):
-            return self._disabled_response("get_unidirectional_friend_list")
         return await _call_onebot_api("get_unidirectional_friend_list", {})
 
     async def set_qq_profile(
@@ -160,8 +117,6 @@ class UserExtService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("set_qq_profile"):
-            return self._disabled_response("set_qq_profile")
         params: dict[str, Any] = {}
         if nickname:
             params["nickname"] = nickname
@@ -180,8 +135,6 @@ class UserExtService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("set_qq_avatar"):
-            return self._disabled_response("set_qq_avatar")
         params: dict[str, Any] = {"file": file}
         return await _call_onebot_api("set_qq_avatar", params)
 
@@ -196,8 +149,6 @@ class UserExtService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("set_self_longnick"):
-            return self._disabled_response("set_self_longnick")
         params: dict[str, Any] = {"long_nick": long_nick}
         return await _call_onebot_api("set_self_longnick", params)
 
@@ -212,8 +163,6 @@ class UserExtService(BaseService):
         Returns:
             适配器返回的响应字典，包含最近联系人列表。
         """
-        if not self._is_api_enabled("get_recent_contact"):
-            return self._disabled_response("get_recent_contact")
         params: dict[str, Any] = {"count": count}
         return await _call_onebot_api("get_recent_contact", params)
 
@@ -235,8 +184,6 @@ class UserExtService(BaseService):
         Returns:
             适配器返回的响应字典，包含资料点赞信息。
         """
-        if not self._is_api_enabled("get_profile_like"):
-            return self._disabled_response("get_profile_like")
         params: dict[str, Any] = {
             "user_id": user_id,
             "start": start,

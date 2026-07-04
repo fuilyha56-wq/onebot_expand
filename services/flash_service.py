@@ -3,7 +3,7 @@
 封装 NapCat 闪传 API，提供闪传任务创建、消息发送、
 文件列表查询、文件下载、分享链接等功能。
 
-API 列表 (8):
+API 列表 (11):
     - create_flash_task: 创建闪传任务
     - send_flash_msg: 发送闪传消息
     - get_flash_file_list: 获取闪传文件列表
@@ -12,6 +12,9 @@ API 列表 (8):
     - download_fileset: 下载文件集
     - get_fileset_info: 获取文件集信息
     - get_fileset_id: 从分享码获取fileset_id
+    - list_filesets: 列出所有闪传文件集（SnowLuma 扩展）
+    - delete_flash_file: 删除闪传文件（SnowLuma 扩展）
+    - rename_flash_file: 重命名闪传文件（SnowLuma 扩展）
 """
 
 from __future__ import annotations
@@ -28,34 +31,13 @@ __all__ = ["FlashService"]
 class FlashService(BaseService):
     """闪传服务。
 
-    封装全部闪传 API 调用，提供配置开关检查和统一调用入口。
+    封装全部闪传 API 调用，提供统一调用入口，始终可用（不受 Tool 开关影响）。
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
     service_name: str = "flash_service"
     service_description: str = "闪传服务"
     version: str = "1.0.0"
-
-    def _is_api_enabled(self, api_name: str) -> bool:
-        """检查 API 是否在配置中启用。
-
-        1.3.0 起支持别名：传入别名时会先解析为主名再查询配置开关。
-        """
-        from ..api_defs import resolve_action
-
-        config = self.plugin.config
-        if config is None:
-            return True
-        switches = getattr(config, "api_switches", None)
-        if switches is None:
-            return True
-        primary = resolve_action(api_name) or api_name
-        return getattr(switches, f"enable_{primary}", True)
-
-    @staticmethod
-    def _disabled_response(api_name: str) -> dict[str, Any]:
-        """构造 API 禁用时的标准响应。"""
-        return {"status": "error", "retcode": -1, "msg": f"API {api_name} 已禁用"}
 
     async def create_flash_task(
         self,
@@ -73,8 +55,6 @@ class FlashService(BaseService):
         Returns:
             适配器返回的响应字典，包含任务信息。
         """
-        if not self._is_api_enabled("create_flash_task"):
-            return self._disabled_response("create_flash_task")
         params: dict[str, Any] = {"files": files}
         if name:
             params["name"] = name
@@ -98,8 +78,6 @@ class FlashService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("send_flash_msg"):
-            return self._disabled_response("send_flash_msg")
         params: dict[str, Any] = {"fileset_id": fileset_id}
         if user_id is not None:
             params["user_id"] = user_id
@@ -118,8 +96,6 @@ class FlashService(BaseService):
         Returns:
             适配器返回的响应字典，包含文件列表。
         """
-        if not self._is_api_enabled("get_flash_file_list"):
-            return self._disabled_response("get_flash_file_list")
         params: dict[str, Any] = {"fileset_id": fileset_id}
         return await _call_onebot_api("get_flash_file_list", params)
 
@@ -139,8 +115,6 @@ class FlashService(BaseService):
         Returns:
             适配器返回的响应字典，包含文件下载 URL。
         """
-        if not self._is_api_enabled("get_flash_file_url"):
-            return self._disabled_response("get_flash_file_url")
         params: dict[str, Any] = {"fileset_id": fileset_id}
         if file_name:
             params["file_name"] = file_name
@@ -157,8 +131,6 @@ class FlashService(BaseService):
         Returns:
             适配器返回的响应字典，包含分享链接。
         """
-        if not self._is_api_enabled("get_share_link"):
-            return self._disabled_response("get_share_link")
         params: dict[str, Any] = {"fileset_id": fileset_id}
         return await _call_onebot_api("get_share_link", params)
 
@@ -173,8 +145,6 @@ class FlashService(BaseService):
         Returns:
             适配器返回的响应字典，包含下载结果。
         """
-        if not self._is_api_enabled("download_fileset"):
-            return self._disabled_response("download_fileset")
         params: dict[str, Any] = {"fileset_id": fileset_id}
         return await _call_onebot_api("download_fileset", params)
 
@@ -189,8 +159,6 @@ class FlashService(BaseService):
         Returns:
             适配器返回的响应字典，包含文件集详细信息。
         """
-        if not self._is_api_enabled("get_fileset_info"):
-            return self._disabled_response("get_fileset_info")
         params: dict[str, Any] = {"fileset_id": fileset_id}
         return await _call_onebot_api("get_fileset_info", params)
 
@@ -205,7 +173,51 @@ class FlashService(BaseService):
         Returns:
             适配器返回的响应字典，包含文件集 ID。
         """
-        if not self._is_api_enabled("get_fileset_id"):
-            return self._disabled_response("get_fileset_id")
         params: dict[str, Any] = {"share_code": share_code}
         return await _call_onebot_api("get_fileset_id", params)
+
+    async def list_filesets(self) -> dict[str, Any]:
+        """列出所有闪传文件集（SnowLuma 扩展）。
+
+        对应 SnowLuma 扩展 API: ``list_filesets``。
+
+        Returns:
+            适配器返回的响应字典，包含当前账号所有闪传文件集列表。
+        """
+        return await _call_onebot_api("list_filesets", {})
+
+    async def delete_flash_file(self, fileset_id: str) -> dict[str, Any]:
+        """删除闪传文件（SnowLuma 扩展）。
+
+        对应 SnowLuma 扩展 API: ``delete_flash_file``。
+
+        Args:
+            fileset_id: 文件集 ID。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        params: dict[str, Any] = {"fileset_id": fileset_id}
+        return await _call_onebot_api("delete_flash_file", params)
+
+    async def rename_flash_file(
+        self,
+        fileset_id: str,
+        new_name: str,
+    ) -> dict[str, Any]:
+        """重命名闪传文件（SnowLuma 扩展）。
+
+        对应 SnowLuma 扩展 API: ``rename_flash_file``。
+
+        Args:
+            fileset_id: 文件集 ID。
+            new_name: 新文件名。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        params: dict[str, Any] = {
+            "fileset_id": fileset_id,
+            "new_name": new_name,
+        }
+        return await _call_onebot_api("rename_flash_file", params)

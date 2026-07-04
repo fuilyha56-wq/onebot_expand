@@ -12,8 +12,7 @@
     - get_collection_list: 获取收藏列表
     - send_packet: 发送原始SSO包
 
-注意：tool_name 中包含点号的（如 ._get_model_show），用下划线替代，
-但 _call_onebot_api 中使用原始 action 名。
+注意：tool_name 中的下划线与 action 名一致（如 _get_model_show），
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
 """
 
@@ -42,12 +41,11 @@ __all__ = [
 class GetModelShowTool(BaseTool):
     """获取机型展示的 Tool。
 
-    对应 NapCat API: ``._get_model_show``。
+    对应 NapCat API: ``_get_model_show``。
     获取指定机型型号的展示信息。
-    tool_name 使用下划线替代点号，但 API action 使用原始名称。
     """
 
-    tool_name = "get_model_show"
+    tool_name = "_get_model_show"
     tool_description = "获取指定机型型号的展示信息"
 
     async def execute(
@@ -56,7 +54,7 @@ class GetModelShowTool(BaseTool):
     ) -> tuple[bool, str | dict[str, Any]]:
         """执行获取机型展示。"""
         params: dict[str, Any] = {"model": model}
-        result = await _call_onebot_api("._get_model_show", params)
+        result = await _call_onebot_api("_get_model_show", params)
         if result.get("status") == "ok":
             data = result.get("data", {})
             return True, data
@@ -66,12 +64,11 @@ class GetModelShowTool(BaseTool):
 class SetModelShowTool(BaseTool):
     """设置机型展示的 Tool。
 
-    对应 NapCat API: ``._set_model_show``。
+    对应 NapCat API: ``_set_model_show``。
     设置当前 Bot 的机型展示信息。
-    tool_name 使用下划线替代点号，但 API action 使用原始名称。
     """
 
-    tool_name = "set_model_show"
+    tool_name = "_set_model_show"
     tool_description = "设置当前Bot的机型展示信息"
 
     async def execute(
@@ -84,7 +81,7 @@ class SetModelShowTool(BaseTool):
             "model": model,
             "show": show,
         }
-        result = await _call_onebot_api("._set_model_show", params)
+        result = await _call_onebot_api("_set_model_show", params)
         if result.get("status") == "ok":
             return True, f"机型展示已设置为 {model}: {show}"
         return False, f"设置机型展示失败: {result.get('msg', '未知错误')}"

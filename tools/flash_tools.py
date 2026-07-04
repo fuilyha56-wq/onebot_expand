@@ -1,6 +1,6 @@
 """闪传 API 的 Tool 组件。
 
-包含 8 个闪传 Tool，对应 NapCat 闪传 API：
+包含 11 个闪传 Tool，对应 NapCat/SnowLuma 闪传 API：
     - create_flash_task: 创建闪传任务
     - send_flash_msg: 发送闪传消息
     - get_flash_file_list: 获取闪传文件列表
@@ -9,6 +9,9 @@
     - download_fileset: 下载文件集
     - get_fileset_info: 获取文件集信息
     - get_fileset_id: 从分享码获取fileset_id
+    - list_filesets: 列出所有闪传文件集（SnowLuma 扩展）
+    - delete_flash_file: 删除闪传文件（SnowLuma 扩展）
+    - rename_flash_file: 重命名闪传文件（SnowLuma 扩展）
 
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
 """
@@ -30,6 +33,9 @@ __all__ = [
     "DownloadFilesetTool",
     "GetFilesetInfoTool",
     "GetFilesetIdTool",
+    "ListFilesetsTool",
+    "DeleteFlashFileTool",
+    "RenameFlashFileTool",
 ]
 
 
@@ -226,3 +232,73 @@ class GetFilesetIdTool(BaseTool):
             data = result.get("data", {})
             return True, data
         return False, f"获取fileset_id失败: {result.get('msg', '未知错误')}"
+
+
+class ListFilesetsTool(BaseTool):
+    """列出所有闪传文件集的 Tool（SnowLuma 扩展）。
+
+    对应 SnowLuma API: ``list_filesets``。
+    列出当前账号的所有闪传文件集。
+    """
+
+    tool_name = "list_filesets"
+    tool_description = "列出当前账号所有闪传文件集（SnowLuma扩展）"
+
+    async def execute(
+        self,
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行列出所有闪传文件集。"""
+        params: dict[str, Any] = {}
+        result = await _call_onebot_api("list_filesets", params)
+        if result.get("status") == "ok":
+            data = result.get("data", [])
+            return True, data
+        return False, f"列出闪传文件集失败: {result.get('msg', '未知错误')}"
+
+
+class DeleteFlashFileTool(BaseTool):
+    """删除闪传文件的 Tool（SnowLuma 扩展）。
+
+    对应 SnowLuma API: ``delete_flash_file``。
+    根据文件集 ID 删除闪传文件。
+    """
+
+    tool_name = "delete_flash_file"
+    tool_description = "根据文件集ID删除闪传文件（SnowLuma扩展）"
+
+    async def execute(
+        self,
+        fileset_id: Annotated[str, "文件集ID"],
+    ) -> tuple[bool, str]:
+        """执行删除闪传文件。"""
+        params: dict[str, Any] = {"fileset_id": fileset_id}
+        result = await _call_onebot_api("delete_flash_file", params)
+        if result.get("status") == "ok":
+            return True, f"已删除闪传文件 {fileset_id}"
+        return False, f"删除闪传文件失败: {result.get('msg', '未知错误')}"
+
+
+class RenameFlashFileTool(BaseTool):
+    """重命名闪传文件的 Tool（SnowLuma 扩展）。
+
+    对应 SnowLuma API: ``rename_flash_file``。
+    根据文件集 ID 重命名闪传文件。
+    """
+
+    tool_name = "rename_flash_file"
+    tool_description = "根据文件集ID重命名闪传文件（SnowLuma扩展）"
+
+    async def execute(
+        self,
+        fileset_id: Annotated[str, "文件集ID"],
+        new_name: Annotated[str, "新文件名"],
+    ) -> tuple[bool, str]:
+        """执行重命名闪传文件。"""
+        params: dict[str, Any] = {
+            "fileset_id": fileset_id,
+            "new_name": new_name,
+        }
+        result = await _call_onebot_api("rename_flash_file", params)
+        if result.get("status") == "ok":
+            return True, f"已重命名闪传文件 {fileset_id}"
+        return False, f"重命名闪传文件失败: {result.get('msg', '未知错误')}"

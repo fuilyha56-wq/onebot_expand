@@ -1,10 +1,9 @@
 """请求处理相关 API 的 Tool 组件。
 
-包含 6 个请求处理 Tool，对应 OneBot v11 标准请求 API 和扩展请求 API：
+包含 5 个请求处理 Tool，对应 OneBot v11 标准请求 API 和扩展请求 API：
     - set_friend_add_request: 处理好友添加请求 (OB11标准)
     - set_group_add_request: 处理加群请求 (OB11标准)
     - get_group_system_msg: 获取群系统消息 (go-cqhttp兼容)
-    - get_group_add_request: 获取群添加请求 (NapCat扩展)
     - get_doubt_friends_add_request: 获取可疑好友申请 (扩展)
     - set_doubt_friends_add_request: 处理可疑好友申请 (扩展)
 
@@ -23,7 +22,6 @@ __all__ = [
     "SetFriendAddRequestTool",
     "SetGroupAddRequestTool",
     "GetGroupSystemMsgTool",
-    "GetGroupAddRequestTool",
     "GetDoubtFriendsAddRequestTool",
     "SetDoubtFriendsAddRequestTool",
 ]
@@ -113,28 +111,6 @@ class GetGroupSystemMsgTool(BaseTool):
             data = result.get("data", {})
             return True, data
         return False, f"获取群系统消息失败: {result.get('msg', '未知错误')}"
-
-
-class GetGroupAddRequestTool(BaseTool):
-    """获取群添加请求的 Tool。
-
-    对应 NapCat 扩展 API: ``get_group_add_request``。
-    获取群添加请求列表。
-    """
-
-    tool_name = "get_group_add_request"
-    tool_description = "获取群添加请求列表（NapCat扩展）"
-
-    async def execute(
-        self,
-    ) -> tuple[bool, str | dict[str, Any]]:
-        """执行获取群添加请求。"""
-        params: dict[str, Any] = {}
-        result = await _call_onebot_api("get_group_add_request", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取群添加请求失败: {result.get('msg', '未知错误')}"
 
 
 class GetDoubtFriendsAddRequestTool(BaseTool):

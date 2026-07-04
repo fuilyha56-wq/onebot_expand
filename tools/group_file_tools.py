@@ -1,6 +1,6 @@
 """群文件管理 API 的 Tool 组件。
 
-包含 11 个群文件管理 Tool，对应 go-cqhttp 兼容 API 和扩展 API：
+包含 12 个群文件管理 Tool，对应 go-cqhttp 兼容 API 和扩展 API：
     - get_group_file_url: 获取群文件下载链接 (go-cqhttp兼容)
     - get_group_root_files: 获取群根目录文件 (go-cqhttp兼容)
     - get_group_files_by_folder: 获取群子目录文件 (go-cqhttp兼容)
@@ -10,6 +10,7 @@
     - get_group_file_system_info: 获取群文件系统信息 (go-cqhttp兼容)
     - move_group_file: 移动群文件 (扩展)
     - rename_group_file: 重命名群文件 (扩展)
+    - rename_group_file_folder: 重命名群文件夹 (SnowLuma 扩展)
     - trans_group_file: 转存群文件 (扩展)
     - get_private_file_url: 获取私聊文件下载链接 (扩展)
 
@@ -34,6 +35,7 @@ __all__ = [
     "GetGroupFileSystemInfoTool",
     "MoveGroupFileTool",
     "RenameGroupFileTool",
+    "RenameGroupFileFolderTool",
     "TransGroupFileTool",
     "GetPrivateFileUrlTool",
 ]
@@ -286,6 +288,34 @@ class RenameGroupFileTool(BaseTool):
         if result.get("status") == "ok":
             return True, f"已重命名群 {group_id} 中的文件为 \"{new_name}\""
         return False, f"重命名群文件失败: {result.get('msg', '未知错误')}"
+
+
+class RenameGroupFileFolderTool(BaseTool):
+    """重命名群文件夹的 Tool（SnowLuma 扩展）。
+
+    对应 SnowLuma API: ``rename_group_file_folder``。
+    重命名指定群文件夹的名称。
+    """
+
+    tool_name = "rename_group_file_folder"
+    tool_description = "重命名群文件夹（SnowLuma扩展）"
+
+    async def execute(
+        self,
+        group_id: Annotated[int, "目标群号"],
+        folder_id: Annotated[str, "群文件夹ID"],
+        new_folder_name: Annotated[str, "新文件夹名"],
+    ) -> tuple[bool, str]:
+        """执行重命名群文件夹。"""
+        params: dict[str, Any] = {
+            "group_id": group_id,
+            "folder_id": folder_id,
+            "new_folder_name": new_folder_name,
+        }
+        result = await _call_onebot_api("rename_group_file_folder", params)
+        if result.get("status") == "ok":
+            return True, f"已重命名群 {group_id} 中的文件夹为 \"{new_folder_name}\""
+        return False, f"重命名群文件夹失败: {result.get('msg', '未知错误')}"
 
 
 class TransGroupFileTool(BaseTool):

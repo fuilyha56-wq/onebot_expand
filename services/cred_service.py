@@ -3,10 +3,11 @@
 封装 NapCat 凭证/安全/下载 API，提供 clientkey、凭证、
 rkey、URL 安全检查、OCR、文件下载等功能。
 
-API 列表 (6):
+API 列表 (7):
     - get_clientkey: 获取clientkey
     - get_credentials: 获取凭证
     - get_rkey: 获取rkey
+    - get_rkey_server: 获取rkey服务器信息
     - check_url_safely: 检查链接安全性
     - ocr_image: OCR图片
     - download_file: 下载文件
@@ -26,34 +27,13 @@ __all__ = ["CredService"]
 class CredService(BaseService):
     """凭证/安全/下载服务。
 
-    封装全部凭证/安全/下载 API 调用，提供配置开关检查和统一调用入口。
+    封装全部凭证/安全/下载 API 调用，提供统一调用入口，始终可用（不受 Tool 开关影响）。
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
     service_name: str = "cred_service"
     service_description: str = "凭证/安全/下载服务"
     version: str = "1.0.0"
-
-    def _is_api_enabled(self, api_name: str) -> bool:
-        """检查 API 是否在配置中启用。
-
-        1.3.0 起支持别名：传入别名时会先解析为主名再查询配置开关。
-        """
-        from ..api_defs import resolve_action
-
-        config = self.plugin.config
-        if config is None:
-            return True
-        switches = getattr(config, "api_switches", None)
-        if switches is None:
-            return True
-        primary = resolve_action(api_name) or api_name
-        return getattr(switches, f"enable_{primary}", True)
-
-    @staticmethod
-    def _disabled_response(api_name: str) -> dict[str, Any]:
-        """构造 API 禁用时的标准响应。"""
-        return {"status": "error", "retcode": -1, "msg": f"API {api_name} 已禁用"}
 
     async def get_clientkey(self) -> dict[str, Any]:
         """获取clientkey。
@@ -63,8 +43,6 @@ class CredService(BaseService):
         Returns:
             适配器返回的响应字典，包含 clientkey。
         """
-        if not self._is_api_enabled("get_clientkey"):
-            return self._disabled_response("get_clientkey")
         return await _call_onebot_api("get_clientkey", {})
 
     async def get_credentials(self, domain: str) -> dict[str, Any]:
@@ -78,8 +56,6 @@ class CredService(BaseService):
         Returns:
             适配器返回的响应字典，包含凭证信息。
         """
-        if not self._is_api_enabled("get_credentials"):
-            return self._disabled_response("get_credentials")
         params: dict[str, Any] = {"domain": domain}
         return await _call_onebot_api("get_credentials", params)
 
@@ -91,9 +67,18 @@ class CredService(BaseService):
         Returns:
             适配器返回的响应字典，包含 rkey。
         """
-        if not self._is_api_enabled("get_rkey"):
-            return self._disabled_response("get_rkey")
         return await _call_onebot_api("get_rkey", {})
+
+    async def get_rkey_server(self) -> dict[str, Any]:
+        """获取rkey服务器信息。
+
+        对应扩展 API: ``get_rkey_server``。
+        比 get_rkey 多返回 expired_time / name 等元数据。
+
+        Returns:
+            适配器返回的响应字典，包含 rkey 服务器信息。
+        """
+        return await _call_onebot_api("get_rkey_server", {})
 
     async def check_url_safely(self, url: str) -> dict[str, Any]:
         """检查链接安全性。
@@ -106,8 +91,6 @@ class CredService(BaseService):
         Returns:
             适配器返回的响应字典，包含安全性检查结果。
         """
-        if not self._is_api_enabled("check_url_safely"):
-            return self._disabled_response("check_url_safely")
         params: dict[str, Any] = {"url": url}
         return await _call_onebot_api("check_url_safely", params)
 
@@ -122,8 +105,6 @@ class CredService(BaseService):
         Returns:
             适配器返回的响应字典，包含 OCR 识别结果。
         """
-        if not self._is_api_enabled("ocr_image"):
-            return self._disabled_response("ocr_image")
         params: dict[str, Any] = {"image": image}
         return await _call_onebot_api("ocr_image", params)
 
@@ -145,8 +126,6 @@ class CredService(BaseService):
         Returns:
             适配器返回的响应字典，包含下载结果。
         """
-        if not self._is_api_enabled("download_file"):
-            return self._disabled_response("download_file")
         params: dict[str, Any] = {"url": url}
         if name:
             params["name"] = name

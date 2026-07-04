@@ -24,34 +24,13 @@ __all__ = ["ArkService"]
 class ArkService(BaseService):
     """Ark分享服务。
 
-    封装全部 Ark 分享 API 调用，提供配置开关检查和统一调用入口。
+    封装全部 Ark 分享 API 调用，提供统一调用入口，始终可用（不受 Tool 开关影响）。
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
     service_name: str = "ark_service"
     service_description: str = "Ark分享服务"
     version: str = "1.0.0"
-
-    def _is_api_enabled(self, api_name: str) -> bool:
-        """检查 API 是否在配置中启用。
-
-        1.3.0 起支持别名：传入别名时会先解析为主名再查询配置开关。
-        """
-        from ..api_defs import resolve_action
-
-        config = self.plugin.config
-        if config is None:
-            return True
-        switches = getattr(config, "api_switches", None)
-        if switches is None:
-            return True
-        primary = resolve_action(api_name) or api_name
-        return getattr(switches, f"enable_{primary}", True)
-
-    @staticmethod
-    def _disabled_response(api_name: str) -> dict[str, Any]:
-        """构造 API 禁用时的标准响应。"""
-        return {"status": "error", "retcode": -1, "msg": f"API {api_name} 已禁用"}
 
     async def share_peer(
         self,
@@ -69,8 +48,6 @@ class ArkService(BaseService):
         Returns:
             适配器返回的响应字典，包含 Ark 卡片数据。
         """
-        if not self._is_api_enabled("share_peer"):
-            return self._disabled_response("share_peer")
         params: dict[str, Any] = {}
         if user_id is not None:
             params["user_id"] = user_id
@@ -94,8 +71,6 @@ class ArkService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("send_ark_share"):
-            return self._disabled_response("send_ark_share")
         params: dict[str, Any] = {}
         if user_id is not None:
             params["user_id"] = user_id
@@ -114,8 +89,6 @@ class ArkService(BaseService):
         Returns:
             适配器返回的响应字典，包含群 Ark 卡片数据。
         """
-        if not self._is_api_enabled("share_group_ex"):
-            return self._disabled_response("share_group_ex")
         params: dict[str, Any] = {"group_id": group_id}
         return await _call_onebot_api("share_group_ex", params)
 
@@ -130,7 +103,5 @@ class ArkService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("send_group_ark_share"):
-            return self._disabled_response("send_group_ark_share")
         params: dict[str, Any] = {"group_id": group_id}
         return await _call_onebot_api("send_group_ark_share", params)

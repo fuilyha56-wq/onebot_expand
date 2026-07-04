@@ -1,13 +1,11 @@
 """文件操作 API 的 Tool 组件。
 
-包含 7 个文件操作 Tool，对应 OneBot v11 文件 API 和 NapCat 文件扩展 API：
-    - upload_file: 上传文件
+包含 5 个文件操作 Tool，对应 OneBot v11 文件 API 和 NapCat 文件扩展 API：
     - upload_group_file: 上传群文件
     - upload_private_file: 上传私聊文件
     - get_file: 获取文件信息（NapCat 扩展）
     - get_image: 获取图片信息
     - get_record: 获取语音文件信息
-    - get_file_url: 获取文件下载 URL（NapCat 扩展）
 
 文件上传类 Tool 使用 PathMapper 处理路径映射，将本地路径适配为协议端可访问的路径。
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
@@ -30,13 +28,17 @@ logger = get_logger("onebot_expand")
 _FILE_TIMEOUT: float = 120.0
 
 __all__ = [
-    "UploadFileTool",
     "UploadGroupFileTool",
     "UploadPrivateFileTool",
     "GetFileTool",
     "GetImageTool",
     "GetRecordTool",
-    "GetFileUrlTool",
+    "SendOnlineFileTool",
+    "SendOnlineFolderTool",
+    "GetOnlineFileMsgTool",
+    "ReceiveOnlineFileTool",
+    "RefuseOnlineFileTool",
+    "CancelOnlineFileTool",
 ]
 
 
@@ -153,36 +155,6 @@ def _build_mapper_config(config: Any) -> Any:
         file_transfer = default_config.file_transfer
 
     return _MapperConfig(file_transfer)
-
-
-class UploadFileTool(BaseTool):
-    """上传文件的 Tool。
-
-    对应 OneBot API: ``upload_file``。
-    上传文件到协议端，需指定文件路径和显示名称。
-    使用 PathMapper 进行路径映射适配。
-    """
-
-    tool_name = "upload_file"
-    tool_description = "上传文件到协议端"
-
-    async def execute(
-        self,
-        file_path: Annotated[str, "本地文件路径"],
-        file_name: Annotated[str, "显示的文件名（空则自动从路径提取）"] = "",
-    ) -> tuple[bool, str]:
-        """执行上传文件。"""
-        resolved_path = await _resolve_file_path(file_path)
-        name = _extract_file_name(file_path, file_name)
-
-        params: dict[str, Any] = {
-            "file": resolved_path,
-            "name": name,
-        }
-        result = await _call_onebot_api("upload_file", params, timeout=_FILE_TIMEOUT)
-        if result.get("status") == "ok":
-            return True, f"文件上传成功: {name}"
-        return False, f"文件上传失败: {result.get('msg', '未知错误')}"
 
 
 class UploadGroupFileTool(BaseTool):
@@ -332,29 +304,166 @@ class GetRecordTool(BaseTool):
         return False, f"获取语音文件信息失败: {result.get('msg', '未知错误')}"
 
 
-class GetFileUrlTool(BaseTool):
-    """获取文件下载 URL 的 Tool（NapCat 扩展）。
+class SendOnlineFileTool(BaseTool):
+    """发送在线文件的 Tool（NapCat 扩展）。
 
-    对应 NapCat API: ``get_file_url``。
-    根据文件 ID 获取文件的下载 URL。
+    对应 NapCat API: ``send_online_file``。
+    向私聊用户发送在线文件（走在线文件通道，非普通私聊文件）。
     """
 
-    tool_name = "get_file_url"
-    tool_description = "根据文件ID获取文件下载URL（NapCat扩展）"
+    tool_name = "send_online_file"
+    tool_description = "发送在线文件到指定私聊用户（NapCat扩展）"
 
     async def execute(
         self,
-        file_id: Annotated[str, "文件ID"],
+        user_id: Annotated[int, "目标用户QQ号"],
+        file_path: Annotated[str, "本地文件路径"],
+        file_name: Annotated[str, "显示的文件名（空则自动从路径提取）"] = "",
     ) -> tuple[bool, str]:
-        """执行获取文件下载 URL。"""
-        params: dict[str, Any] = {"file_id": file_id}
-        result = await _call_onebot_api("get_file_url", params)
+        """执行发送在线文件。"""
+        resolved_path = await _resolve_file_path(file_path)
+        name = _extract_file_name(file_path, file_name)
+        params: dict[str, Any] = {
+            "user_id": user_id,
+            "file_path": resolved_path,
+            "file_name": name,
+        }
+        result = await _call_onebot_api("send_online_file", params, timeout=_FILE_TIMEOUT)
         if result.get("status") == "ok":
-            data = result.get("data", {})
-            url_value = ""
-            if isinstance(data, dict):
-                url_value = str(data.get("url", ""))
-            elif isinstance(data, str):
-                url_value = data
-            return True, url_value
-        return False, f"获取文件URL失败: {result.get('msg', '未知错误')}"
+            return True, f"在线文件发送成功: {name}"
+        return False, f"在线文件发送失败: {result.get('msg', '未知错误')}"
+
+
+class SendOnlineFolderTool(BaseTool):
+    """发送在线文件夹的 Tool（NapCat 扩展）。
+
+    对应 NapCat API: ``send_online_folder``。
+    向私聊用户发送在线文件夹。
+    """
+
+    tool_name = "send_online_folder"
+    tool_description = "发送在线文件夹到指定私聊用户（NapCat扩展）"
+
+    async def execute(
+        self,
+        user_id: Annotated[int, "目标用户QQ号"],
+        folder_path: Annotated[str, "本地文件夹路径"],
+        folder_name: Annotated[str, "显示的文件夹名（空则自动从路径提取）"] = "",
+    ) -> tuple[bool, str]:
+        """执行发送在线文件夹。"""
+        resolved_path = await _resolve_file_path(folder_path)
+        name = _extract_file_name(folder_path, folder_name)
+        params: dict[str, Any] = {
+            "user_id": user_id,
+            "folder_path": resolved_path,
+            "folder_name": name,
+        }
+        result = await _call_onebot_api("send_online_folder", params, timeout=_FILE_TIMEOUT)
+        if result.get("status") == "ok":
+            return True, f"在线文件夹发送成功: {name}"
+        return False, f"在线文件夹发送失败: {result.get('msg', '未知错误')}"
+
+
+class GetOnlineFileMsgTool(BaseTool):
+    """获取在线文件消息列表的 Tool（NapCat 扩展）。
+
+    对应 NapCat API: ``get_online_file_msg``。
+    获取与指定用户的在线文件消息列表。
+    """
+
+    tool_name = "get_online_file_msg"
+    tool_description = "获取与指定用户的在线文件消息列表（NapCat扩展）"
+
+    async def execute(
+        self,
+        user_id: Annotated[int, "目标用户QQ号"],
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行获取在线文件消息列表。"""
+        params: dict[str, Any] = {"user_id": user_id}
+        result = await _call_onebot_api("get_online_file_msg", params)
+        if result.get("status") == "ok":
+            data = result.get("data", [])
+            return True, data
+        return False, f"获取在线文件消息列表失败: {result.get('msg', '未知错误')}"
+
+
+class ReceiveOnlineFileTool(BaseTool):
+    """接收在线文件的 Tool（NapCat 扩展）。
+
+    对应 NapCat API: ``receive_online_file``。
+    接收对方发送的在线文件。
+    """
+
+    tool_name = "receive_online_file"
+    tool_description = "接收对方发送的在线文件（NapCat扩展）"
+
+    async def execute(
+        self,
+        user_id: Annotated[int, "发送方QQ号"],
+        msg_id: Annotated[str, "消息ID"],
+        element_id: Annotated[str, "元素ID"],
+    ) -> tuple[bool, str]:
+        """执行接收在线文件。"""
+        params: dict[str, Any] = {
+            "user_id": user_id,
+            "msg_id": msg_id,
+            "element_id": element_id,
+        }
+        result = await _call_onebot_api("receive_online_file", params, timeout=_FILE_TIMEOUT)
+        if result.get("status") == "ok":
+            return True, "在线文件接收成功"
+        return False, f"在线文件接收失败: {result.get('msg', '未知错误')}"
+
+
+class RefuseOnlineFileTool(BaseTool):
+    """拒绝在线文件的 Tool（NapCat 扩展）。
+
+    对应 NapCat API: ``refuse_online_file``。
+    拒绝对方发送的在线文件。
+    """
+
+    tool_name = "refuse_online_file"
+    tool_description = "拒绝对方发送的在线文件（NapCat扩展）"
+
+    async def execute(
+        self,
+        user_id: Annotated[int, "发送方QQ号"],
+        msg_id: Annotated[str, "消息ID"],
+        element_id: Annotated[str, "元素ID"],
+    ) -> tuple[bool, str]:
+        """执行拒绝在线文件。"""
+        params: dict[str, Any] = {
+            "user_id": user_id,
+            "msg_id": msg_id,
+            "element_id": element_id,
+        }
+        result = await _call_onebot_api("refuse_online_file", params)
+        if result.get("status") == "ok":
+            return True, "已拒绝在线文件"
+        return False, f"拒绝在线文件失败: {result.get('msg', '未知错误')}"
+
+
+class CancelOnlineFileTool(BaseTool):
+    """取消已发送在线文件的 Tool（NapCat 扩展）。
+
+    对应 NapCat API: ``cancel_online_file``。
+    取消自己已发送的在线文件。
+    """
+
+    tool_name = "cancel_online_file"
+    tool_description = "取消自己已发送的在线文件（NapCat扩展）"
+
+    async def execute(
+        self,
+        user_id: Annotated[int, "接收方QQ号"],
+        msg_id: Annotated[str, "消息ID"],
+    ) -> tuple[bool, str]:
+        """执行取消已发送在线文件。"""
+        params: dict[str, Any] = {
+            "user_id": user_id,
+            "msg_id": msg_id,
+        }
+        result = await _call_onebot_api("cancel_online_file", params)
+        if result.get("status") == "ok":
+            return True, "已取消在线文件"
+        return False, f"取消在线文件失败: {result.get('msg', '未知错误')}"

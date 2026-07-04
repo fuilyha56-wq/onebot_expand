@@ -1,13 +1,11 @@
 """请求处理服务。
 
 封装 OneBot v11 请求相关 API 和扩展请求 API，提供统一的请求处理接口。
-所有方法在执行前会检查对应的配置开关，禁用时返回错误提示。
 
-API 列表 (6):
+API 列表 (5):
     - set_friend_add_request: 处理好友添加请求 (OB11标准)
     - set_group_add_request: 处理加群请求 (OB11标准)
     - get_group_system_msg: 获取群系统消息 (go-cqhttp兼容)
-    - get_group_add_request: 获取群添加请求 (NapCat扩展)
     - get_doubt_friends_add_request: 获取可疑好友申请 (扩展)
     - set_doubt_friends_add_request: 处理可疑好友申请 (扩展)
 """
@@ -26,48 +24,13 @@ __all__ = ["RequestService"]
 class RequestService(BaseService):
     """请求处理服务。
 
-    封装全部请求处理相关 OneBot API 调用，提供配置开关检查和统一调用入口。
+    封装全部请求处理相关 OneBot API 调用，提供统一调用入口，始终可用（不受 Tool 开关影响）。
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
     service_name: str = "request_service"
     service_description: str = "请求处理服务"
     version: str = "1.0.0"
-
-    def _is_api_enabled(self, api_name: str) -> bool:
-        """检查 API 是否在配置中启用。
-
-        1.3.0 起支持别名：传入别名时会先解析为主名再查询配置开关，
-        保证主名与别名共用同一开关。
-
-        Args:
-            api_name: API 名称（主名或别名，对应配置中 ``enable_<api_name>`` 字段）。
-
-        Returns:
-            True 表示启用，False 表示禁用。无配置时默认启用。
-        """
-        from ..api_defs import resolve_action
-
-        config = self.plugin.config
-        if config is None:
-            return True
-        switches = getattr(config, "api_switches", None)
-        if switches is None:
-            return True
-        primary = resolve_action(api_name) or api_name
-        return getattr(switches, f"enable_{primary}", True)
-
-    @staticmethod
-    def _disabled_response(api_name: str) -> dict[str, Any]:
-        """构造 API 禁用时的标准响应。
-
-        Args:
-            api_name: 被禁用的 API 名称。
-
-        Returns:
-            包含错误状态和提示信息的字典。
-        """
-        return {"status": "error", "retcode": -1, "msg": f"API {api_name} 已禁用"}
 
     async def set_friend_add_request(
         self,
@@ -87,8 +50,6 @@ class RequestService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("set_friend_add_request"):
-            return self._disabled_response("set_friend_add_request")
         params: dict[str, Any] = {
             "flag": flag,
             "approve": approve,
@@ -117,8 +78,6 @@ class RequestService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("set_group_add_request"):
-            return self._disabled_response("set_group_add_request")
         params: dict[str, Any] = {
             "flag": flag,
             "sub_type": sub_type,
@@ -136,21 +95,7 @@ class RequestService(BaseService):
         Returns:
             适配器返回的响应字典，包含群系统消息列表。
         """
-        if not self._is_api_enabled("get_group_system_msg"):
-            return self._disabled_response("get_group_system_msg")
         return await _call_onebot_api("get_group_system_msg", {})
-
-    async def get_group_add_request(self) -> dict[str, Any]:
-        """获取群添加请求。
-
-        对应 NapCat 扩展 API: ``get_group_add_request``。
-
-        Returns:
-            适配器返回的响应字典，包含群添加请求列表。
-        """
-        if not self._is_api_enabled("get_group_add_request"):
-            return self._disabled_response("get_group_add_request")
-        return await _call_onebot_api("get_group_add_request", {})
 
     async def get_doubt_friends_add_request(
         self,
@@ -166,8 +111,6 @@ class RequestService(BaseService):
         Returns:
             适配器返回的响应字典，包含可疑好友申请列表。
         """
-        if not self._is_api_enabled("get_doubt_friends_add_request"):
-            return self._disabled_response("get_doubt_friends_add_request")
         params: dict[str, Any] = {"count": count}
         return await _call_onebot_api("get_doubt_friends_add_request", params)
 
@@ -187,8 +130,6 @@ class RequestService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("set_doubt_friends_add_request"):
-            return self._disabled_response("set_doubt_friends_add_request")
         params: dict[str, Any] = {
             "flag": flag,
             "approve": approve,

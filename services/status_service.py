@@ -24,34 +24,13 @@ __all__ = ["StatusService"]
 class StatusService(BaseService):
     """在线状态服务。
 
-    封装全部在线状态 API 调用，提供配置开关检查和统一调用入口。
+    封装全部在线状态 API 调用，提供统一调用入口，始终可用（不受 Tool 开关影响）。
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
     service_name: str = "status_service"
     service_description: str = "在线状态服务"
     version: str = "1.0.0"
-
-    def _is_api_enabled(self, api_name: str) -> bool:
-        """检查 API 是否在配置中启用。
-
-        1.3.0 起支持别名：传入别名时会先解析为主名再查询配置开关。
-        """
-        from ..api_defs import resolve_action
-
-        config = self.plugin.config
-        if config is None:
-            return True
-        switches = getattr(config, "api_switches", None)
-        if switches is None:
-            return True
-        primary = resolve_action(api_name) or api_name
-        return getattr(switches, f"enable_{primary}", True)
-
-    @staticmethod
-    def _disabled_response(api_name: str) -> dict[str, Any]:
-        """构造 API 禁用时的标准响应。"""
-        return {"status": "error", "retcode": -1, "msg": f"API {api_name} 已禁用"}
 
     async def set_online_status(
         self,
@@ -71,8 +50,6 @@ class StatusService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("set_online_status"):
-            return self._disabled_response("set_online_status")
         params: dict[str, Any] = {
             "status": status,
             "ext_status": ext_status,
@@ -98,8 +75,6 @@ class StatusService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("set_diy_online_status"):
-            return self._disabled_response("set_diy_online_status")
         params: dict[str, Any] = {
             "face_id": face_id,
             "face_type": face_type,
@@ -124,8 +99,6 @@ class StatusService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("set_input_status"):
-            return self._disabled_response("set_input_status")
         params: dict[str, Any] = {
             "user_id": user_id,
             "event_type": event_type,
@@ -143,7 +116,5 @@ class StatusService(BaseService):
         Returns:
             适配器返回的响应字典，包含用户在线状态信息。
         """
-        if not self._is_api_enabled("nc_get_user_status"):
-            return self._disabled_response("nc_get_user_status")
         params: dict[str, Any] = {"user_id": user_id}
         return await _call_onebot_api("nc_get_user_status", params)

@@ -1,6 +1,6 @@
 """账号信息查询 API 的 Tool 组件。
 
-包含 9 个账号信息查询 Tool，对应 OneBot v11 账号 API 和 NapCat 账号扩展 API：
+包含 10 个账号信息查询 Tool，对应 OneBot v11 账号 API 和 NapCat 账号扩展 API：
     - get_login_info: 获取 Bot 登录信息
     - get_stranger_info: 获取陌生人信息
     - get_friend_list: 获取好友列表
@@ -10,6 +10,7 @@
     - get_group_info: 获取群信息
     - get_group_detail_info: 获取群详细信息（NapCat 扩展）
     - get_group_honor_info: 获取群荣誉信息
+    - get_robot_uin_range: 获取机器人 UIN 范围（NapCat 扩展）
 
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
 这些 Tool 偏信息获取，返回值为 ``(bool, str | dict)`` 格式，查询成功时返回数据字典。
@@ -33,6 +34,7 @@ __all__ = [
     "GetGroupInfoTool",
     "GetGroupDetailInfoTool",
     "GetGroupHonorInfoTool",
+    "GetRobotUinRangeTool",
 ]
 
 
@@ -264,3 +266,25 @@ class GetGroupHonorInfoTool(BaseTool):
             data = result.get("data", {})
             return True, data
         return False, f"获取群荣誉信息失败: {result.get('msg', '未知错误')}"
+
+
+class GetRobotUinRangeTool(BaseTool):
+    """获取机器人 UIN 范围的 Tool（NapCat 扩展）。
+
+    对应 NapCat API: ``get_robot_uin_range``。
+    返回当前可用的机器人 UIN 范围列表。
+    """
+
+    tool_name = "get_robot_uin_range"
+    tool_description = "获取机器人 UIN 范围（NapCat扩展）"
+
+    async def execute(
+        self,
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行获取机器人 UIN 范围。"""
+        params: dict[str, Any] = {}
+        result = await _call_onebot_api("get_robot_uin_range", params)
+        if result.get("status") == "ok":
+            data = result.get("data", [])
+            return True, data
+        return False, f"获取机器人 UIN 范围失败: {result.get('msg', '未知错误')}"

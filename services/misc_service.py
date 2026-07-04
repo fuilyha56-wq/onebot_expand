@@ -30,7 +30,7 @@ __all__ = ["MiscService"]
 class MiscService(BaseService):
     """机型/其他扩展服务。
 
-    封装全部机型/其他扩展 API 调用，提供配置开关检查和统一调用入口。
+    封装全部机型/其他扩展 API 调用，提供统一调用入口，始终可用（不受 Tool 开关影响）。
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
@@ -38,31 +38,10 @@ class MiscService(BaseService):
     service_description: str = "机型/其他扩展服务"
     version: str = "1.0.0"
 
-    def _is_api_enabled(self, api_name: str) -> bool:
-        """检查 API 是否在配置中启用。
-
-        1.3.0 起支持别名：传入别名时会先解析为主名再查询配置开关。
-        """
-        from ..api_defs import resolve_action
-
-        config = self.plugin.config
-        if config is None:
-            return True
-        switches = getattr(config, "api_switches", None)
-        if switches is None:
-            return True
-        primary = resolve_action(api_name) or api_name
-        return getattr(switches, f"enable_{primary}", True)
-
-    @staticmethod
-    def _disabled_response(api_name: str) -> dict[str, Any]:
-        """构造 API 禁用时的标准响应。"""
-        return {"status": "error", "retcode": -1, "msg": f"API {api_name} 已禁用"}
-
     async def get_model_show(self, model: str) -> dict[str, Any]:
         """获取机型展示。
 
-        对应 NapCat 扩展 API: ``._get_model_show``。
+        对应 NapCat 扩展 API: ``_get_model_show``。
 
         Args:
             model: 机型型号。
@@ -70,15 +49,13 @@ class MiscService(BaseService):
         Returns:
             适配器返回的响应字典，包含机型展示信息。
         """
-        if not self._is_api_enabled("get_model_show"):
-            return self._disabled_response("get_model_show")
         params: dict[str, Any] = {"model": model}
-        return await _call_onebot_api("._get_model_show", params)
+        return await _call_onebot_api("_get_model_show", params)
 
     async def set_model_show(self, model: str, show: str) -> dict[str, Any]:
         """设置机型展示。
 
-        对应 NapCat 扩展 API: ``._set_model_show``。
+        对应 NapCat 扩展 API: ``_set_model_show``。
 
         Args:
             model: 机型型号。
@@ -87,13 +64,11 @@ class MiscService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("set_model_show"):
-            return self._disabled_response("set_model_show")
         params: dict[str, Any] = {
             "model": model,
             "show": show,
         }
-        return await _call_onebot_api("._set_model_show", params)
+        return await _call_onebot_api("_set_model_show", params)
 
     async def bot_exit(self) -> dict[str, Any]:
         """退出机器人。
@@ -103,8 +78,6 @@ class MiscService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("bot_exit"):
-            return self._disabled_response("bot_exit")
         return await _call_onebot_api("bot_exit", {})
 
     async def nc_get_packet_status(self) -> dict[str, Any]:
@@ -115,8 +88,6 @@ class MiscService(BaseService):
         Returns:
             适配器返回的响应字典，包含 packet 处理状态。
         """
-        if not self._is_api_enabled("nc_get_packet_status"):
-            return self._disabled_response("nc_get_packet_status")
         return await _call_onebot_api("nc_get_packet_status", {})
 
     async def click_inline_keyboard_button(
@@ -139,8 +110,6 @@ class MiscService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("click_inline_keyboard_button"):
-            return self._disabled_response("click_inline_keyboard_button")
         params: dict[str, Any] = {
             "group_id": group_id,
             "bot_appid": bot_appid,
@@ -171,8 +140,6 @@ class MiscService(BaseService):
         Returns:
             适配器返回的响应字典，包含 Ark 卡片数据。
         """
-        if not self._is_api_enabled("get_mini_app_ark"):
-            return self._disabled_response("get_mini_app_ark")
         params: dict[str, Any] = {
             "type": type,
             "title": title,
@@ -193,8 +160,6 @@ class MiscService(BaseService):
         Returns:
             适配器返回的响应字典，包含翻译结果。
         """
-        if not self._is_api_enabled("translate_en2zh"):
-            return self._disabled_response("translate_en2zh")
         params: dict[str, Any] = {"words": words}
         return await _call_onebot_api("translate_en2zh", params)
 
@@ -206,8 +171,6 @@ class MiscService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("create_collection"):
-            return self._disabled_response("create_collection")
         return await _call_onebot_api("create_collection", {})
 
     async def get_collection_list(self) -> dict[str, Any]:
@@ -218,8 +181,6 @@ class MiscService(BaseService):
         Returns:
             适配器返回的响应字典，包含收藏列表。
         """
-        if not self._is_api_enabled("get_collection_list"):
-            return self._disabled_response("get_collection_list")
         return await _call_onebot_api("get_collection_list", {})
 
     async def send_packet(
@@ -238,8 +199,6 @@ class MiscService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("send_packet"):
-            return self._disabled_response("send_packet")
         params: dict[str, Any] = {"cmd": cmd}
         if data:
             params["data"] = data

@@ -3,14 +3,18 @@
 封装 OneBot v11 文件操作 API 和 NapCat 文件扩展 API，提供统一的文件操作接口。
 文件上传方法通过 PathMapper 解析路径，支持路径映射、base64 编码和共享卷三种传输模式。
 
-API 列表 (7):
-    - upload_file: 上传文件
+API 列表 (11):
     - upload_group_file: 上传群文件
     - upload_private_file: 上传私聊文件
     - get_file: 获取文件信息（NapCat 扩展）
     - get_image: 获取图片信息
     - get_record: 获取语音文件信息
-    - get_file_url: 获取文件下载 URL（NapCat 扩展）
+    - send_online_file: 发送在线文件（NapCat 扩展）
+    - send_online_folder: 发送在线文件夹（NapCat 扩展）
+    - get_online_file_msg: 获取在线文件消息列表（NapCat 扩展）
+    - receive_online_file: 接收在线文件（NapCat 扩展）
+    - refuse_online_file: 拒绝在线文件（NapCat 扩展）
+    - cancel_online_file: 取消已发送的在线文件（NapCat 扩展）
 """
 
 from __future__ import annotations
@@ -86,41 +90,6 @@ class FileService(BaseService):
     service_description: str = "文件上传与管理服务"
     version: str = "1.0.0"
 
-    def _is_api_enabled(self, api_name: str) -> bool:
-        """检查 API 是否在配置中启用。
-
-        1.3.0 起支持别名：传入别名时会先解析为主名再查询配置开关，
-        保证主名与别名共用同一开关。
-
-        Args:
-            api_name: API 名称（主名或别名，对应配置中 ``enable_<api_name>`` 字段）。
-
-        Returns:
-            True 表示启用，False 表示禁用。无配置时默认启用。
-        """
-        from ..api_defs import resolve_action
-
-        config = self.plugin.config
-        if config is None:
-            return True
-        switches = getattr(config, "api_switches", None)
-        if switches is None:
-            return True
-        primary = resolve_action(api_name) or api_name
-        return getattr(switches, f"enable_{primary}", True)
-
-    @staticmethod
-    def _disabled_response(api_name: str) -> dict[str, Any]:
-        """构造 API 禁用时的标准响应。
-
-        Args:
-            api_name: 被禁用的 API 名称。
-
-        Returns:
-            包含错误状态和提示信息的字典。
-        """
-        return {"status": "error", "retcode": -1, "msg": f"API {api_name} 已禁用"}
-
     def _get_path_mapper(self) -> PathMapper:
         """获取 PathMapper 实例。
 
@@ -157,32 +126,6 @@ class FileService(BaseService):
         mapper = self._get_path_mapper()
         return await mapper.resolve_path(file_path)
 
-    async def upload_file(
-        self,
-        file_path: str,
-        name: str,
-    ) -> dict[str, Any]:
-        """上传文件。
-
-        对应 OneBot API: ``upload_file``。
-        通过 PathMapper 解析本地文件路径。
-
-        Args:
-            file_path: 本地文件路径。
-            name: 文件名称。
-
-        Returns:
-            适配器返回的响应字典。
-        """
-        if not self._is_api_enabled("upload_file"):
-            return self._disabled_response("upload_file")
-        resolved_path = await self._resolve_file_path(file_path)
-        params: dict[str, Any] = {
-            "file": resolved_path,
-            "name": name,
-        }
-        return await _call_onebot_api("upload_file", params)
-
     async def upload_group_file(
         self,
         group_id: int,
@@ -202,8 +145,6 @@ class FileService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("upload_group_file"):
-            return self._disabled_response("upload_group_file")
         resolved_path = await self._resolve_file_path(file_path)
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -231,8 +172,6 @@ class FileService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        if not self._is_api_enabled("upload_private_file"):
-            return self._disabled_response("upload_private_file")
         resolved_path = await self._resolve_file_path(file_path)
         params: dict[str, Any] = {
             "user_id": user_id,
@@ -257,8 +196,6 @@ class FileService(BaseService):
         Returns:
             适配器返回的响应字典，包含文件信息。
         """
-        if not self._is_api_enabled("get_file"):
-            return self._disabled_response("get_file")
         params: dict[str, Any] = {
             "file_id": file_id,
             "url": url,
@@ -276,8 +213,6 @@ class FileService(BaseService):
         Returns:
             适配器返回的响应字典，包含图片信息。
         """
-        if not self._is_api_enabled("get_image"):
-            return self._disabled_response("get_image")
         params: dict[str, Any] = {"file": file}
         return await _call_onebot_api("get_image", params)
 
@@ -293,26 +228,147 @@ class FileService(BaseService):
         Returns:
             适配器返回的响应字典，包含语音文件信息。
         """
-        if not self._is_api_enabled("get_record"):
-            return self._disabled_response("get_record")
         params: dict[str, Any] = {
             "file": file,
             "out_format": out_format,
         }
         return await _call_onebot_api("get_record", params)
 
-    async def get_file_url(self, file_id: str) -> dict[str, Any]:
-        """获取文件下载 URL（NapCat 扩展）。
+    async def send_online_file(
+        self,
+        user_id: int,
+        file_path: str,
+        file_name: str = "",
+    ) -> dict[str, Any]:
+        """发送在线文件（NapCat 扩展）。
 
-        对应 NapCat 扩展 API: ``get_file_url``。
+        对应 NapCat 扩展 API: ``send_online_file``。
+        通过 PathMapper 解析本地文件路径。
 
         Args:
-            file_id: 文件 ID。
+            user_id: 目标用户 QQ 号。
+            file_path: 本地文件路径。
+            file_name: 文件名，默认从路径提取。
 
         Returns:
-            适配器返回的响应字典，包含文件下载 URL。
+            适配器返回的响应字典。
         """
-        if not self._is_api_enabled("get_file_url"):
-            return self._disabled_response("get_file_url")
-        params: dict[str, Any] = {"file_id": file_id}
-        return await _call_onebot_api("get_file_url", params)
+        resolved_path = await self._resolve_file_path(file_path)
+        params: dict[str, Any] = {
+            "user_id": user_id,
+            "file_path": resolved_path,
+            "file_name": file_name,
+        }
+        return await _call_onebot_api("send_online_file", params)
+
+    async def send_online_folder(
+        self,
+        user_id: int,
+        folder_path: str,
+        folder_name: str = "",
+    ) -> dict[str, Any]:
+        """发送在线文件夹（NapCat 扩展）。
+
+        对应 NapCat 扩展 API: ``send_online_folder``。
+
+        Args:
+            user_id: 目标用户 QQ 号。
+            folder_path: 本地文件夹路径。
+            folder_name: 文件夹名，默认从路径提取。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        resolved_path = await self._resolve_file_path(folder_path)
+        params: dict[str, Any] = {
+            "user_id": user_id,
+            "folder_path": resolved_path,
+            "folder_name": folder_name,
+        }
+        return await _call_onebot_api("send_online_folder", params)
+
+    async def get_online_file_msg(self, user_id: int) -> dict[str, Any]:
+        """获取在线文件消息列表（NapCat 扩展）。
+
+        对应 NapCat 扩展 API: ``get_online_file_msg``。
+
+        Args:
+            user_id: 目标用户 QQ 号。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        params: dict[str, Any] = {"user_id": user_id}
+        return await _call_onebot_api("get_online_file_msg", params)
+
+    async def receive_online_file(
+        self,
+        user_id: int,
+        msg_id: str,
+        element_id: str,
+    ) -> dict[str, Any]:
+        """接收在线文件（NapCat 扩展）。
+
+        对应 NapCat 扩展 API: ``receive_online_file``。
+
+        Args:
+            user_id: 发送方 QQ 号。
+            msg_id: 消息 ID。
+            element_id: 元素 ID。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        params: dict[str, Any] = {
+            "user_id": user_id,
+            "msg_id": msg_id,
+            "element_id": element_id,
+        }
+        return await _call_onebot_api("receive_online_file", params)
+
+    async def refuse_online_file(
+        self,
+        user_id: int,
+        msg_id: str,
+        element_id: str,
+    ) -> dict[str, Any]:
+        """拒绝在线文件（NapCat 扩展）。
+
+        对应 NapCat 扩展 API: ``refuse_online_file``。
+
+        Args:
+            user_id: 发送方 QQ 号。
+            msg_id: 消息 ID。
+            element_id: 元素 ID。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        params: dict[str, Any] = {
+            "user_id": user_id,
+            "msg_id": msg_id,
+            "element_id": element_id,
+        }
+        return await _call_onebot_api("refuse_online_file", params)
+
+    async def cancel_online_file(
+        self,
+        user_id: int,
+        msg_id: str,
+    ) -> dict[str, Any]:
+        """取消已发送的在线文件（NapCat 扩展）。
+
+        对应 NapCat 扩展 API: ``cancel_online_file``。
+
+        Args:
+            user_id: 接收方 QQ 号。
+            msg_id: 消息 ID。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        params: dict[str, Any] = {
+            "user_id": user_id,
+            "msg_id": msg_id,
+        }
+        return await _call_onebot_api("cancel_online_file", params)

@@ -160,7 +160,6 @@ class OneBotAction:
     SET_GROUP_SPECIAL_TITLE = "set_group_special_title"
 
     # 文件操作
-    UPLOAD_FILE = "upload_file"
     UPLOAD_GROUP_FILE = "upload_group_file"
     UPLOAD_PRIVATE_FILE = "upload_private_file"
     GET_IMAGE = "get_image"
@@ -191,7 +190,14 @@ class NapCatAction:
 
     # 文件扩展
     GET_FILE = "get_file"
-    GET_FILE_URL = "get_file_url"
+
+    # 在线文件（NapCat 扩展）
+    SEND_ONLINE_FILE = "send_online_file"
+    SEND_ONLINE_FOLDER = "send_online_folder"
+    GET_ONLINE_FILE_MSG = "get_online_file_msg"
+    RECEIVE_ONLINE_FILE = "receive_online_file"
+    REFUSE_ONLINE_FILE = "refuse_online_file"
+    CANCEL_ONLINE_FILE = "cancel_online_file"
 
     # 账号扩展
     GET_GROUP_DETAIL_INFO = "get_group_detail_info"
@@ -208,9 +214,6 @@ class NapCatAction:
     CAN_SEND_IMAGE = "can_send_image"
     CAN_SEND_RECORD = "can_send_record"
     GET_VERSION_INFO = "get_version_info"
-
-    # 请求处理扩展（NapCat 扩展）
-    GET_GROUP_ADD_REQUEST = "get_group_add_request"
 
 
 class GoCqhttpCompatAction:
@@ -261,6 +264,7 @@ class ExpandAction:
     # 群文件扩展
     MOVE_GROUP_FILE = "move_group_file"
     RENAME_GROUP_FILE = "rename_group_file"
+    RENAME_GROUP_FILE_FOLDER = "rename_group_file_folder"
     TRANS_GROUP_FILE = "trans_group_file"
     GET_PRIVATE_FILE_URL = "get_private_file_url"
 
@@ -281,6 +285,8 @@ class ExpandAction:
     GET_GROUP_IGNORE_ADD_REQUEST = "get_group_ignore_add_request"
     GET_GROUP_INFO_EX = "get_group_info_ex"
     SET_GROUP_SIGN = "set_group_sign"
+    GET_GROUP_SIGNED_LIST = "get_group_signed_list"
+    GET_ROBOT_UIN_RANGE = "get_robot_uin_range"
 
     # 用户信息扩展
     DELETE_FRIEND = "delete_friend"
@@ -304,10 +310,15 @@ class ExpandAction:
 
     # 表情/收藏扩展
     FETCH_CUSTOM_FACE = "fetch_custom_face"
+    FETCH_CUSTOM_FACE_DETAIL = "fetch_custom_face_detail"
     ADD_CUSTOM_FACE = "add_custom_face"
     DELETE_CUSTOM_FACE = "delete_custom_face"
+    SET_CUSTOM_FACE_DESC = "set_custom_face_desc"
+    MODIFY_CUSTOM_FACE = "modify_custom_face"
+    MOVE_CUSTOM_FACE_TO_FRONT = "move_custom_face_to_front"
     FETCH_EMOJI_LIKE = "fetch_emoji_like"
     GET_EMOJI_LIKES = "get_emoji_likes"
+    SET_GROUP_REACTION = "set_group_reaction"
 
     # AI语音
     GET_AI_CHARACTERS = "get_ai_characters"
@@ -318,12 +329,13 @@ class ExpandAction:
     GET_CLIENTKEY = "get_clientkey"
     GET_CREDENTIALS = "get_credentials"
     GET_RKEY = "get_rkey"
+    GET_RKEY_SERVER = "get_rkey_server"
     CHECK_URL_SAFELY = "check_url_safely"
     DOWNLOAD_FILE = "download_file"
 
     # 机型/其他
-    GET_MODEL_SHOW = "._get_model_show"
-    SET_MODEL_SHOW = "._set_model_show"
+    GET_MODEL_SHOW = "_get_model_show"
+    SET_MODEL_SHOW = "_set_model_show"
     BOT_EXIT = "bot_exit"
     NC_GET_PACKET_STATUS = "nc_get_packet_status"
     CLICK_INLINE_KEYBOARD_BUTTON = "click_inline_keyboard_button"
@@ -342,6 +354,9 @@ class ExpandAction:
     DOWNLOAD_FILESET = "download_fileset"
     GET_FILESET_INFO = "get_fileset_info"
     GET_FILESET_ID = "get_fileset_id"
+    LIST_FILESETS = "list_filesets"
+    DELETE_FLASH_FILE = "delete_flash_file"
+    RENAME_FLASH_FILE = "rename_flash_file"
 
     # 群相册
     GET_QUN_ALBUM_LIST = "get_qun_album_list"
@@ -378,7 +393,7 @@ class ExpandAction:
 # ============================================================================
 
 # NapCat 专属 API 集合（SnowLumia 不支持的 API）
-# 1.3.0 重构后：SnowLuma 几乎实现了所有 NapCat 扩展 API，集合为空。
+# 重构后：SnowLuma 几乎实现了所有 NapCat 扩展 API，集合为空。
 # 保留此字段以备未来 API 不兼容时使用；运行时通过 APIDef.snowluma_compat 单独标记。
 NAPCAT_ONLY_APIS: set[str] = set()
 
@@ -400,7 +415,6 @@ EXPAND_APIS: set[str] = {
     ExpandAction.FETCH_PTT_TEXT,
     OneBotAction.SET_FRIEND_ADD_REQUEST,
     OneBotAction.SET_GROUP_ADD_REQUEST,
-    NapCatAction.GET_GROUP_ADD_REQUEST,
     ExpandAction.GET_DOUBT_FRIENDS_ADD_REQUEST,
     ExpandAction.SET_DOUBT_FRIENDS_ADD_REQUEST,
     GoCqhttpCompatAction.GET_GROUP_FILE_URL,
@@ -735,16 +749,6 @@ ALL_APIS: dict[str, APIDef] = {
         },
     ),
     # ==================== 文件操作 API (7) ====================
-    OneBotAction.UPLOAD_FILE: APIDef(
-        action="upload_file",
-        category=APICategory.FILE,
-        source=APISource.ONEBOT_V11,
-        description="上传文件",
-        params={
-            "file": "str",
-            "name": "str",
-        },
-    ),
     OneBotAction.UPLOAD_GROUP_FILE: APIDef(
         action="upload_group_file",
         category=APICategory.FILE,
@@ -796,16 +800,82 @@ ALL_APIS: dict[str, APIDef] = {
             "out_format": "str",
         },
     ),
-    NapCatAction.GET_FILE_URL: APIDef(
-        action="get_file_url",
+    NapCatAction.SEND_ONLINE_FILE: APIDef(
+        action="send_online_file",
         category=APICategory.FILE,
         source=APISource.NAPCAT_EXT,
-        description="获取文件下载 URL（NapCat 扩展）",
+        description="发送在线文件（私聊，NapCat 扩展）",
         params={
-            "file_id": "str",
+            "user_id": "int",
+            "file_path": "str",
+            "file_name": "str",
         },
+        napcat_only=True,
+        snowluma_compat=False,
     ),
-    # ==================== 账号信息查询 API (9) ====================
+    NapCatAction.SEND_ONLINE_FOLDER: APIDef(
+        action="send_online_folder",
+        category=APICategory.FILE,
+        source=APISource.NAPCAT_EXT,
+        description="发送在线文件夹（私聊，NapCat 扩展）",
+        params={
+            "user_id": "int",
+            "folder_path": "str",
+            "folder_name": "str",
+        },
+        napcat_only=True,
+        snowluma_compat=False,
+    ),
+    NapCatAction.GET_ONLINE_FILE_MSG: APIDef(
+        action="get_online_file_msg",
+        category=APICategory.FILE,
+        source=APISource.NAPCAT_EXT,
+        description="获取在线文件消息列表（NapCat 扩展）",
+        params={
+            "user_id": "int",
+        },
+        napcat_only=True,
+        snowluma_compat=False,
+    ),
+    NapCatAction.RECEIVE_ONLINE_FILE: APIDef(
+        action="receive_online_file",
+        category=APICategory.FILE,
+        source=APISource.NAPCAT_EXT,
+        description="接收在线文件（NapCat 扩展）",
+        params={
+            "user_id": "int",
+            "msg_id": "str",
+            "element_id": "str",
+        },
+        napcat_only=True,
+        snowluma_compat=False,
+    ),
+    NapCatAction.REFUSE_ONLINE_FILE: APIDef(
+        action="refuse_online_file",
+        category=APICategory.FILE,
+        source=APISource.NAPCAT_EXT,
+        description="拒绝在线文件（NapCat 扩展）",
+        params={
+            "user_id": "int",
+            "msg_id": "str",
+            "element_id": "str",
+        },
+        napcat_only=True,
+        snowluma_compat=False,
+    ),
+    NapCatAction.CANCEL_ONLINE_FILE: APIDef(
+        action="cancel_online_file",
+        category=APICategory.FILE,
+        source=APISource.NAPCAT_EXT,
+        description="取消已发送的在线文件（NapCat 扩展）",
+        params={
+            "user_id": "int",
+            "msg_id": "str",
+        },
+        napcat_only=True,
+        snowluma_compat=False,
+    ),
+    # ==================== 账号信息查询 API (10) ====================
     OneBotAction.GET_LOGIN_INFO: APIDef(
         action="get_login_info",
         category=APICategory.ACCOUNT,
@@ -888,6 +958,15 @@ ALL_APIS: dict[str, APIDef] = {
         },
     ),
     # ==================== NapCat 扩展 API (15) ====================
+    ExpandAction.GET_ROBOT_UIN_RANGE: APIDef(
+        action="get_robot_uin_range",
+        category=APICategory.ACCOUNT,
+        source=APISource.EXPAND,
+        description="获取机器人 UIN 范围（NapCat 扩展）",
+        params={},
+        napcat_only=True,
+        snowluma_compat=False,
+    ),
     NapCatAction.SET_MSG_EMOJI_LIKE: APIDef(
         action="set_msg_emoji_like",
         category=APICategory.NAPCAT_EXT,
@@ -1117,6 +1196,19 @@ ALL_APIS: dict[str, APIDef] = {
             "new_name": "str",
         },
     ),
+    ExpandAction.RENAME_GROUP_FILE_FOLDER: APIDef(
+        action="rename_group_file_folder",
+        category=APICategory.GROUP_FILE,
+        source=APISource.EXPAND,
+        description="重命名群文件夹（SnowLuma 扩展）",
+        params={
+            "group_id": "int",
+            "folder_id": "str",
+            "new_folder_name": "str",
+        },
+        napcat_only=False,
+        snowluma_compat=True,
+    ),
     ExpandAction.TRANS_GROUP_FILE: APIDef(
         action="trans_group_file",
         category=APICategory.GROUP_FILE,
@@ -1272,6 +1364,15 @@ ALL_APIS: dict[str, APIDef] = {
         },
         aliases=("send_group_sign",),
     ),
+    ExpandAction.GET_GROUP_SIGNED_LIST: APIDef(
+        action="get_group_signed_list",
+        category=APICategory.GROUP_EXT,
+        source=APISource.EXPAND,
+        description="获取群今日打卡列表",
+        params={
+            "group_id": "int",
+        },
+    ),
     # ==================== 请求处理 API (6) ====================
     OneBotAction.SET_FRIEND_ADD_REQUEST: APIDef(
         action="set_friend_add_request",
@@ -1302,15 +1403,6 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.ONEBOT_V11,
         description="获取群系统消息（OB11标准）",
         params={},
-    ),
-    NapCatAction.GET_GROUP_ADD_REQUEST: APIDef(
-        action="get_group_add_request",
-        category=APICategory.REQUEST,
-        source=APISource.NAPCAT_EXT,
-        description="获取群添加请求（NapCat扩展）",
-        params={},
-        napcat_only=True,
-        snowluma_compat=False,
     ),
     ExpandAction.GET_DOUBT_FRIENDS_ADD_REQUEST: APIDef(
         action="get_doubt_friends_add_request",
@@ -1505,6 +1597,54 @@ ALL_APIS: dict[str, APIDef] = {
             "emoji_id": "str",
         },
     ),
+    ExpandAction.FETCH_CUSTOM_FACE_DETAIL: APIDef(
+        action="fetch_custom_face_detail",
+        category=APICategory.EMOJI_EXT,
+        source=APISource.EXPAND,
+        description="获取收藏表情详情列表（NapCat 扩展）",
+        params={
+            "count": "int",
+        },
+        napcat_only=True,
+        snowluma_compat=False,
+    ),
+    ExpandAction.SET_CUSTOM_FACE_DESC: APIDef(
+        action="set_custom_face_desc",
+        category=APICategory.EMOJI_EXT,
+        source=APISource.EXPAND,
+        description="修改收藏表情描述（NapCat 扩展）",
+        params={
+            "emoji_id": "int",
+            "res_id": "str",
+            "md5": "str",
+            "desc": "str",
+        },
+        napcat_only=True,
+        snowluma_compat=False,
+    ),
+    ExpandAction.MODIFY_CUSTOM_FACE: APIDef(
+        action="modify_custom_face",
+        category=APICategory.EMOJI_EXT,
+        source=APISource.EXPAND,
+        description="修改收藏表情备注（SnowLuma 扩展）",
+        params={
+            "emoji_id": "str",
+            "desc": "str",
+        },
+        napcat_only=False,
+        snowluma_compat=True,
+    ),
+    ExpandAction.MOVE_CUSTOM_FACE_TO_FRONT: APIDef(
+        action="move_custom_face_to_front",
+        category=APICategory.EMOJI_EXT,
+        source=APISource.EXPAND,
+        description="收藏表情移到最前（SnowLuma 扩展）",
+        params={
+            "emoji_id": "str",
+        },
+        napcat_only=False,
+        snowluma_compat=True,
+    ),
     ExpandAction.FETCH_EMOJI_LIKE: APIDef(
         action="fetch_emoji_like",
         category=APICategory.EMOJI_EXT,
@@ -1525,6 +1665,20 @@ ALL_APIS: dict[str, APIDef] = {
             "message_id": "int",
             "emoji_id": "int",
         },
+    ),
+    ExpandAction.SET_GROUP_REACTION: APIDef(
+        action="set_group_reaction",
+        category=APICategory.EMOJI_EXT,
+        source=APISource.EXPAND,
+        description="群聊消息表情回应（SnowLuma 扩展）",
+        params={
+            "group_id": "int",
+            "message_id": "int",
+            "code": "str",
+            "is_set": "bool",
+        },
+        napcat_only=False,
+        snowluma_compat=True,
     ),
     # ==================== AI语音 API (3) ====================
     ExpandAction.GET_AI_CHARACTERS: APIDef(
@@ -1584,6 +1738,13 @@ ALL_APIS: dict[str, APIDef] = {
         params={},
         aliases=("nc_get_rkey",),
     ),
+    ExpandAction.GET_RKEY_SERVER: APIDef(
+        action="get_rkey_server",
+        category=APICategory.CRED,
+        source=APISource.EXPAND,
+        description="获取rkey服务器信息（含过期时间和服务器名）",
+        params={},
+    ),
     ExpandAction.CHECK_URL_SAFELY: APIDef(
         action="check_url_safely",
         category=APICategory.CRED,
@@ -1616,16 +1777,17 @@ ALL_APIS: dict[str, APIDef] = {
     ),
     # ==================== 机型/其他 API (10) ====================
     ExpandAction.GET_MODEL_SHOW: APIDef(
-        action="._get_model_show",
+        action="_get_model_show",
         category=APICategory.MISC,
         source=APISource.EXPAND,
         description="获取机型展示",
         params={
             "model": "str",
         },
+        aliases=("._get_model_show",),
     ),
     ExpandAction.SET_MODEL_SHOW: APIDef(
-        action="._set_model_show",
+        action="_set_model_show",
         category=APICategory.MISC,
         source=APISource.EXPAND,
         description="设置机型展示",
@@ -1633,6 +1795,7 @@ ALL_APIS: dict[str, APIDef] = {
             "model": "str",
             "show": "str",
         },
+        aliases=("._set_model_show",),
     ),
     ExpandAction.BOT_EXIT: APIDef(
         action="bot_exit",
@@ -1783,6 +1946,38 @@ ALL_APIS: dict[str, APIDef] = {
         params={
             "share_code": "str",
         },
+    ),
+    ExpandAction.LIST_FILESETS: APIDef(
+        action="list_filesets",
+        category=APICategory.FLASH,
+        source=APISource.EXPAND,
+        description="列出当前账号所有闪传文件集（SnowLuma 扩展）",
+        params={},
+        napcat_only=False,
+        snowluma_compat=True,
+    ),
+    ExpandAction.DELETE_FLASH_FILE: APIDef(
+        action="delete_flash_file",
+        category=APICategory.FLASH,
+        source=APISource.EXPAND,
+        description="删除闪传文件（SnowLuma 扩展）",
+        params={
+            "fileset_id": "str",
+        },
+        napcat_only=False,
+        snowluma_compat=True,
+    ),
+    ExpandAction.RENAME_FLASH_FILE: APIDef(
+        action="rename_flash_file",
+        category=APICategory.FLASH,
+        source=APISource.EXPAND,
+        description="重命名闪传文件（SnowLuma 扩展）",
+        params={
+            "fileset_id": "str",
+            "new_name": "str",
+        },
+        napcat_only=False,
+        snowluma_compat=True,
     ),
     # ==================== 群相册 API (7) ====================
     ExpandAction.GET_QUN_ALBUM_LIST: APIDef(
@@ -2043,13 +2238,17 @@ GROUP_APIS: list[str] = [
 ]
 
 FILE_APIS: list[str] = [
-    OneBotAction.UPLOAD_FILE,
     OneBotAction.UPLOAD_GROUP_FILE,
     OneBotAction.UPLOAD_PRIVATE_FILE,
     NapCatAction.GET_FILE,
     OneBotAction.GET_IMAGE,
     OneBotAction.GET_RECORD,
-    NapCatAction.GET_FILE_URL,
+    NapCatAction.SEND_ONLINE_FILE,
+    NapCatAction.SEND_ONLINE_FOLDER,
+    NapCatAction.GET_ONLINE_FILE_MSG,
+    NapCatAction.RECEIVE_ONLINE_FILE,
+    NapCatAction.REFUSE_ONLINE_FILE,
+    NapCatAction.CANCEL_ONLINE_FILE,
 ]
 
 ACCOUNT_APIS: list[str] = [
@@ -2062,6 +2261,7 @@ ACCOUNT_APIS: list[str] = [
     OneBotAction.GET_GROUP_INFO,
     NapCatAction.GET_GROUP_DETAIL_INFO,
     OneBotAction.GET_GROUP_HONOR_INFO,
+    ExpandAction.GET_ROBOT_UIN_RANGE,
 ]
 
 NAPCAT_EXT_APIS: list[str] = [
@@ -2093,6 +2293,7 @@ GROUP_FILE_APIS: list[str] = [
     GoCqhttpCompatAction.GET_GROUP_FILE_SYSTEM_INFO,
     ExpandAction.MOVE_GROUP_FILE,
     ExpandAction.RENAME_GROUP_FILE,
+    ExpandAction.RENAME_GROUP_FILE_FOLDER,
     ExpandAction.TRANS_GROUP_FILE,
     ExpandAction.GET_PRIVATE_FILE_URL,
 ]
@@ -2115,13 +2316,13 @@ GROUP_EXT_APIS: list[str] = [
     ExpandAction.GET_GROUP_IGNORE_ADD_REQUEST,
     ExpandAction.GET_GROUP_INFO_EX,
     ExpandAction.SET_GROUP_SIGN,
+    ExpandAction.GET_GROUP_SIGNED_LIST,
 ]
 
 REQUEST_APIS: list[str] = [
     OneBotAction.SET_FRIEND_ADD_REQUEST,
     OneBotAction.SET_GROUP_ADD_REQUEST,
     OneBotAction.GET_GROUP_SYSTEM_MSG,
-    NapCatAction.GET_GROUP_ADD_REQUEST,
     ExpandAction.GET_DOUBT_FRIENDS_ADD_REQUEST,
     ExpandAction.SET_DOUBT_FRIENDS_ADD_REQUEST,
 ]
@@ -2152,10 +2353,15 @@ POKE_APIS: list[str] = [
 
 EMOJI_EXT_APIS: list[str] = [
     ExpandAction.FETCH_CUSTOM_FACE,
+    ExpandAction.FETCH_CUSTOM_FACE_DETAIL,
     ExpandAction.ADD_CUSTOM_FACE,
     ExpandAction.DELETE_CUSTOM_FACE,
+    ExpandAction.SET_CUSTOM_FACE_DESC,
+    ExpandAction.MODIFY_CUSTOM_FACE,
+    ExpandAction.MOVE_CUSTOM_FACE_TO_FRONT,
     ExpandAction.FETCH_EMOJI_LIKE,
     ExpandAction.GET_EMOJI_LIKES,
+    ExpandAction.SET_GROUP_REACTION,
 ]
 
 AI_VOICE_APIS: list[str] = [
@@ -2168,6 +2374,7 @@ CRED_APIS: list[str] = [
     ExpandAction.GET_CLIENTKEY,
     ExpandAction.GET_CREDENTIALS,
     ExpandAction.GET_RKEY,
+    ExpandAction.GET_RKEY_SERVER,
     ExpandAction.CHECK_URL_SAFELY,
     GoCqhttpCompatAction.OCR_IMAGE,
     ExpandAction.DOWNLOAD_FILE,
@@ -2195,6 +2402,9 @@ FLASH_APIS: list[str] = [
     ExpandAction.DOWNLOAD_FILESET,
     ExpandAction.GET_FILESET_INFO,
     ExpandAction.GET_FILESET_ID,
+    ExpandAction.LIST_FILESETS,
+    ExpandAction.DELETE_FLASH_FILE,
+    ExpandAction.RENAME_FLASH_FILE,
 ]
 
 GROUP_ALBUM_APIS: list[str] = [
@@ -2315,7 +2525,7 @@ def get_api_categories() -> list[APICategory]:
 
 
 # ============================================================================
-# 别名机制（1.3.0 重构新增）
+# 别名机制
 # ============================================================================
 
 
@@ -2342,6 +2552,8 @@ def resolve_action(name: str) -> str | None:
         'get_rkey'
         >>> resolve_action("get_rkey")
         'get_rkey'
+        >>> resolve_action("._get_model_show")
+        '_get_model_show'
         >>> resolve_action("unknown_action")
         None
     """
@@ -2379,7 +2591,7 @@ def get_all_action_names() -> list[str]:
 
 
 # ============================================================================
-# 加载期校验（1.3.0 重构新增）
+# 加载期校验
 # ============================================================================
 
 

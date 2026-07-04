@@ -1,15 +1,15 @@
 """onebot_expand 插件 Tool 组件包。
 
-导出全部 158 个 Tool 类，按功能域分组：
+导出全部 155 个 Tool 类，按功能域分组：
     - 消息相关 (18): message_tools
     - 群操作 (10): group_tools
-    - 文件操作 (7): file_tools
+    - 文件操作 (5): file_tools
     - 账号信息 (9): account_tools
     - NapCat 扩展 (15): napcat_tools
     - 群文件管理 (11): group_file_tools
     - 群公告 (3): group_notice_tools
     - 群管理扩展 (11): group_ext_tools
-    - 请求处理 (6): request_tools
+    - 请求处理 (5): request_tools
     - 用户信息扩展 (9): user_ext_tools
     - 在线状态 (4): status_tools
     - 戳一拍 (2): poke_tools
@@ -28,6 +28,7 @@
 
 from __future__ import annotations
 
+import functools
 from typing import Any
 
 from src.app.plugin_system.api.adapter_api import send_adapter_command
@@ -69,15 +70,19 @@ __all__ = [
     "SetGroupNameTool",
     "SetGroupLeaveTool",
     "SetGroupSpecialTitleTool",
-    # 文件操作 Tool (7)
-    "UploadFileTool",
+    # 文件操作 Tool (11)
     "UploadGroupFileTool",
     "UploadPrivateFileTool",
     "GetFileTool",
     "GetImageTool",
     "GetRecordTool",
-    "GetFileUrlTool",
-    # 账号信息 Tool (9)
+    "SendOnlineFileTool",
+    "SendOnlineFolderTool",
+    "GetOnlineFileMsgTool",
+    "ReceiveOnlineFileTool",
+    "RefuseOnlineFileTool",
+    "CancelOnlineFileTool",
+    # 账号信息 Tool (10)
     "GetLoginInfoTool",
     "GetStrangerInfoTool",
     "GetFriendListTool",
@@ -87,6 +92,7 @@ __all__ = [
     "GetGroupInfoTool",
     "GetGroupDetailInfoTool",
     "GetGroupHonorInfoTool",
+    "GetRobotUinRangeTool",
     # NapCat 扩展 Tool (15)
     "SetMsgEmojiLikeTool",
     "GetEssenceMsgListTool",
@@ -113,6 +119,7 @@ __all__ = [
     "GetGroupFileSystemInfoTool",
     "MoveGroupFileTool",
     "RenameGroupFileTool",
+    "RenameGroupFileFolderTool",
     "TransGroupFileTool",
     "GetPrivateFileUrlTool",
     # 群公告 Tool (3)
@@ -131,11 +138,11 @@ __all__ = [
     "GetGroupIgnoreAddRequestTool",
     "GetGroupInfoExTool",
     "SetGroupSignTool",
-    # 请求处理 Tool (6)
+    "GetGroupSignedListTool",
+    # 请求处理 Tool (5)
     "SetFriendAddRequestTool",
     "SetGroupAddRequestTool",
     "GetGroupSystemMsgTool",
-    "GetGroupAddRequestTool",
     "GetDoubtFriendsAddRequestTool",
     "SetDoubtFriendsAddRequestTool",
     # 用户信息扩展 Tool (9)
@@ -156,12 +163,17 @@ __all__ = [
     # 戳一拍 Tool (2)
     "FriendPokeTool",
     "GroupPokeTool",
-    # 表情/收藏扩展 Tool (5)
+    # 表情/收藏扩展 Tool (10)
     "FetchCustomFaceTool",
+    "FetchCustomFaceDetailTool",
     "AddCustomFaceTool",
     "DeleteCustomFaceTool",
+    "SetCustomFaceDescTool",
+    "ModifyCustomFaceTool",
+    "MoveCustomFaceToFrontTool",
     "FetchEmojiLikeTool",
     "GetEmojiLikesTool",
+    "SetGroupReactionTool",
     # AI语音 Tool (3)
     "GetAiCharactersTool",
     "GetAiRecordTool",
@@ -170,6 +182,7 @@ __all__ = [
     "GetClientkeyTool",
     "GetCredentialsTool",
     "GetRkeyTool",
+    "GetRkeyServerTool",
     "CheckUrlSafelyTool",
     "OcrImageTool",
     "DownloadFileTool",
@@ -193,6 +206,9 @@ __all__ = [
     "DownloadFilesetTool",
     "GetFilesetInfoTool",
     "GetFilesetIdTool",
+    "ListFilesetsTool",
+    "DeleteFlashFileTool",
+    "RenameFlashFileTool",
     # 群相册 Tool (7)
     "GetQunAlbumListTool",
     "UploadImageToQunAlbumTool",
@@ -231,7 +247,7 @@ async def _call_onebot_api(
     """调用 OneBot API 的统一入口。
 
     通过 adapter_api 向 onebot_adapter 适配器发送命令，并等待响应。
-    1.3.0 起在调用前会先通过 :func:`resolve_action` 将别名解析为主名，
+    调用前会先通过 :func:`resolve_action` 将别名解析为主名，
     保证配置开关、协议端兼容性检查、文档引用的一致性。
 
     Args:
@@ -296,12 +312,16 @@ from .group_tools import (  # noqa: E402
 )
 from .file_tools import (  # noqa: E402
     GetFileTool,
-    GetFileUrlTool,
     GetImageTool,
     GetRecordTool,
-    UploadFileTool,
     UploadGroupFileTool,
     UploadPrivateFileTool,
+    SendOnlineFileTool,
+    SendOnlineFolderTool,
+    GetOnlineFileMsgTool,
+    ReceiveOnlineFileTool,
+    RefuseOnlineFileTool,
+    CancelOnlineFileTool,
 )
 from .account_tools import (  # noqa: E402
     GetFriendListTool,
@@ -313,6 +333,7 @@ from .account_tools import (  # noqa: E402
     GetGroupMemberListTool,
     GetLoginInfoTool,
     GetStrangerInfoTool,
+    GetRobotUinRangeTool,
 )
 from .napcat_tools import (  # noqa: E402
 
@@ -343,6 +364,7 @@ from .group_file_tools import (  # noqa: E402
     GetPrivateFileUrlTool,
     MoveGroupFileTool,
     RenameGroupFileTool,
+    RenameGroupFileFolderTool,
     TransGroupFileTool,
 )
 from .group_notice_tools import (  # noqa: E402
@@ -355,6 +377,7 @@ from .group_ext_tools import (  # noqa: E402
     GetGroupIgnoreAddRequestTool,
     GetGroupInfoExTool,
     GetGroupShutListTool,
+    GetGroupSignedListTool,
     SetGroupAddOptionTool,
     SetGroupKickMembersTool,
     SetGroupPortraitTool,
@@ -365,7 +388,6 @@ from .group_ext_tools import (  # noqa: E402
 )
 from .request_tools import (  # noqa: E402
     GetDoubtFriendsAddRequestTool,
-    GetGroupAddRequestTool,
     GetGroupSystemMsgTool,
     SetDoubtFriendsAddRequestTool,
     SetFriendAddRequestTool,
@@ -395,9 +417,14 @@ from .poke_tools import (  # noqa: E402
 from .emoji_ext_tools import (  # noqa: E402
     AddCustomFaceTool,
     DeleteCustomFaceTool,
+    FetchCustomFaceDetailTool,
     FetchCustomFaceTool,
     FetchEmojiLikeTool,
     GetEmojiLikesTool,
+    ModifyCustomFaceTool,
+    MoveCustomFaceToFrontTool,
+    SetCustomFaceDescTool,
+    SetGroupReactionTool,
 )
 from .ai_voice_tools import (  # noqa: E402
     GetAiCharactersTool,
@@ -409,6 +436,7 @@ from .cred_tools import (  # noqa: E402
     DownloadFileTool,
     GetClientkeyTool,
     GetCredentialsTool,
+    GetRkeyServerTool,
     GetRkeyTool,
     OcrImageTool,
 )
@@ -426,12 +454,15 @@ from .misc_tools import (  # noqa: E402
 )
 from .flash_tools import (  # noqa: E402
     CreateFlashTaskTool,
+    DeleteFlashFileTool,
     DownloadFilesetTool,
     GetFilesetIdTool,
     GetFilesetInfoTool,
     GetFlashFileListTool,
     GetFlashFileUrlTool,
     GetShareLinkTool,
+    ListFilesetsTool,
+    RenameFlashFileTool,
     SendFlashMsgTool,
 )
 from .group_album_tools import (  # noqa: E402
@@ -496,14 +527,18 @@ ALL_TOOLS: list[type] = [
     SetGroupNameTool,
     SetGroupLeaveTool,
     SetGroupSpecialTitleTool,
-    # 文件操作 (7)
-    UploadFileTool,
+    # 文件操作 (11)
     UploadGroupFileTool,
     UploadPrivateFileTool,
     GetFileTool,
     GetImageTool,
     GetRecordTool,
-    GetFileUrlTool,
+    SendOnlineFileTool,
+    SendOnlineFolderTool,
+    GetOnlineFileMsgTool,
+    ReceiveOnlineFileTool,
+    RefuseOnlineFileTool,
+    CancelOnlineFileTool,
     # 账号信息 (9)
     GetLoginInfoTool,
     GetStrangerInfoTool,
@@ -514,6 +549,7 @@ ALL_TOOLS: list[type] = [
     GetGroupInfoTool,
     GetGroupDetailInfoTool,
     GetGroupHonorInfoTool,
+    GetRobotUinRangeTool,
     # NapCat 扩展 (15)
     SetMsgEmojiLikeTool,
     GetEssenceMsgListTool,
@@ -540,6 +576,7 @@ ALL_TOOLS: list[type] = [
     GetGroupFileSystemInfoTool,
     MoveGroupFileTool,
     RenameGroupFileTool,
+    RenameGroupFileFolderTool,
     TransGroupFileTool,
     GetPrivateFileUrlTool,
     # 群公告 (3)
@@ -558,11 +595,11 @@ ALL_TOOLS: list[type] = [
     GetGroupIgnoreAddRequestTool,
     GetGroupInfoExTool,
     SetGroupSignTool,
-    # 请求处理 (6)
+    GetGroupSignedListTool,
+    # 请求处理 (5)
     SetFriendAddRequestTool,
     SetGroupAddRequestTool,
     GetGroupSystemMsgTool,
-    GetGroupAddRequestTool,
     GetDoubtFriendsAddRequestTool,
     SetDoubtFriendsAddRequestTool,
     # 用户信息扩展 (9)
@@ -583,12 +620,17 @@ ALL_TOOLS: list[type] = [
     # 戳一拍 (2)
     FriendPokeTool,
     GroupPokeTool,
-    # 表情/收藏扩展 (5)
+    # 表情/收藏扩展 (10)
     FetchCustomFaceTool,
+    FetchCustomFaceDetailTool,
     AddCustomFaceTool,
     DeleteCustomFaceTool,
+    SetCustomFaceDescTool,
+    ModifyCustomFaceTool,
+    MoveCustomFaceToFrontTool,
     FetchEmojiLikeTool,
     GetEmojiLikesTool,
+    SetGroupReactionTool,
     # AI语音 (3)
     GetAiCharactersTool,
     GetAiRecordTool,
@@ -597,6 +639,7 @@ ALL_TOOLS: list[type] = [
     GetClientkeyTool,
     GetCredentialsTool,
     GetRkeyTool,
+    GetRkeyServerTool,
     CheckUrlSafelyTool,
     OcrImageTool,
     DownloadFileTool,
@@ -620,6 +663,9 @@ ALL_TOOLS: list[type] = [
     DownloadFilesetTool,
     GetFilesetInfoTool,
     GetFilesetIdTool,
+    ListFilesetsTool,
+    DeleteFlashFileTool,
+    RenameFlashFileTool,
     # 群相册 (7)
     GetQunAlbumListTool,
     UploadImageToQunAlbumTool,
@@ -646,3 +692,72 @@ ALL_TOOLS: list[type] = [
     ShareGroupExTool,
     SendGroupArkShareTool,
 ]
+
+
+# ============================================================================
+# Tool 总开关包装器
+# ============================================================================
+#
+# ``enable_all_tools``（位于 api_switches 节）是 Tool 层总开关：
+# - True（默认）：各 Tool 的独立 ``enable_<action>`` 开关正常生效。
+# - False：所有 Tool 一律禁用，LLM 调用任何 Tool 都直接返回禁用响应。
+#
+# Service 不走 Tool.execute，故不受影响，始终可用——其他插件通过 Service
+# 调用的路径不会被总开关拦截。Tool 直接调 ``_call_onebot_api`` 也不经过
+# Service 层的 ``_is_api_enabled``，所以 Tool 路径的独立开关拦截由本包装器
+# 顺带处理。
+
+
+from ..api_defs import resolve_action as _resolve_action
+
+
+def _is_tool_master_switch_on(plugin: Any) -> bool:
+    """读取 Tool 总开关状态。配置缺失时默认 True（不阻断）。"""
+    try:
+        switches = getattr(getattr(plugin, "config", None), "api_switches", None)
+        if switches is None:
+            return True
+        return bool(getattr(switches, "enable_all_tools", True))
+    except (AttributeError, TypeError):
+        return True
+
+
+def _is_tool_independently_enabled(plugin: Any, tool_name: str) -> bool:
+    """读取单个 Tool 的独立开关状态。
+
+    tool_name 应等于 action 主名。若 Tool 类的 tool_name 与主名不一致
+    （历史遗留），通过 resolve_action 解析到主名后查 ``enable_<primary>``。
+    """
+    try:
+        switches = getattr(getattr(plugin, "config", None), "api_switches", None)
+        if switches is None:
+            return True
+        primary = _resolve_action(tool_name) or tool_name
+        return bool(getattr(switches, f"enable_{primary}", True))
+    except (AttributeError, ImportError, TypeError):
+        return True
+
+
+def _wrap_tool_execute(tool_cls: type) -> None:
+    """给 Tool.execute 加总开关 + 独立开关前置检查。原地修改，幂等。"""
+    original = tool_cls.execute
+    if getattr(original, "_onebot_expand_wrapped", False):
+        return
+
+    @functools.wraps(original)
+    async def wrapped(self: Any, *args: Any, **kwargs: Any) -> tuple[bool, Any]:
+        plugin = getattr(self, "plugin", None)
+        if not _is_tool_master_switch_on(plugin):
+            return False, "Tool 已被总开关禁用（enable_all_tools=False）"
+        tool_name = getattr(tool_cls, "tool_name", "")
+        if tool_name and not _is_tool_independently_enabled(plugin, tool_name):
+            return False, f"Tool {tool_name} 已被独立开关禁用"
+        return await original(self, *args, **kwargs)
+
+    wrapped._onebot_expand_wrapped = True  # type: ignore[attr-defined]
+    tool_cls.execute = wrapped  # type: ignore[assignment]
+
+
+for _tool_cls in ALL_TOOLS:
+    _wrap_tool_execute(_tool_cls)
+del _tool_cls
