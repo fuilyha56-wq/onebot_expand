@@ -372,3 +372,158 @@ class FileService(BaseService):
             "msg_id": msg_id,
         }
         return await _call_onebot_api("cancel_online_file", params)
+
+    async def clean_stream_temp_file(self) -> dict[str, Any]:
+        """清理流式传输临时文件。
+
+        对应扩展 API: ``clean_stream_temp_file``。
+        NapCat 与 SnowLuma 均支持。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        return await _call_onebot_api("clean_stream_temp_file", {})
+
+    async def upload_file_stream(
+        self,
+        stream_id: str,
+        chunk_data: str | None = None,
+        chunk_index: int | None = None,
+        total_chunks: int | None = None,
+        file_size: int | None = None,
+        expected_sha256: str | None = None,
+        is_complete: bool | None = None,
+        filename: str | None = None,
+        reset: bool | None = None,
+        verify_only: bool | None = None,
+        file_retention: int = 0,
+    ) -> dict[str, Any]:
+        """流式上传文件（分块传输）。
+
+        对应扩展 API: ``upload_file_stream``。
+        NapCat 与 SnowLuma 均支持。
+
+        Args:
+            stream_id: 流 ID。
+            chunk_data: 分块数据（Base64）。
+            chunk_index: 分块索引。
+            total_chunks: 总分块数。
+            file_size: 文件总大小。
+            expected_sha256: 期望的 SHA256。
+            is_complete: 是否完成。
+            filename: 文件名。
+            reset: 是否重置。
+            verify_only: 是否仅验证。
+            file_retention: 文件保留时间（毫秒），0 表示不回收。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        params: dict[str, Any] = {"stream_id": stream_id, "file_retention": file_retention}
+        if chunk_data is not None:
+            params["chunk_data"] = chunk_data
+        if chunk_index is not None:
+            params["chunk_index"] = chunk_index
+        if total_chunks is not None:
+            params["total_chunks"] = total_chunks
+        if file_size is not None:
+            params["file_size"] = file_size
+        if expected_sha256 is not None:
+            params["expected_sha256"] = expected_sha256
+        if is_complete is not None:
+            params["is_complete"] = is_complete
+        if filename is not None:
+            params["filename"] = filename
+        if reset is not None:
+            params["reset"] = reset
+        if verify_only is not None:
+            params["verify_only"] = verify_only
+        return await _call_onebot_api("upload_file_stream", params)
+
+    async def download_file_stream(
+        self,
+        file: str | None = None,
+        file_id: str | None = None,
+        chunk_size: int | None = None,
+    ) -> dict[str, Any]:
+        """流式下载文件。
+
+        对应扩展 API: ``download_file_stream``。
+        NapCat 与 SnowLuma 均支持。
+
+        Args:
+            file: 文件路径或 URL。
+            file_id: 文件 ID。
+            chunk_size: 分块大小（字节）。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        params: dict[str, Any] = {}
+        if file is not None:
+            params["file"] = file
+        if file_id is not None:
+            params["file_id"] = file_id
+        if chunk_size is not None:
+            params["chunk_size"] = chunk_size
+        return await _call_onebot_api("download_file_stream", params)
+
+    async def download_file_record_stream(
+        self,
+        file: str | None = None,
+        file_id: str | None = None,
+        chunk_size: int | None = None,
+        out_format: str | None = None,
+    ) -> dict[str, Any]:
+        """流式下载语音文件并转换格式。
+
+        对应扩展 API: ``download_file_record_stream``。
+        NapCat 与 SnowLuma 均支持。
+
+        Args:
+            file: 文件路径或 URL。
+            file_id: 文件 ID。
+            chunk_size: 分块大小（字节）。
+            out_format: 输出格式（mp3/amr/wma/m4a/spx/ogg/wav/flac）。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        params: dict[str, Any] = {}
+        if file is not None:
+            params["file"] = file
+        if file_id is not None:
+            params["file_id"] = file_id
+        if chunk_size is not None:
+            params["chunk_size"] = chunk_size
+        if out_format is not None:
+            params["out_format"] = out_format
+        return await _call_onebot_api("download_file_record_stream", params)
+
+    async def download_file_image_stream(
+        self,
+        file: str | None = None,
+        file_id: str | None = None,
+        chunk_size: int | None = None,
+    ) -> dict[str, Any]:
+        """流式下载图片文件。
+
+        对应扩展 API: ``download_file_image_stream``。
+        NapCat 与 SnowLuma 均支持。
+
+        Args:
+            file: 文件路径或 URL。
+            file_id: 文件 ID。
+            chunk_size: 分块大小（字节）。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        params: dict[str, Any] = {}
+        if file is not None:
+            params["file"] = file
+        if file_id is not None:
+            params["file_id"] = file_id
+        if chunk_size is not None:
+            params["chunk_size"] = chunk_size
+        return await _call_onebot_api("download_file_image_stream", params)

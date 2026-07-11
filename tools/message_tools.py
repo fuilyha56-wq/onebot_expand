@@ -35,6 +35,7 @@ __all__ = [
 
     "SendGroupMsgTool",
     "SendPrivateMsgTool",
+    "SendMsgTool",
     "DeleteMsgTool",
     "GetMsgTool",
     "GetForwardMsgTool",
@@ -51,6 +52,7 @@ __all__ = [
     "MarkGroupMsgAsReadTool",
     "MarkPrivateMsgAsReadTool",
     "MarkAllAsReadTool",
+    "UploadForwardMsgTool",
 ]
 
 
@@ -585,3 +587,74 @@ class MarkAllAsReadTool(BaseTool):
         if result.get("status") == "ok":
             return True, "已标记全部消息为已读"
         return False, f"标记全部已读失败: {result.get('msg', '未知错误')}"
+
+
+class SendMsgTool(BaseTool):
+    """通用发消息 Tool（按 message_type 或 user_id/group_id 自动路由）。
+
+    对应 OneBot API: ``send_msg``。
+    """
+
+    tool_name = "send_msg"
+    tool_description = "发送消息（通用，按 message_type 自动路由群聊或私聊）"
+
+    async def execute(
+        self,
+        message: Annotated[str, "消息内容文本"],
+        message_type: Annotated[str, "消息类型 private 或 group"] = "",
+        user_id: Annotated[int, "目标用户QQ号（私聊时）"] = 0,
+        group_id: Annotated[int, "目标群号（群聊时）"] = 0,
+    ) -> tuple[bool, str]:
+        """执行发送消息。"""
+        params: dict[str, Any] = {
+            "message": _build_text_message(message),
+        }
+        if message_type:
+            params["message_type"] = message_type
+        if user_id:
+            params["user_id"] = user_id
+        if group_id:
+            params["group_id"] = group_id
+        result = await _call_onebot_api("send_msg", params)
+        if result.get("status") == "ok":
+            msg_id = _extract_message_id(result)
+            return (
+                True,
+                f"消息发送成功，message_id={msg_id}" if msg_id else "消息发送成功",
+            )
+        return False, f"消息发送失败: {result.get('msg', '未知错误')}"
+
+
+class UploadForwardMsgTool(BaseTool):
+    """上传合并转发消息 Tool（返回 res_id）。
+
+    对应扩展 API: ``upload_forward_msg``。
+    """
+
+    tool_name = "upload_forward_msg"
+    tool_description = "上传合并转发消息，返回 res_id（扩展，SnowLuma 支持）"
+
+    async def execute(
+        self,
+        messages: Annotated[str, "合并转发消息 JSON 字符串"],
+        group_id: Annotated[int, "目标群号（私聊留空）"] = 0,
+    ) -> tuple[bool, str]:
+        """执行上传合并转发。"""
+        import json
+
+        try:
+            parsed = json.loads(messages) if isinstance(messages, str) else messages
+        except (TypeError, ValueError) as exc:
+            return False, f"messages 解析失败: {exc}"
+        params: dict[str, Any] = {"messages": parsed}
+        if group_id:
+            params["group_id"] = group_id
+        result = await _call_onebot_api("upload_forward_msg", params)
+        if result.get("status") == "ok":
+            data = result.get("data") or {}
+            res_id = data.get("res_id") or data.get("forward_id") or ""
+            return (
+                True,
+                f"上传成功，res_id={res_id}" if res_id else "上传成功",
+            )
+        return False, f"上传合并转发失败: {result.get('msg', '未知错误')}"

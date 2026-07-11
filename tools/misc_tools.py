@@ -1,6 +1,6 @@
 """机型/其他扩展 API 的 Tool 组件。
 
-包含 10 个机型/其他扩展 Tool，对应 NapCat 机型/其他扩展 API：
+包含 12 个机型/其他扩展 Tool，对应 NapCat 机型/其他扩展 API：
     - _get_model_show: 获取机型展示
     - _set_model_show: 设置机型展示
     - bot_exit: 退出机器人
@@ -11,6 +11,8 @@
     - create_collection: 创建收藏
     - get_collection_list: 获取收藏列表
     - send_packet: 发送原始SSO包
+    - handle_quick_operation: go-cqhttp 快速操作
+    - get_word_slices: go-cqhttp 分词
 
 注意：tool_name 中的下划线与 action 名一致（如 _get_model_show），
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
@@ -35,6 +37,8 @@ __all__ = [
     "CreateCollectionTool",
     "GetCollectionListTool",
     "SendPacketTool",
+    "HandleQuickOperationTool",
+    "GetWordSlicesTool",
 ]
 
 
@@ -284,3 +288,50 @@ class SendPacketTool(BaseTool):
             data_resp = result.get("data", {})
             return True, data_resp
         return False, f"发送SSO包失败: {result.get('msg', '未知错误')}"
+
+class HandleQuickOperationTool(BaseTool):
+    """go-cqhttp 快速操作的 Tool。
+
+    对应 go-cqhttp 兼容 API: ``handle_quick_operation``（别名 ``.handle_quick_operation``）。
+    """
+
+    tool_name = "handle_quick_operation"
+    tool_description = "go-cqhttp 快速操作（NapCat 与 SnowLuma 均支持）"
+
+    async def execute(
+        self,
+        context: Annotated[dict[str, Any], "事件上下文"],
+        operation: Annotated[dict[str, Any], "快速操作内容"],
+    ) -> tuple[bool, str]:
+        """执行快速操作。"""
+        params: dict[str, Any] = {
+            "context": context,
+            "operation": operation,
+        }
+        result = await _call_onebot_api("handle_quick_operation", params)
+        if result.get("status") == "ok":
+            return True, "快速操作已执行"
+        return False, f"快速操作失败: {result.get('msg', '未知错误')}"
+
+
+class GetWordSlicesTool(BaseTool):
+    """go-cqhttp 分词的 Tool。
+
+    对应 go-cqhttp 兼容 API: ``get_word_slices``（别名 ``.get_word_slices``）。
+    对文本内容进行分词，返回切分后的词组列表。仅 NapCat 支持，SnowLuma 未实现。
+    """
+
+    tool_name = "get_word_slices"
+    tool_description = "对文本内容进行分词（go-cqhttp 兼容，仅 NapCat 支持）"
+
+    async def execute(
+        self,
+        content: Annotated[str, "待分词的文本内容"],
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行文本分词。"""
+        params: dict[str, Any] = {"content": content}
+        result = await _call_onebot_api("get_word_slices", params)
+        if result.get("status") == "ok":
+            data = result.get("data", {})
+            return True, data
+        return False, f"分词失败: {result.get('msg', '未知错误')}"

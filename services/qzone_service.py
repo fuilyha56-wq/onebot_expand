@@ -174,3 +174,47 @@ class QzoneService(BaseService):
         if target_uin is not None:
             params["target_uin"] = target_uin
         return await _call_onebot_api("comment_qzone", params)
+    async def set_qzone_ban(
+        self,
+        user_id: int,
+        enable: bool = True,
+    ) -> dict[str, Any]:
+        """拉黑或解除拉黑某人（机器人自身 QQ 空间黑名单；SnowLuma 扩展）。
+
+        对应扩展 API: ``set_qzone_ban``。
+
+        Args:
+            user_id: 目标 QQ 号。
+            enable: True 拉黑，False 解除拉黑。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        return await _call_onebot_api(
+            "set_qzone_ban",
+            {"user_id": user_id, "enable": enable},
+        )
+
+    async def set_qzone_msg_right(
+        self,
+        tid: str,
+        ugc_right: int,
+        target_uins: list[int] | None = None,
+    ) -> dict[str, Any]:
+        """修改一条已发说说的查看权限（SnowLuma 扩展）。
+
+        对应扩展 API: ``set_qzone_msg_right``。
+
+        Args:
+            tid: 说说 tid。
+            ugc_right: 查看权限（1=所有人可见，4=好友可见，16=部分好友可见，
+                64=仅自己可见，128=部分好友不可见）。
+            target_uins: 权限作用 QQ 号数组；ugc_right=16 时为可见名单，128 时为不可见名单。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        params: dict[str, Any] = {"tid": tid, "ugc_right": ugc_right}
+        if target_uins is not None:
+            params["target_uins"] = target_uins
+        return await _call_onebot_api("set_qzone_msg_right", params)

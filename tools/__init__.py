@@ -1,26 +1,26 @@
 """onebot_expand 插件 Tool 组件包。
 
-导出全部 155 个 Tool 类，按功能域分组：
-    - 消息相关 (18): message_tools
+导出全部 185 个 Tool 类，按功能域分组：
+    - 消息相关 (20): message_tools
     - 群操作 (10): group_tools
-    - 文件操作 (5): file_tools
-    - 账号信息 (9): account_tools
+    - 文件操作 (16): file_tools
+    - 账号信息 (10): account_tools
     - NapCat 扩展 (15): napcat_tools
-    - 群文件管理 (11): group_file_tools
+    - 群文件管理 (12): group_file_tools
     - 群公告 (3): group_notice_tools
-    - 群管理扩展 (11): group_ext_tools
+    - 群管理扩展 (12): group_ext_tools
     - 请求处理 (5): request_tools
     - 用户信息扩展 (9): user_ext_tools
     - 在线状态 (4): status_tools
     - 戳一拍 (2): poke_tools
-    - 表情/收藏扩展 (5): emoji_ext_tools
+    - 表情/收藏扩展 (10): emoji_ext_tools
     - AI语音 (3): ai_voice_tools
-    - 凭证/安全/下载 (6): cred_tools
-    - 机型/其他 (10): misc_tools
-    - 闪传 (8): flash_tools
+    - 凭证/安全/下载 (8): cred_tools
+    - 机型/其他 (12): misc_tools
+    - 闪传 (11): flash_tools
     - 群相册 (7): group_album_tools
     - 群待办 (3): group_todo_tools
-    - QQ空间 (7): qzone_tools
+    - QQ空间 (9): qzone_tools
     - Ark分享 (4): ark_tools
 
 同时导出模块级共享函数 ``_call_onebot_api``，供各 Tool 模块统一调用。
@@ -43,6 +43,7 @@ __all__ = [
     # 消息相关 Tool (18)
     "SendGroupMsgTool",
     "SendPrivateMsgTool",
+    "SendMsgTool",
     "DeleteMsgTool",
     "GetMsgTool",
     "GetForwardMsgTool",
@@ -59,6 +60,7 @@ __all__ = [
     "MarkGroupMsgAsReadTool",
     "MarkPrivateMsgAsReadTool",
     "MarkAllAsReadTool",
+    "UploadForwardMsgTool",
     # 群操作 Tool (10)
     "SetGroupKickTool",
     "SetGroupBanTool",
@@ -82,6 +84,11 @@ __all__ = [
     "ReceiveOnlineFileTool",
     "RefuseOnlineFileTool",
     "CancelOnlineFileTool",
+    "CleanStreamTempFileTool",
+    "UploadFileStreamTool",
+    "DownloadFileStreamTool",
+    "DownloadFileRecordStreamTool",
+    "DownloadFileImageStreamTool",
     # 账号信息 Tool (10)
     "GetLoginInfoTool",
     "GetStrangerInfoTool",
@@ -186,7 +193,8 @@ __all__ = [
     "CheckUrlSafelyTool",
     "OcrImageTool",
     "DownloadFileTool",
-    # 机型/其他 Tool (10)
+    "RequestDecryptKeyTool",
+    # 机型/其他 Tool (12)
     "GetModelShowTool",
     "SetModelShowTool",
     "BotExitTool",
@@ -197,6 +205,8 @@ __all__ = [
     "CreateCollectionTool",
     "GetCollectionListTool",
     "SendPacketTool",
+    "HandleQuickOperationTool",
+    "GetWordSlicesTool",
     # 闪传 Tool (8)
     "CreateFlashTaskTool",
     "SendFlashMsgTool",
@@ -229,6 +239,8 @@ __all__ = [
     "LikeQzoneTool",
     "UnlikeQzoneTool",
     "CommentQzoneTool",
+    "SetQzoneBanTool",
+    "SetQzoneMsgRightTool",
     # Ark分享 Tool (4)
     "SharePeerTool",
     "SendArkShareTool",
@@ -294,9 +306,11 @@ from .message_tools import (  # noqa: E402
     SendGroupForwardMsgTool,
     SendGroupMsgTool,
     SendLikeTool,
+    SendMsgTool,
     SendPrivateForwardMsgTool,
     SendPokeTool,
     SendPrivateMsgTool,
+    UploadForwardMsgTool,
 )
 from .group_tools import (  # noqa: E402
     SetGroupAdminTool,
@@ -322,6 +336,11 @@ from .file_tools import (  # noqa: E402
     ReceiveOnlineFileTool,
     RefuseOnlineFileTool,
     CancelOnlineFileTool,
+    CleanStreamTempFileTool,
+    UploadFileStreamTool,
+    DownloadFileStreamTool,
+    DownloadFileRecordStreamTool,
+    DownloadFileImageStreamTool,
 )
 from .account_tools import (  # noqa: E402
     GetFriendListTool,
@@ -439,6 +458,7 @@ from .cred_tools import (  # noqa: E402
     GetRkeyServerTool,
     GetRkeyTool,
     OcrImageTool,
+    RequestDecryptKeyTool,
 )
 from .misc_tools import (  # noqa: E402
     BotExitTool,
@@ -447,6 +467,8 @@ from .misc_tools import (  # noqa: E402
     GetCollectionListTool,
     GetMiniAppArkTool,
     GetModelShowTool,
+    GetWordSlicesTool,
+    HandleQuickOperationTool,
     NcGetPacketStatusTool,
     SendPacketTool,
     SetModelShowTool,
@@ -486,6 +508,8 @@ from .qzone_tools import (  # noqa: E402
     GetQzoneMsgListTool,
     LikeQzoneTool,
     SendQzoneMsgTool,
+    SetQzoneBanTool,
+    SetQzoneMsgRightTool,
     UnlikeQzoneTool,
 )
 from .ark_tools import (  # noqa: E402
@@ -495,11 +519,12 @@ from .ark_tools import (  # noqa: E402
     SharePeerTool,
 )
 
-# 全部 158 个 Tool 类列表
+# 全部 185 个 Tool 类列表
 ALL_TOOLS: list[type] = [
     # 消息相关 (18)
     SendGroupMsgTool,
     SendPrivateMsgTool,
+    SendMsgTool,
     DeleteMsgTool,
     GetMsgTool,
     GetForwardMsgTool,
@@ -516,6 +541,7 @@ ALL_TOOLS: list[type] = [
     MarkGroupMsgAsReadTool,
     MarkPrivateMsgAsReadTool,
     MarkAllAsReadTool,
+    UploadForwardMsgTool,
     # 群操作 (10)
     SetGroupKickTool,
     SetGroupBanTool,
@@ -539,6 +565,11 @@ ALL_TOOLS: list[type] = [
     ReceiveOnlineFileTool,
     RefuseOnlineFileTool,
     CancelOnlineFileTool,
+    CleanStreamTempFileTool,
+    UploadFileStreamTool,
+    DownloadFileStreamTool,
+    DownloadFileRecordStreamTool,
+    DownloadFileImageStreamTool,
     # 账号信息 (9)
     GetLoginInfoTool,
     GetStrangerInfoTool,
@@ -643,7 +674,8 @@ ALL_TOOLS: list[type] = [
     CheckUrlSafelyTool,
     OcrImageTool,
     DownloadFileTool,
-    # 机型/其他 (10)
+    RequestDecryptKeyTool,
+    # 机型/其他 (12)
     GetModelShowTool,
     SetModelShowTool,
     BotExitTool,
@@ -654,6 +686,8 @@ ALL_TOOLS: list[type] = [
     CreateCollectionTool,
     GetCollectionListTool,
     SendPacketTool,
+    HandleQuickOperationTool,
+    GetWordSlicesTool,
     # 闪传 (8)
     CreateFlashTaskTool,
     SendFlashMsgTool,
@@ -686,6 +720,8 @@ ALL_TOOLS: list[type] = [
     LikeQzoneTool,
     UnlikeQzoneTool,
     CommentQzoneTool,
+    SetQzoneBanTool,
+    SetQzoneMsgRightTool,
     # Ark分享 (4)
     SharePeerTool,
     SendArkShareTool,

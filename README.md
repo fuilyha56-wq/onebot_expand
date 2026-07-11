@@ -1,8 +1,8 @@
 # OneBot Expand
 
-OneBot v11 + NapCat 扩展 API 完整封装插件，提供 **173 个 Tool 组件** 和 **23 个 Service 组件**，通过 onebot_adapter 调用 NapCat / SnowLuma 等协议端的全部扩展能力。
+OneBot v11 + NapCat 扩展 API 完整封装插件，提供 **185 个 Tool 组件** 和 **23 个 Service 组件**，通过 onebot_adapter 调用 NapCat / SnowLuma 等协议端的全部扩展能力。
 
-- **版本**：1.0.0
+- **版本**：1.0.2
 - **依赖**：`onebot_adapter` 插件
 - **协议端兼容**：NapCat、SnowLuma（双适配器支持，按 API 单独标记兼容性）
 
@@ -10,9 +10,9 @@ OneBot v11 + NapCat 扩展 API 完整封装插件，提供 **173 个 Tool 组件
 
 | 模块 | Tool 数 | Service | 说明 |
 |---|---|---|---|
-| 消息 | 18 | MessageService | 群/私聊消息发送、转发、撤回、已读标记 |
+| 消息 | 20 | MessageService | 群/私聊消息发送、转发、撤回、已读标记 |
 | 群操作 | 10 | GroupService | 禁言、踢出、管理、头衔等 |
-| 文件操作 | 11 | FileService | 群/私聊文件上传、图片/语音获取、在线文件 |
+| 文件操作 | 16 | FileService | 群/私聊文件上传、图片/语音获取、在线文件、流式传输 |
 | 账号信息 | 10 | AccountService | 登录号、好友、群列表与详情查询 |
 | NapCat 扩展 | 15 | NapcatExtService | Cookies、CSRF、状态、精华消息等 |
 | 群文件管理 | 12 | GroupFileService | 群文件 CRUD、文件夹、转存 |
@@ -24,19 +24,19 @@ OneBot v11 + NapCat 扩展 API 完整封装插件，提供 **173 个 Tool 组件
 | 戳一拍 | 2 | PokeService | 好友/群戳一拍 |
 | 表情/收藏扩展 | 10 | EmojiExtService | 收藏表情CRUD/详情/备注/移动/回应 |
 | AI语音 | 3 | AiVoiceService | AI角色/语音生成 |
-| 凭证/安全/下载 | 7 | CredService | clientkey/credentials/rkey/URL安全/OCR/下载 |
-| 机型/其他 | 10 | MiscService | 机型/退出/包状态/内联键盘/小程序/翻译/收藏/SSO包 |
+| 凭证/安全/下载 | 8 | CredService | clientkey/credentials/rkey/URL安全/OCR/下载/解密 |
+| 机型/其他 | 12 | MiscService | 机型/退出/包状态/内联键盘/小程序/翻译/收藏/SSO包/快速操作/分词 |
 | 闪传 | 11 | FlashService | 闪传任务/消息/文件列表/URL/分享/下载/文件集CRUD |
 | 群相册 | 7 | GroupAlbumService | 群相册列表/上传/评论/点赞/删除 |
 | 群待办 | 3 | GroupTodoService | 群待办设置/完成/取消 |
-| QQ空间 | 7 | QzoneService | 说说列表/动态/发表/删除/点赞/评论 |
+| QQ空间 | 9 | QzoneService | 说说列表/动态/发表/删除/点赞/评论/拉黑/权限 |
 | Ark分享 | 4 | ArkService | 用户/群Ark卡片分享 |
 
 ## 架构
 
 ### 双层组件设计
 
-- **Tool 层**：每个 API 对应一个 Tool 类（共 173 个），供 LLM 直接调用
+- **Tool 层**：每个 API 对应一个 Tool 类（共 185 个），供 LLM 直接调用
 - **Service 层**：一类功能聚合为一个 Service（共 23 个），供其他插件程序化调用
 
 ### 调用链
@@ -98,7 +98,7 @@ LLM 调用 → Tool.execute（总开关 + 独立开关检查）→ _call_onebot_
 enable_all_tools = true          # Tool 总开关（默认 false，需显式开启）
 enable_send_group_msg = true     # 群聊消息发送（默认 false）
 enable_get_qzone_msg_list = true # QQ空间说说列表（默认 false）
-# ... 共 173 个独立开关
+# ... 共 185 个独立开关
 ```
 
 **Service 路径不受这些开关影响**——Service 方法始终可调用，供其他插件程序化使用。
@@ -107,8 +107,8 @@ enable_get_qzone_msg_list = true # QQ空间说说列表（默认 false）
 
 完整 API 名单见 [ACTION_INDEX.md](./ACTION_INDEX.md)，按分类组织，含：
 
-- 主名 action 列表（173 个）
-- 别名映射表（7 个别名）
+- 主名 action 列表（185 个）
+- 别名映射表（13 个别名）
 - 每个 API 的来源标记、适配器兼容性
 - 按分类统计
 
@@ -123,11 +123,11 @@ enable_get_qzone_msg_list = true # QQ空间说说列表（默认 false）
 onebot_expand/
 ├── plugin.py              # 插件入口
 ├── config.py              # 配置定义
-├── api_defs.py            # API 元数据定义（173 个 APIDef）
+├── api_defs.py            # API 元数据定义（185 个 APIDef）
 ├── manifest.json          # 组件清单
 ├── path_mapper.py         # 文件路径映射
 ├── emoji_tables.py        # QQ 表情映射表
-├── tools/                 # 173 个 Tool 类
+├── tools/                 # 185 个 Tool 类
 │   ├── __init__.py        # Tool 注册 + 总开关包装器
 │   ├── message_tools.py
 │   ├── group_tools.py

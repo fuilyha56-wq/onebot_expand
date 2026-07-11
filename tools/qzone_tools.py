@@ -28,6 +28,8 @@ __all__ = [
     "LikeQzoneTool",
     "UnlikeQzoneTool",
     "CommentQzoneTool",
+    "SetQzoneBanTool",
+    "SetQzoneMsgRightTool",
 ]
 
 
@@ -206,3 +208,55 @@ class CommentQzoneTool(BaseTool):
         if result.get("status") == "ok":
             return True, "评论发送成功"
         return False, f"评论说说失败: {result.get('msg', '未知错误')}"
+
+class SetQzoneBanTool(BaseTool):
+    """QQ 空间拉黑/解除拉黑的 Tool（SnowLuma 扩展）。
+
+    对应扩展 API: ``set_qzone_ban``。
+    """
+
+    tool_name = "set_qzone_ban"
+    tool_description = "QQ空间拉黑或解除拉黑某人（SnowLuma 扩展）"
+
+    async def execute(
+        self,
+        user_id: Annotated[int, "目标QQ号"],
+        enable: Annotated[bool, "true 拉黑，false 解除拉黑"] = True,
+    ) -> tuple[bool, str]:
+        """执行 QQ 空间拉黑。"""
+        params: dict[str, Any] = {
+            "user_id": user_id,
+            "enable": enable,
+        }
+        result = await _call_onebot_api("set_qzone_ban", params)
+        if result.get("status") == "ok":
+            return True, "QQ空间拉黑设置成功"
+        return False, f"QQ空间拉黑失败: {result.get('msg', '未知错误')}"
+
+
+class SetQzoneMsgRightTool(BaseTool):
+    """修改说说查看权限的 Tool（SnowLuma 扩展）。
+
+    对应扩展 API: ``set_qzone_msg_right``。
+    """
+
+    tool_name = "set_qzone_msg_right"
+    tool_description = "修改一条已发说说的查看权限（SnowLuma 扩展）"
+
+    async def execute(
+        self,
+        tid: Annotated[str, "说说ID"],
+        ugc_right: Annotated[int, "查看权限：1=所有人可见，4=好友可见，16=部分好友可见，64=仅自己可见，128=部分好友不可见"],
+        target_uins: Annotated[list[int] | None, "权限作用QQ号数组（ugc_right=16/128 时必填）"] = None,
+    ) -> tuple[bool, str]:
+        """执行修改说说权限。"""
+        params: dict[str, Any] = {
+            "tid": tid,
+            "ugc_right": ugc_right,
+        }
+        if target_uins:
+            params["target_uins"] = target_uins
+        result = await _call_onebot_api("set_qzone_msg_right", params)
+        if result.get("status") == "ok":
+            return True, "说说权限修改成功"
+        return False, f"说说权限修改失败: {result.get('msg', '未知错误')}"

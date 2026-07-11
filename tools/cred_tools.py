@@ -28,6 +28,7 @@ __all__ = [
     "CheckUrlSafelyTool",
     "OcrImageTool",
     "DownloadFileTool",
+    "RequestDecryptKeyTool",
 ]
 
 
@@ -196,3 +197,24 @@ class DownloadFileTool(BaseTool):
             data = result.get("data", {})
             return True, data
         return False, f"下载文件失败: {result.get('msg', '未知错误')}"
+
+class RequestDecryptKeyTool(BaseTool):
+    """请求数据库解密密钥的 Tool（SnowLuma 扩展）。
+
+    对应扩展 API: ``request_decrypt_key``。
+    """
+
+    tool_name = "request_decrypt_key"
+    tool_description = "请求数据库解密密钥（SnowLuma 扩展，传入 db_path）"
+
+    async def execute(
+        self,
+        db_path: Annotated[str, "数据库文件路径"],
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行请求解密密钥。"""
+        params: dict[str, Any] = {"db_path": db_path}
+        result = await _call_onebot_api("request_decrypt_key", params)
+        if result.get("status") == "ok":
+            data = result.get("data", {})
+            return True, data
+        return False, f"请求解密密钥失败: {result.get('msg', '未知错误')}"

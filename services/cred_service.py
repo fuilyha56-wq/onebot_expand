@@ -132,3 +132,15 @@ class CredService(BaseService):
         if headers:
             params["headers"] = headers
         return await _call_onebot_api("download_file", params)
+    async def request_decrypt_key(self, db_path: str) -> dict[str, Any]:
+        """请求数据库解密密钥（SnowLuma 扩展）。
+
+        对应扩展 API: ``request_decrypt_key``。
+
+        Args:
+            db_path: 数据库文件路径。
+
+        Returns:
+            适配器返回的响应字典，包含 ``db_key``。
+        """
+        return await _call_onebot_api("request_decrypt_key", {"db_path": db_path})

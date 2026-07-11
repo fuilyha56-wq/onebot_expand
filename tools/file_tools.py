@@ -39,6 +39,11 @@ __all__ = [
     "ReceiveOnlineFileTool",
     "RefuseOnlineFileTool",
     "CancelOnlineFileTool",
+    "CleanStreamTempFileTool",
+    "UploadFileStreamTool",
+    "DownloadFileStreamTool",
+    "DownloadFileRecordStreamTool",
+    "DownloadFileImageStreamTool",
 ]
 
 
@@ -467,3 +472,160 @@ class CancelOnlineFileTool(BaseTool):
         if result.get("status") == "ok":
             return True, "已取消在线文件"
         return False, f"取消在线文件失败: {result.get('msg', '未知错误')}"
+
+
+class CleanStreamTempFileTool(BaseTool):
+    """清理流式传输临时文件的 Tool。
+
+    对应扩展 API: ``clean_stream_temp_file``。
+    """
+
+    tool_name = "clean_stream_temp_file"
+    tool_description = "清理流式传输临时文件"
+
+    async def execute(self) -> tuple[bool, str]:
+        """执行清理流式临时文件。"""
+        params: dict[str, Any] = {}
+        result = await _call_onebot_api("clean_stream_temp_file", params)
+        if result.get("status") == "ok":
+            return True, "已清理流式临时文件"
+        return False, f"清理流式临时文件失败: {result.get('msg', '未知错误')}"
+
+
+class UploadFileStreamTool(BaseTool):
+    """流式上传文件的 Tool（分块传输）。
+
+    对应扩展 API: ``upload_file_stream``。
+    """
+
+    tool_name = "upload_file_stream"
+    tool_description = "流式上传文件（分块传输，NapCat 与 SnowLuma 均支持）"
+
+    async def execute(
+        self,
+        stream_id: Annotated[str, "流 ID"],
+        chunk_data: Annotated[str, "分块数据 Base64"] = "",
+        chunk_index: Annotated[int, "分块索引"] = 0,
+        total_chunks: Annotated[int, "总分块数"] = 0,
+        file_size: Annotated[int, "文件总大小"] = 0,
+        expected_sha256: Annotated[str, "期望的 SHA256"] = "",
+        is_complete: Annotated[bool, "是否完成"] = False,
+        filename: Annotated[str, "文件名"] = "",
+        reset: Annotated[bool, "是否重置"] = False,
+        verify_only: Annotated[bool, "是否仅验证"] = False,
+        file_retention: Annotated[int, "文件保留时间（毫秒）"] = 0,
+    ) -> tuple[bool, str]:
+        """执行流式上传文件。"""
+        params: dict[str, Any] = {"stream_id": stream_id, "file_retention": file_retention}
+        if chunk_data:
+            params["chunk_data"] = chunk_data
+        if chunk_index:
+            params["chunk_index"] = chunk_index
+        if total_chunks:
+            params["total_chunks"] = total_chunks
+        if file_size:
+            params["file_size"] = file_size
+        if expected_sha256:
+            params["expected_sha256"] = expected_sha256
+        if is_complete:
+            params["is_complete"] = is_complete
+        if filename:
+            params["filename"] = filename
+        if reset:
+            params["reset"] = reset
+        if verify_only:
+            params["verify_only"] = verify_only
+        result = await _call_onebot_api("upload_file_stream", params)
+        if result.get("status") == "ok":
+            return True, "流式上传成功"
+        return False, f"流式上传失败: {result.get('msg', '未知错误')}"
+
+
+class DownloadFileStreamTool(BaseTool):
+    """流式下载文件的 Tool。
+
+    对应扩展 API: ``download_file_stream``。
+    """
+
+    tool_name = "download_file_stream"
+    tool_description = "流式下载文件（分块传输）"
+
+    async def execute(
+        self,
+        file: Annotated[str, "文件路径或 URL"] = "",
+        file_id: Annotated[str, "文件 ID"] = "",
+        chunk_size: Annotated[int, "分块大小（字节）"] = 0,
+    ) -> tuple[bool, str]:
+        """执行流式下载文件。"""
+        params: dict[str, Any] = {}
+        if file:
+            params["file"] = file
+        if file_id:
+            params["file_id"] = file_id
+        if chunk_size:
+            params["chunk_size"] = chunk_size
+        result = await _call_onebot_api("download_file_stream", params)
+        if result.get("status") == "ok":
+            return True, "流式下载成功"
+        return False, f"流式下载失败: {result.get('msg', '未知错误')}"
+
+
+class DownloadFileRecordStreamTool(BaseTool):
+    """流式下载语音文件并转换格式的 Tool。
+
+    对应扩展 API: ``download_file_record_stream``。
+    """
+
+    tool_name = "download_file_record_stream"
+    tool_description = "流式下载语音文件并转换格式"
+
+    async def execute(
+        self,
+        file: Annotated[str, "文件路径或 URL"] = "",
+        file_id: Annotated[str, "文件 ID"] = "",
+        chunk_size: Annotated[int, "分块大小（字节）"] = 0,
+        out_format: Annotated[str, "输出格式（mp3/amr/wma/m4a/spx/ogg/wav/flac）"] = "",
+    ) -> tuple[bool, str]:
+        """执行流式下载语音。"""
+        params: dict[str, Any] = {}
+        if file:
+            params["file"] = file
+        if file_id:
+            params["file_id"] = file_id
+        if chunk_size:
+            params["chunk_size"] = chunk_size
+        if out_format:
+            params["out_format"] = out_format
+        result = await _call_onebot_api("download_file_record_stream", params)
+        if result.get("status") == "ok":
+            return True, "流式语音下载成功"
+        return False, f"流式语音下载失败: {result.get('msg', '未知错误')}"
+
+
+class DownloadFileImageStreamTool(BaseTool):
+    """流式下载图片文件的 Tool。
+
+    对应扩展 API: ``download_file_image_stream``。
+    """
+
+    tool_name = "download_file_image_stream"
+    tool_description = "流式下载图片文件"
+
+    async def execute(
+        self,
+        file: Annotated[str, "文件路径或 URL"] = "",
+        file_id: Annotated[str, "文件 ID"] = "",
+        chunk_size: Annotated[int, "分块大小（字节）"] = 0,
+    ) -> tuple[bool, str]:
+        """执行流式下载图片。"""
+        params: dict[str, Any] = {}
+        if file:
+            params["file"] = file
+        if file_id:
+            params["file_id"] = file_id
+        if chunk_size:
+            params["chunk_size"] = chunk_size
+        result = await _call_onebot_api("download_file_image_stream", params)
+        if result.get("status") == "ok":
+            return True, "流式图片下载成功"
+        return False, f"流式图片下载失败: {result.get('msg', '未知错误')}"

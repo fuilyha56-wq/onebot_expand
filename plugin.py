@@ -39,10 +39,10 @@ class OnebotExpandPlugin(BasePlugin):
     plugin_name: str = "onebot_expand"
     plugin_description: str = (
         "OneBot v11 + NapCat 扩展 API 完整封装，"
-        "提供 173 个 Tool 组件和 23 个 Service 组件，"
-        "含 5 组别名机制"
+        "提供 185 个 Tool 组件和 23 个 Service 组件，"
+        "含 13 个别名机制"
     )
-    plugin_version: str = "1.0.0"
+    plugin_version: str = "1.0.2"
 
     configs: list[type] = [OnebotExpandConfig]
     dependent_components: list[str] = []

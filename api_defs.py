@@ -1,6 +1,6 @@
 """OneBot v11 + NapCat 扩展 API 定义模块。
 
-定义全部 158 个 OneBot API 的常量、元数据、分类索引和查询函数。
+定义全部 185 个 OneBot API 的常量、元数据、分类索引和查询函数。
 供 Service 层和 Tool 层引用，确保 API action 名称和参数定义的一致性。
 """
 
@@ -142,6 +142,7 @@ class OneBotAction:
 
     SEND_GROUP_MSG = "send_group_msg"
     SEND_PRIVATE_MSG = "send_private_msg"
+    SEND_MSG = "send_msg"
     DELETE_MSG = "delete_msg"
     GET_MSG = "get_msg"
     GET_FORWARD_MSG = "get_forward_msg"
@@ -245,6 +246,12 @@ class GoCqhttpCompatAction:
     # 凭证/识别
     OCR_IMAGE = "ocr_image"
 
+    # go-cqhttp 快速操作
+    HANDLE_QUICK_OPERATION = "handle_quick_operation"
+
+    # go-cqhttp 分词
+    GET_WORD_SLICES = "get_word_slices"
+
 
 class ExpandAction:
     """扩展 API action 常量。"""
@@ -332,6 +339,14 @@ class ExpandAction:
     GET_RKEY_SERVER = "get_rkey_server"
     CHECK_URL_SAFELY = "check_url_safely"
     DOWNLOAD_FILE = "download_file"
+    REQUEST_DECRYPT_KEY = "request_decrypt_key"
+
+    # 流式文件传输
+    CLEAN_STREAM_TEMP_FILE = "clean_stream_temp_file"
+    UPLOAD_FILE_STREAM = "upload_file_stream"
+    DOWNLOAD_FILE_STREAM = "download_file_stream"
+    DOWNLOAD_FILE_RECORD_STREAM = "download_file_record_stream"
+    DOWNLOAD_FILE_IMAGE_STREAM = "download_file_image_stream"
 
     # 机型/其他
     GET_MODEL_SHOW = "_get_model_show"
@@ -380,6 +395,11 @@ class ExpandAction:
     LIKE_QZONE = "like_qzone"
     UNLIKE_QZONE = "unlike_qzone"
     COMMENT_QZONE = "comment_qzone"
+    SET_QZONE_BAN = "set_qzone_ban"
+    SET_QZONE_MSG_RIGHT = "set_qzone_msg_right"
+
+    # 上传合并转发
+    UPLOAD_FORWARD_MSG = "upload_forward_msg"
 
     # Ark分享
     SHARE_PEER = "share_peer"
@@ -475,6 +495,19 @@ ALL_APIS: dict[str, APIDef] = {
         description="发送私聊消息",
         params={
             "user_id": "int",
+            "message": "list[dict]",
+            "auto_escape": "bool",
+        },
+    ),
+    OneBotAction.SEND_MSG: APIDef(
+        action="send_msg",
+        category=APICategory.MESSAGE,
+        source=APISource.ONEBOT_V11,
+        description="发送消息（通用，按 message_type 或 user_id/group_id 自动路由）",
+        params={
+            "message_type": "str",
+            "user_id": "int",
+            "group_id": "int",
             "message": "list[dict]",
             "auto_escape": "bool",
         },
@@ -639,6 +672,18 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.EXPAND,
         description="标记全部已读（扩展）",
         params={},
+    ),
+    ExpandAction.UPLOAD_FORWARD_MSG: APIDef(
+        action="upload_forward_msg",
+        category=APICategory.MESSAGE,
+        source=APISource.EXPAND,
+        description="上传合并转发消息，返回 res_id（SnowLuma 扩展）",
+        params={
+            "messages": "list[dict]",
+            "message": "list[dict]",
+            "group_id": "int",
+        },
+        aliases=("upload_foward_msg",),
     ),
     OneBotAction.SET_GROUP_KICK: APIDef(
         action="set_group_kick",
@@ -874,6 +919,66 @@ ALL_APIS: dict[str, APIDef] = {
         },
         napcat_only=True,
         snowluma_compat=False,
+    ),
+    ExpandAction.CLEAN_STREAM_TEMP_FILE: APIDef(
+        action="clean_stream_temp_file",
+        category=APICategory.FILE,
+        source=APISource.EXPAND,
+        description="清理流式传输临时文件（NapCat 与 SnowLuma 均支持）",
+        params={},
+    ),
+    ExpandAction.UPLOAD_FILE_STREAM: APIDef(
+        action="upload_file_stream",
+        category=APICategory.FILE,
+        source=APISource.EXPAND,
+        description="流式上传文件（分块传输，NapCat 与 SnowLuma 均支持）",
+        params={
+            "stream_id": "str",
+            "chunk_data": "str",
+            "chunk_index": "int",
+            "total_chunks": "int",
+            "file_size": "int",
+            "expected_sha256": "str",
+            "is_complete": "bool",
+            "filename": "str",
+            "reset": "bool",
+            "verify_only": "bool",
+            "file_retention": "int",
+        },
+    ),
+    ExpandAction.DOWNLOAD_FILE_STREAM: APIDef(
+        action="download_file_stream",
+        category=APICategory.FILE,
+        source=APISource.EXPAND,
+        description="流式下载文件（分块传输，NapCat 与 SnowLuma 均支持）",
+        params={
+            "file": "str",
+            "file_id": "str",
+            "chunk_size": "int",
+        },
+    ),
+    ExpandAction.DOWNLOAD_FILE_RECORD_STREAM: APIDef(
+        action="download_file_record_stream",
+        category=APICategory.FILE,
+        source=APISource.EXPAND,
+        description="流式下载语音文件并转换格式（NapCat 与 SnowLuma 均支持）",
+        params={
+            "file": "str",
+            "file_id": "str",
+            "chunk_size": "int",
+            "out_format": "str",
+        },
+    ),
+    ExpandAction.DOWNLOAD_FILE_IMAGE_STREAM: APIDef(
+        action="download_file_image_stream",
+        category=APICategory.FILE,
+        source=APISource.EXPAND,
+        description="流式下载图片文件（NapCat 与 SnowLuma 均支持）",
+        params={
+            "file": "str",
+            "file_id": "str",
+            "chunk_size": "int",
+        },
     ),
     # ==================== 账号信息查询 API (10) ====================
     OneBotAction.GET_LOGIN_INFO: APIDef(
@@ -1162,6 +1267,7 @@ ALL_APIS: dict[str, APIDef] = {
             "group_id": "int",
             "folder_id": "str",
         },
+        aliases=("delete_group_file_folder",),
     ),
     GoCqhttpCompatAction.GET_GROUP_FILE_SYSTEM_INFO: APIDef(
         action="get_group_file_system_info",
@@ -1775,6 +1881,17 @@ ALL_APIS: dict[str, APIDef] = {
             "headers": "list[str]",
         },
     ),
+    ExpandAction.REQUEST_DECRYPT_KEY: APIDef(
+        action="request_decrypt_key",
+        category=APICategory.CRED,
+        source=APISource.EXPAND,
+        description="请求数据库解密密钥（SnowLuma 扩展，传入 db_path）",
+        params={
+            "db_path": "str",
+        },
+        napcat_only=False,
+        snowluma_compat=True,
+    ),
     # ==================== 机型/其他 API (10) ====================
     ExpandAction.GET_MODEL_SHOW: APIDef(
         action="_get_model_show",
@@ -1869,6 +1986,29 @@ ALL_APIS: dict[str, APIDef] = {
             "data": "dict",
         },
         aliases=(".send_packet",),
+    ),
+    GoCqhttpCompatAction.HANDLE_QUICK_OPERATION: APIDef(
+        action="handle_quick_operation",
+        category=APICategory.MISC,
+        source=APISource.GOCQHTTP_COMPAT,
+        description="go-cqhttp 快速操作（NapCat 与 SnowLuma 均支持，传入 context 与 operation）",
+        params={
+            "context": "dict",
+            "operation": "dict",
+        },
+        aliases=(".handle_quick_operation",),
+    ),
+    GoCqhttpCompatAction.GET_WORD_SLICES: APIDef(
+        action="get_word_slices",
+        category=APICategory.MISC,
+        source=APISource.GOCQHTTP_COMPAT,
+        description="go-cqhttp 分词（NapCat 支持，SnowLuma 未实现）",
+        params={
+            "content": "str",
+        },
+        napcat_only=True,
+        snowluma_compat=False,
+        aliases=(".get_word_slices",),
     ),
     # ==================== 闪传 API (8) ====================
     ExpandAction.CREATE_FLASH_TASK: APIDef(
@@ -1988,6 +2128,7 @@ ALL_APIS: dict[str, APIDef] = {
         params={
             "group_id": "int",
         },
+        aliases=("get_group_album_list",),
     ),
     ExpandAction.UPLOAD_IMAGE_TO_QUN_ALBUM: APIDef(
         action="upload_image_to_qun_album",
@@ -2156,6 +2297,31 @@ ALL_APIS: dict[str, APIDef] = {
             "target_uin": "int",
         },
     ),
+    ExpandAction.SET_QZONE_BAN: APIDef(
+        action="set_qzone_ban",
+        category=APICategory.QZONE,
+        source=APISource.EXPAND,
+        description="拉黑或解除拉黑某人（机器人自身 QQ 空间黑名单；SnowLuma 扩展）",
+        params={
+            "user_id": "int",
+            "enable": "bool",
+        },
+        napcat_only=False,
+        snowluma_compat=True,
+    ),
+    ExpandAction.SET_QZONE_MSG_RIGHT: APIDef(
+        action="set_qzone_msg_right",
+        category=APICategory.QZONE,
+        source=APISource.EXPAND,
+        description="修改一条已发说说的查看权限（SnowLuma 扩展）",
+        params={
+            "tid": "str",
+            "ugc_right": "int",
+            "target_uins": "list[int]",
+        },
+        napcat_only=False,
+        snowluma_compat=True,
+    ),
     # ==================== Ark分享 API (4) ====================
     ExpandAction.SHARE_PEER: APIDef(
         action="share_peer",
@@ -2206,6 +2372,7 @@ MESSAGE_APIS: list[str] = [
 
     OneBotAction.SEND_GROUP_MSG,
     OneBotAction.SEND_PRIVATE_MSG,
+    OneBotAction.SEND_MSG,
     OneBotAction.DELETE_MSG,
     OneBotAction.GET_MSG,
     OneBotAction.GET_FORWARD_MSG,
@@ -2222,6 +2389,7 @@ MESSAGE_APIS: list[str] = [
     ExpandAction.MARK_GROUP_MSG_AS_READ,
     ExpandAction.MARK_PRIVATE_MSG_AS_READ,
     ExpandAction.MARK_ALL_AS_READ,
+    ExpandAction.UPLOAD_FORWARD_MSG,
 ]
 
 GROUP_APIS: list[str] = [
@@ -2249,6 +2417,11 @@ FILE_APIS: list[str] = [
     NapCatAction.RECEIVE_ONLINE_FILE,
     NapCatAction.REFUSE_ONLINE_FILE,
     NapCatAction.CANCEL_ONLINE_FILE,
+    ExpandAction.CLEAN_STREAM_TEMP_FILE,
+    ExpandAction.UPLOAD_FILE_STREAM,
+    ExpandAction.DOWNLOAD_FILE_STREAM,
+    ExpandAction.DOWNLOAD_FILE_RECORD_STREAM,
+    ExpandAction.DOWNLOAD_FILE_IMAGE_STREAM,
 ]
 
 ACCOUNT_APIS: list[str] = [
@@ -2378,6 +2551,7 @@ CRED_APIS: list[str] = [
     ExpandAction.CHECK_URL_SAFELY,
     GoCqhttpCompatAction.OCR_IMAGE,
     ExpandAction.DOWNLOAD_FILE,
+    ExpandAction.REQUEST_DECRYPT_KEY,
 ]
 
 MISC_APIS: list[str] = [
@@ -2391,6 +2565,8 @@ MISC_APIS: list[str] = [
     ExpandAction.CREATE_COLLECTION,
     ExpandAction.GET_COLLECTION_LIST,
     ExpandAction.SEND_PACKET,
+    GoCqhttpCompatAction.HANDLE_QUICK_OPERATION,
+    GoCqhttpCompatAction.GET_WORD_SLICES,
 ]
 
 FLASH_APIS: list[str] = [
@@ -2431,6 +2607,8 @@ QZONE_APIS: list[str] = [
     ExpandAction.LIKE_QZONE,
     ExpandAction.UNLIKE_QZONE,
     ExpandAction.COMMENT_QZONE,
+    ExpandAction.SET_QZONE_BAN,
+    ExpandAction.SET_QZONE_MSG_RIGHT,
 ]
 
 ARK_APIS: list[str] = [

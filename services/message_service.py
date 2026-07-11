@@ -413,3 +413,58 @@ class MessageService(BaseService):
             适配器返回的响应字典。
         """
         return await _call_onebot_api("_mark_all_as_read", {})
+
+    async def send_msg(
+        self,
+        message: list[dict[str, Any]],
+        message_type: str | None = None,
+        user_id: int | None = None,
+        group_id: int | None = None,
+        auto_escape: bool = False,
+    ) -> dict[str, Any]:
+        """发送消息（通用，按 message_type 或 user_id/group_id 自动路由）。
+
+        对应 OneBot API: ``send_msg``。
+
+        Args:
+            message: OneBot 消息段列表。
+            message_type: 消息类型（private 或 group），为 None 时按 user_id/group_id 推断。
+            user_id: 私聊目标 QQ 号。
+            group_id: 群聊目标群号。
+            auto_escape: 是否不解析 CQ 码，默认为 False。
+
+        Returns:
+            适配器返回的响应字典，通常包含 ``message_id``。
+        """
+        params: dict[str, Any] = {
+            "message": message,
+            "auto_escape": auto_escape,
+        }
+        if message_type is not None:
+            params["message_type"] = message_type
+        if user_id is not None:
+            params["user_id"] = user_id
+        if group_id is not None:
+            params["group_id"] = group_id
+        return await _call_onebot_api("send_msg", params)
+
+    async def upload_forward_msg(
+        self,
+        messages: list[dict[str, Any]],
+        group_id: int | None = None,
+    ) -> dict[str, Any]:
+        """上传合并转发消息，返回 res_id（SnowLuma 扩展）。
+
+        对应扩展 API: ``upload_forward_msg``（别名 ``upload_foward_msg``）。
+
+        Args:
+            messages: 合并转发消息段列表。
+            group_id: 群号。为 None 时为私聊合并转发。
+
+        Returns:
+            适配器返回的响应字典，通常包含 ``res_id`` / ``forward_id``。
+        """
+        params: dict[str, Any] = {"messages": messages}
+        if group_id is not None:
+            params["group_id"] = group_id
+        return await _call_onebot_api("upload_forward_msg", params)

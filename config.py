@@ -131,6 +131,10 @@ class OnebotExpandConfig(BaseConfig):
             default=False,
             description="是否启用 send_private_msg API（发送私聊消息）",
         )
+        enable_send_msg: bool = Field(
+            default=False,
+            description="是否启用 send_msg API（通用发消息，按 message_type 自动路由）",
+        )
         enable_delete_msg: bool = Field(
             default=False,
             description="是否启用 delete_msg API（撤回消息）",
@@ -194,6 +198,10 @@ class OnebotExpandConfig(BaseConfig):
         enable__mark_all_as_read: bool = Field(
             default=False,
             description="是否启用 _mark_all_as_read API（标记全部已读，扩展）",
+        )
+        enable_upload_forward_msg: bool = Field(
+            default=False,
+            description="是否启用 upload_forward_msg API（上传合并转发消息，扩展）",
         )
 
         # --- 群操作类 API (10) ---
@@ -282,6 +290,26 @@ class OnebotExpandConfig(BaseConfig):
         enable_cancel_online_file: bool = Field(
             default=False,
             description="是否启用 cancel_online_file API（取消已发送在线文件，NapCat 扩展）",
+        )
+        enable_clean_stream_temp_file: bool = Field(
+            default=False,
+            description="是否启用 clean_stream_temp_file API（清理流式传输临时文件）",
+        )
+        enable_upload_file_stream: bool = Field(
+            default=False,
+            description="是否启用 upload_file_stream API（流式上传文件）",
+        )
+        enable_download_file_stream: bool = Field(
+            default=False,
+            description="是否启用 download_file_stream API（流式下载文件）",
+        )
+        enable_download_file_record_stream: bool = Field(
+            default=False,
+            description="是否启用 download_file_record_stream API（流式下载语音文件）",
+        )
+        enable_download_file_image_stream: bool = Field(
+            default=False,
+            description="是否启用 download_file_image_stream API（流式下载图片文件）",
         )
 
         # --- 账号类 API (9) ---
@@ -676,8 +704,12 @@ class OnebotExpandConfig(BaseConfig):
             default=False,
             description="是否启用 download_file API（下载文件）",
         )
+        enable_request_decrypt_key: bool = Field(
+            default=False,
+            description="是否启用 request_decrypt_key API（请求数据库解密密钥，SnowLuma 扩展）",
+        )
 
-        # --- 机型/其他类 API (10) ---
+        # --- 机型/其他类 API (12) ---
         enable__get_model_show: bool = Field(
             default=False,
             description="是否启用 _get_model_show API（获取机型展示）",
@@ -717,6 +749,14 @@ class OnebotExpandConfig(BaseConfig):
         enable_send_packet: bool = Field(
             default=False,
             description="是否启用 send_packet API（发送原始SSO包）",
+        )
+        enable_handle_quick_operation: bool = Field(
+            default=False,
+            description="是否启用 handle_quick_operation API（go-cqhttp 快速操作，别名 .handle_quick_operation）",
+        )
+        enable_get_word_slices: bool = Field(
+            default=False,
+            description="是否启用 get_word_slices API（go-cqhttp 分词，别名 .get_word_slices，仅 NapCat 支持）",
         )
 
         # --- 闪传类 API (8) ---
@@ -837,6 +877,14 @@ class OnebotExpandConfig(BaseConfig):
         enable_comment_qzone: bool = Field(
             default=False,
             description="是否启用 comment_qzone API（评论说说）",
+        )
+        enable_set_qzone_ban: bool = Field(
+            default=False,
+            description="是否启用 set_qzone_ban API（QQ空间拉黑/解除拉黑，SnowLuma 扩展）",
+        )
+        enable_set_qzone_msg_right: bool = Field(
+            default=False,
+            description="是否启用 set_qzone_msg_right API（修改说说查看权限，SnowLuma 扩展）",
         )
 
         # --- Ark分享类 API (4) ---

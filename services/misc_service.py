@@ -1,9 +1,9 @@
 """机型/其他扩展服务。
 
 封装 NapCat 机型/其他扩展 API，提供机型展示、Bot 退出、
-packet 状态、内联键盘、小程序卡片、翻译、收藏、SSO 包等功能。
+packet 状态、内联键盘、小程序卡片、翻译、收藏、SSO 包、快速操作、分词等功能。
 
-API 列表 (10):
+API 列表 (12):
     - _get_model_show: 获取机型展示
     - _set_model_show: 设置机型展示
     - bot_exit: 退出机器人
@@ -14,6 +14,8 @@ API 列表 (10):
     - create_collection: 创建收藏
     - get_collection_list: 获取收藏列表
     - send_packet: 发送原始SSO包
+    - handle_quick_operation: go-cqhttp 快速操作
+    - get_word_slices: go-cqhttp 分词
 """
 
 from __future__ import annotations
@@ -203,3 +205,36 @@ class MiscService(BaseService):
         if data:
             params["data"] = data
         return await _call_onebot_api("send_packet", params)
+    async def handle_quick_operation(
+        self,
+        context: dict[str, Any],
+        operation: dict[str, Any],
+    ) -> dict[str, Any]:
+        """go-cqhttp 快速操作（NapCat 与 SnowLuma 均支持）。
+
+        对应 go-cqhttp 兼容 API: ``handle_quick_operation``（别名 ``.handle_quick_operation``）。
+
+        Args:
+            context: 事件上下文。
+            operation: 快速操作内容。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        return await _call_onebot_api(
+            "handle_quick_operation",
+            {"context": context, "operation": operation},
+        )
+
+    async def get_word_slices(self, content: str) -> dict[str, Any]:
+        """go-cqhttp 分词（仅 NapCat 支持，SnowLuma 未实现）。
+
+        对应 go-cqhttp 兼容 API: ``get_word_slices``（别名 ``.get_word_slices``）。
+
+        Args:
+            content: 待分词的文本内容。
+
+        Returns:
+            适配器返回的响应字典，包含切分后的词组列表。
+        """
+        return await _call_onebot_api("get_word_slices", {"content": content})

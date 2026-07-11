@@ -1,6 +1,6 @@
 # onebot_expand API 索引名单
 
-共 **173** 个主名 action + **8** 个别名。
+共 **185** 个主名 action + **13** 个别名。
 
 来源标记：OB11=OneBot v11 标准，NapCat=NapCat 扩展，go-cqhttp=go-cqhttp 兼容，Expand=插件扩展。
 
@@ -13,12 +13,13 @@
 ## 按分类
 
 
-### 消息 (message, 18 个)
+### 消息 (message, 20 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
 | `send_group_msg` | OB11 | — | ✓ | — |
 | `send_private_msg` | OB11 | — | ✓ | — |
+| `send_msg` | OB11 | — | ✓ | — |
 | `delete_msg` | OB11 | — | ✓ | — |
 | `get_msg` | OB11 | — | ✓ | — |
 | `get_forward_msg` | OB11 | — | ✓ | — |
@@ -35,6 +36,7 @@
 | `mark_group_msg_as_read` | Expand | — | ✓ | — |
 | `mark_private_msg_as_read` | Expand | — | ✓ | — |
 | `_mark_all_as_read` | Expand | — | ✓ | — |
+| `upload_forward_msg` | Expand | — | ✓ | upload_foward_msg |
 
 ### 群操作 (group, 10 个)
 
@@ -51,7 +53,7 @@
 | `set_group_leave` | OB11 | — | ✓ | — |
 | `set_group_special_title` | OB11 | — | ✓ | — |
 
-### 文件操作 (file, 11 个)
+### 文件操作 (file, 16 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -66,6 +68,11 @@
 | `receive_online_file` | NapCat | ✓ | ✗ | — |
 | `refuse_online_file` | NapCat | ✓ | ✗ | — |
 | `cancel_online_file` | NapCat | ✓ | ✗ | — |
+| `clean_stream_temp_file` | Expand | — | ✓ | — |
+| `upload_file_stream` | Expand | — | ✓ | — |
+| `download_file_stream` | Expand | — | ✓ | — |
+| `download_file_record_stream` | Expand | — | ✓ | — |
+| `download_file_image_stream` | Expand | — | ✓ | — |
 
 ### 账号信息 (account, 10 个)
 
@@ -207,7 +214,7 @@
 | `get_ai_record` | Expand | — | ✓ | — |
 | `send_group_ai_record` | Expand | — | ✓ | — |
 
-### 凭证/安全/下载 (cred, 7 个)
+### 凭证/安全/下载 (cred, 8 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -218,8 +225,9 @@
 | `check_url_safely` | Expand | — | ✓ | — |
 | `ocr_image` | go-cqhttp | — | ✓ | .ocr_image |
 | `download_file` | Expand | — | ✓ | — |
+| `request_decrypt_key` | Expand | — | ✓ | — |
 
-### 机型/其他 (misc, 10 个)
+### 机型/其他 (misc, 12 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -233,6 +241,8 @@
 | `create_collection` | Expand | — | ✓ | — |
 | `get_collection_list` | Expand | — | ✓ | — |
 | `send_packet` | Expand | — | ✓ | .send_packet |
+| `handle_quick_operation` | go-cqhttp | — | ✓ | .handle_quick_operation |
+| `get_word_slices` | go-cqhttp | ✓ | ✗ | .get_word_slices |
 
 ### 闪传 (flash, 11 个)
 
@@ -270,7 +280,7 @@
 | `complete_group_todo` | Expand | — | ✓ | — |
 | `cancel_group_todo` | Expand | — | ✓ | — |
 
-### QQ空间 (qzone, 7 个)
+### QQ空间 (qzone, 9 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -281,6 +291,8 @@
 | `like_qzone` | Expand | — | ✓ | — |
 | `unlike_qzone` | Expand | — | ✓ | — |
 | `comment_qzone` | Expand | — | ✓ | — |
+| `set_qzone_ban` | Expand | — | ✓ | — |
+| `set_qzone_msg_right` | Expand | — | ✓ | — |
 
 ### Ark分享 (ark, 4 个)
 
@@ -300,19 +312,24 @@
 |---|---|
 | `._get_model_show` | `_get_model_show` |
 | `._set_model_show` | `_set_model_show` |
+| `.handle_quick_operation` | `handle_quick_operation` |
+| `.get_word_slices` | `get_word_slices` |
 | `.ocr_image` | `ocr_image` |
 | `.send_packet` | `send_packet` |
+| `delete_group_file_folder` | `delete_group_folder` |
+| `get_group_album_list` | `get_qun_album_list` |
 | `get_ptt_text` | `fetch_ptt_text` |
 | `get_record_text` | `fetch_ptt_text` |
 | `nc_get_rkey` | `get_rkey` |
 | `send_group_sign` | `set_group_sign` |
+| `upload_foward_msg` | `upload_forward_msg` |
 
 ---
 
 
 ## 按来源统计
 
-- OB11: 31 个
+- OB11: 32 个
 - NapCat: 20 个
-- go-cqhttp: 18 个
-- Expand: 104 个
+- go-cqhttp: 20 个
+- Expand: 113 个
