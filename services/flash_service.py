@@ -221,3 +221,49 @@ class FlashService(BaseService):
             "new_name": new_name,
         }
         return await _call_onebot_api("rename_flash_file", params)
+
+    async def GetFlashFileDownloadUrls(
+        self,
+        fileset_id: str,
+        share_link: str,
+    ) -> dict[str, Any]:
+        """获取闪传文件集下载URL。
+
+        对应 OneBot API: ``get_flash_file_download_urls``。
+        """
+        params: dict[str, Any] = {
+            "fileset_id": fileset_id,
+            "share_link": share_link,
+        }
+        return await _call_onebot_api("get_flash_file_download_urls", params)
+
+    async def UploadFlashFile(
+        self,
+        title: str,
+        paths: list[str],
+    ) -> dict[str, Any]:
+        """上传闪传文件。
+
+        对应 OneBot API: ``upload_flash_file``。
+        """
+        params: dict[str, Any] = {
+            "title": title,
+            "paths": paths,
+        }
+        return await _call_onebot_api("upload_flash_file", params)
+
+    async def ReshareFlashFile(
+        self,
+        fileset_id: str,
+        share_link: str,
+    ) -> dict[str, Any]:
+        """重新分享闪传文件。
+
+        对应 OneBot API: ``reshare_flash_file``。
+        """
+        params: dict[str, Any] = {
+            "fileset_id": fileset_id,
+            "share_link": share_link,
+        }
+        return await _call_onebot_api("reshare_flash_file", params)
+

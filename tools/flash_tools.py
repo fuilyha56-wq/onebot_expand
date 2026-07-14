@@ -36,6 +36,9 @@ __all__ = [
     "ListFilesetsTool",
     "DeleteFlashFileTool",
     "RenameFlashFileTool",
+"GetFlashFileDownloadUrlsTool",
+    "UploadFlashFileTool",
+    "ReshareFlashFileTool",
 ]
 
 
@@ -302,3 +305,82 @@ class RenameFlashFileTool(BaseTool):
         if result.get("status") == "ok":
             return True, f"已重命名闪传文件 {fileset_id}"
         return False, f"重命名闪传文件失败: {result.get('msg', '未知错误')}"
+
+
+class GetFlashFileDownloadUrlsTool(BaseTool):
+    """获取闪传文件集下载URL的 Tool。
+
+    对应 API: ``get_flash_file_download_urls``。
+    """
+
+    tool_name = "get_flash_file_download_urls"
+    tool_description = "获取闪传文件集下载URL"
+
+    async def execute(
+        self,
+        fileset_id: Annotated[str, "文件集ID"],
+        share_link: Annotated[str, "分享链接"],
+    ) -> tuple[bool, str]:
+        """执行获取闪传文件集下载URL。"""
+        params: dict[str, Any] = {
+            "fileset_id": fileset_id,
+            "share_link": share_link,
+        }
+        result = await _call_onebot_api("get_flash_file_download_urls", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"获取闪传文件集下载URL失败: {result.get('msg', '未知错误')}"
+
+
+
+class UploadFlashFileTool(BaseTool):
+    """上传闪传文件的 Tool。
+
+    对应 API: ``upload_flash_file``。
+    """
+
+    tool_name = "upload_flash_file"
+    tool_description = "上传闪传文件"
+
+    async def execute(
+        self,
+        title: Annotated[str, "文件集标题"],
+        paths: Annotated[list[str], "本地文件路径列表"],
+    ) -> tuple[bool, str]:
+        """执行上传闪传文件。"""
+        params: dict[str, Any] = {
+            "title": title,
+            "paths": paths,
+        }
+        result = await _call_onebot_api("upload_flash_file", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"上传闪传文件失败: {result.get('msg', '未知错误')}"
+
+
+
+class ReshareFlashFileTool(BaseTool):
+    """重新分享闪传文件的 Tool。
+
+    对应 API: ``reshare_flash_file``。
+    """
+
+    tool_name = "reshare_flash_file"
+    tool_description = "重新分享闪传文件"
+
+    async def execute(
+        self,
+        fileset_id: Annotated[str, "文件集ID"],
+        share_link: Annotated[str, "分享链接"],
+    ) -> tuple[bool, str]:
+        """执行重新分享闪传文件。"""
+        params: dict[str, Any] = {
+            "fileset_id": fileset_id,
+            "share_link": share_link,
+        }
+        result = await _call_onebot_api("reshare_flash_file", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"重新分享闪传文件失败: {result.get('msg', '未知错误')}"
+
+

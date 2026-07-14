@@ -238,3 +238,80 @@ class MiscService(BaseService):
             适配器返回的响应字典，包含切分后的词组列表。
         """
         return await _call_onebot_api("get_word_slices", {"content": content})
+
+    async def GetConfig(
+        self,
+    ) -> dict[str, Any]:
+        """获取协议端配置。
+
+        对应 OneBot API: ``get_config``。
+        """
+        params: dict[str, Any] = {
+        }
+        return await _call_onebot_api("get_config", params)
+
+    async def SetConfig(
+        self,
+        config: dict,
+    ) -> dict[str, Any]:
+        """设置协议端配置。
+
+        对应 OneBot API: ``set_config``。
+        """
+        params: dict[str, Any] = {
+            "config": config,
+        }
+        return await _call_onebot_api("set_config", params)
+
+    async def GetEvent(
+        self,
+    ) -> dict[str, Any]:
+        """获取事件。
+
+        对应 OneBot API: ``get_event``。
+        """
+        params: dict[str, Any] = {
+        }
+        return await _call_onebot_api("get_event", params)
+
+    async def LlonebotDebug(
+        self,
+        api_class: str,
+        method: str,
+        args: list,
+    ) -> dict[str, Any]:
+        """调试接口。
+
+        对应 OneBot API: ``llonebot_debug``。
+        """
+        params: dict[str, Any] = {
+            "api_class": api_class,
+            "method": method,
+            "args": args,
+        }
+        return await _call_onebot_api("llonebot_debug", params)
+
+    async def ScanQRCode(
+        self,
+        qrcode: str,
+    ) -> dict[str, Any]:
+        """扫码登录。
+
+        对应 OneBot API: ``scan_qrcode``。
+        """
+        params: dict[str, Any] = {
+            "qrcode": qrcode,
+        }
+        return await _call_onebot_api("scan_qrcode", params)
+
+    async def GetGuildList(
+        self,
+    ) -> dict[str, Any]:
+        """获取频道列表。
+
+        对应 OneBot API: ``get_guild_list``。
+        """
+        params: dict[str, Any] = {
+        }
+        return await _call_onebot_api("get_guild_list", params)
+

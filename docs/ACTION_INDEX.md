@@ -1,8 +1,8 @@
 # onebot_expand API 索引名单
 
-共 **185** 个主名 action + **13** 个别名。
+共 **205** 个主名 action + **18** 个别名。
 
-来源标记：OB11=OneBot v11 标准，NapCat=NapCat 扩展，go-cqhttp=go-cqhttp 兼容，Expand=插件扩展。
+来源标记：OB11=OneBot v11 标准，NapCat=NapCat 扩展，go-cqhttp=go-cqhttp 兼容，Expand=插件扩展，LLBot=LLBot 扩展。
 
 `napcat_only=True` 表示 NapCat 专属（SnowLuma 不支持）；`snowluma_compat=False` 表示 SnowLuma 不兼容。
 
@@ -109,7 +109,7 @@
 | `get_group_at_all_remain` | go-cqhttp | — | ✓ | — |
 | `fetch_ptt_text` | Expand | — | ✓ | get_ptt_text, get_record_text |
 
-### 群文件管理 (group_file, 12 个)
+### 群文件管理 (group_file, 13 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -125,6 +125,7 @@
 | `rename_group_file_folder` | Expand | — | ✓ | — |
 | `trans_group_file` | Expand | — | ✓ | — |
 | `get_private_file_url` | Expand | — | ✓ | — |
+| `set_group_file_forever` | LLBot | — | ✓ | — |
 
 ### 群公告 (group_notice, 3 个)
 
@@ -134,7 +135,7 @@
 | `_get_group_notice` | Expand | — | ✓ | — |
 | `_del_group_notice` | Expand | — | ✓ | — |
 
-### 群管理扩展 (group_ext, 12 个)
+### 群管理扩展 (group_ext, 14 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -150,6 +151,8 @@
 | `get_group_info_ex` | Expand | — | ✓ | — |
 | `set_group_sign` | Expand | — | ✓ | send_group_sign |
 | `get_group_signed_list` | Expand | — | ✓ | — |
+| `batch_delete_group_member` | LLBot | — | ✓ | — |
+| `set_group_msg_mask` | LLBot | — | ✓ | — |
 
 ### 请求处理 (request, 5 个)
 
@@ -161,7 +164,7 @@
 | `get_doubt_friends_add_request` | Expand | — | ✓ | — |
 | `set_doubt_friends_add_request` | Expand | — | ✓ | — |
 
-### 用户信息扩展 (user_ext, 9 个)
+### 用户信息扩展 (user_ext, 13 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -174,6 +177,10 @@
 | `set_self_longnick` | Expand | — | ✓ | — |
 | `get_recent_contact` | Expand | — | ✓ | — |
 | `get_profile_like` | Expand | — | ✓ | — |
+| `get_profile_like_me` | LLBot | — | ✓ | — |
+| `get_profile_like_count` | LLBot | — | ✓ | — |
+| `get_qq_avatar` | LLBot | — | ✓ | — |
+| `set_friend_category` | LLBot | — | ✓ | — |
 
 ### 在线状态 (status, 4 个)
 
@@ -191,7 +198,7 @@
 | `friend_poke` | Expand | — | ✓ | — |
 | `group_poke` | Expand | — | ✓ | — |
 
-### 表情/收藏扩展 (emoji_ext, 10 个)
+### 表情/收藏扩展 (emoji_ext, 12 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -205,6 +212,8 @@
 | `fetch_emoji_like` | Expand | — | ✓ | — |
 | `get_emoji_likes` | Expand | — | ✓ | — |
 | `set_group_reaction` | Expand | — | ✓ | — |
+| `get_recommend_face` | LLBot | — | ✓ | — |
+| `unset_msg_emoji_like` | LLBot | — | ✓ | — |
 
 ### AI语音 (ai_voice, 3 个)
 
@@ -227,7 +236,7 @@
 | `download_file` | Expand | — | ✓ | — |
 | `request_decrypt_key` | Expand | — | ✓ | — |
 
-### 机型/其他 (misc, 12 个)
+### 机型/其他 (misc, 18 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -243,8 +252,14 @@
 | `send_packet` | Expand | — | ✓ | .send_packet |
 | `handle_quick_operation` | go-cqhttp | — | ✓ | .handle_quick_operation |
 | `get_word_slices` | go-cqhttp | ✓ | ✗ | .get_word_slices |
+| `get_config` | LLBot | — | ✓ | — |
+| `set_config` | LLBot | — | ✓ | — |
+| `get_event` | LLBot | — | ✓ | — |
+| `llonebot_debug` | LLBot | — | ✓ | — |
+| `scan_qrcode` | LLBot | — | ✓ | — |
+| `get_guild_list` | LLBot | — | ✓ | — |
 
-### 闪传 (flash, 11 个)
+### 闪传 (flash, 14 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -253,24 +268,29 @@
 | `get_flash_file_list` | Expand | — | ✓ | — |
 | `get_flash_file_url` | Expand | — | ✓ | — |
 | `get_share_link` | Expand | — | ✓ | — |
-| `download_fileset` | Expand | — | ✓ | — |
-| `get_fileset_info` | Expand | — | ✓ | — |
+| `download_fileset` | Expand | — | ✓ | download_flash_file |
+| `get_fileset_info` | Expand | — | ✓ | get_flash_file_info |
 | `get_fileset_id` | Expand | — | ✓ | — |
 | `list_filesets` | Expand | — | ✓ | — |
 | `delete_flash_file` | Expand | — | ✓ | — |
 | `rename_flash_file` | Expand | — | ✓ | — |
+| `get_flash_file_download_urls` | LLBot | — | ✓ | — |
+| `upload_flash_file` | LLBot | — | ✓ | — |
+| `reshare_flash_file` | LLBot | — | ✓ | — |
 
-### 群相册 (group_album, 7 个)
+### 群相册 (group_album, 9 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
 | `get_qun_album_list` | Expand | — | ✓ | — |
-| `upload_image_to_qun_album` | Expand | — | ✓ | — |
+| `upload_image_to_qun_album` | Expand | — | ✓ | upload_group_album |
 | `get_group_album_media_list` | Expand | — | ✓ | — |
 | `do_group_album_comment` | Expand | — | ✓ | — |
 | `set_group_album_media_like` | Expand | — | ✓ | — |
 | `cancel_group_album_media_like` | Expand | — | ✓ | — |
 | `del_group_album_media` | Expand | — | ✓ | — |
+| `create_group_album` | LLBot | — | ✓ | — |
+| `delete_group_album` | LLBot | — | ✓ | — |
 
 ### 群待办 (group_todo, 3 个)
 
@@ -323,6 +343,11 @@
 | `nc_get_rkey` | `get_rkey` |
 | `send_group_sign` | `set_group_sign` |
 | `upload_foward_msg` | `upload_forward_msg` |
+| `_delete_group_notice` | `_del_group_notice` |
+| `download_flash_file` | `download_fileset` |
+| `get_flash_file_info` | `get_fileset_info` |
+| `upload_group_album` | `upload_image_to_qun_album` |
+| `voice_msg_to_text` | `fetch_ptt_text` |
 
 ---
 
@@ -332,4 +357,5 @@
 - OB11: 32 个
 - NapCat: 20 个
 - go-cqhttp: 20 个
-- Expand: 113 个
+- Expand: 133 个
+- LLBot: 20 个

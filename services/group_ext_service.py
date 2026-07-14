@@ -267,3 +267,34 @@ class GroupExtService(BaseService):
         """
         params: dict[str, Any] = {"group_id": group_id}
         return await _call_onebot_api("get_group_signed_list", params)
+
+    async def BatchDeleteGroupMember(
+        self,
+        group_id: int,
+        user_ids: list[int],
+    ) -> dict[str, Any]:
+        """批量踢出群成员。
+
+        对应 OneBot API: ``batch_delete_group_member``。
+        """
+        params: dict[str, Any] = {
+            "group_id": group_id,
+            "user_ids": user_ids,
+        }
+        return await _call_onebot_api("batch_delete_group_member", params)
+
+    async def SetGroupMsgMask(
+        self,
+        group_id: int,
+        mask: int,
+    ) -> dict[str, Any]:
+        """设置群消息屏蔽。
+
+        对应 OneBot API: ``set_group_msg_mask``。
+        """
+        params: dict[str, Any] = {
+            "group_id": group_id,
+            "mask": mask,
+        }
+        return await _call_onebot_api("set_group_msg_mask", params)
+

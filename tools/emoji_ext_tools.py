@@ -34,6 +34,8 @@ __all__ = [
     "FetchEmojiLikeTool",
     "GetEmojiLikesTool",
     "SetGroupReactionTool",
+"GetRecommendFaceTool",
+    "UnsetMsgEmojiLikeTool",
 ]
 
 
@@ -290,3 +292,54 @@ class SetGroupReactionTool(BaseTool):
         if result.get("status") == "ok":
             return True, "群消息表情回应已设置"
         return False, f"群消息表情回应失败: {result.get('msg', '未知错误')}"
+
+
+class GetRecommendFaceTool(BaseTool):
+    """获取推荐表情的 Tool。
+
+    对应 API: ``get_recommend_face``。
+    """
+
+    tool_name = "get_recommend_face"
+    tool_description = "获取推荐表情"
+
+    async def execute(
+        self,
+        word: Annotated[str, "搜索关键词"],
+    ) -> tuple[bool, str]:
+        """执行获取推荐表情。"""
+        params: dict[str, Any] = {
+            "word": word,
+        }
+        result = await _call_onebot_api("get_recommend_face", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"获取推荐表情失败: {result.get('msg', '未知错误')}"
+
+
+
+class UnsetMsgEmojiLikeTool(BaseTool):
+    """取消消息表情回应的 Tool。
+
+    对应 API: ``unset_msg_emoji_like``。
+    """
+
+    tool_name = "unset_msg_emoji_like"
+    tool_description = "取消消息表情回应"
+
+    async def execute(
+        self,
+        message_id: Annotated[int, "消息ID"],
+        emoji_id: Annotated[int, "表情ID"],
+    ) -> tuple[bool, str]:
+        """执行取消消息表情回应。"""
+        params: dict[str, Any] = {
+            "message_id": message_id,
+            "emoji_id": emoji_id,
+        }
+        result = await _call_onebot_api("unset_msg_emoji_like", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"取消消息表情回应失败: {result.get('msg', '未知错误')}"
+
+

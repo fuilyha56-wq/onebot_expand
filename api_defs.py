@@ -407,6 +407,28 @@ class ExpandAction:
     SHARE_GROUP_EX = "share_group_ex"
     SEND_GROUP_ARK_SHARE = "send_group_ark_share"
 
+    # LLBot 扩展
+    BATCH_DELETE_GROUP_MEMBER = "batch_delete_group_member"
+    SET_GROUP_MSG_MASK = "set_group_msg_mask"
+    CREATE_GROUP_ALBUM = "create_group_album"
+    DELETE_GROUP_ALBUM = "delete_group_album"
+    GET_FLASH_FILE_DOWNLOAD_URLS = "get_flash_file_download_urls"
+    UPLOAD_FLASH_FILE = "upload_flash_file"
+    RESHARE_FLASH_FILE = "reshare_flash_file"
+    SET_GROUP_FILE_FOREVER = "set_group_file_forever"
+    GET_PROFILE_LIKE_ME = "get_profile_like_me"
+    GET_PROFILE_LIKE_COUNT = "get_profile_like_count"
+    GET_QQ_AVATAR = "get_qq_avatar"
+    SET_FRIEND_CATEGORY = "set_friend_category"
+    GET_RECOMMEND_FACE = "get_recommend_face"
+    UNSET_MSG_EMOJI_LIKE = "unset_msg_emoji_like"
+    GET_CONFIG = "get_config"
+    SET_CONFIG = "set_config"
+    GET_EVENT = "get_event"
+    LLONEBOT_DEBUG = "llonebot_debug"
+    SCAN_QRCODE = "scan_qrcode"
+    GET_GUILD_LIST = "get_guild_list"
+
 
 # ============================================================================
 # 常量定义
@@ -1203,7 +1225,7 @@ ALL_APIS: dict[str, APIDef] = {
         params={
             "message_id": "int",
         },
-        aliases=("get_ptt_text", "get_record_text"),
+        aliases=("get_ptt_text", "get_record_text", "voice_msg_to_text"),
     ),
     # ==================== 群文件管理 API (11) ====================
     GoCqhttpCompatAction.GET_GROUP_FILE_URL: APIDef(
@@ -1366,6 +1388,7 @@ ALL_APIS: dict[str, APIDef] = {
             "group_id": "int",
             "notice_id": "str",
         },
+        aliases=("_delete_group_notice",),
     ),
     # ==================== 群管理扩展 API (11) ====================
     ExpandAction.SET_GROUP_PORTRAIT: APIDef(
@@ -2068,6 +2091,7 @@ ALL_APIS: dict[str, APIDef] = {
         params={
             "fileset_id": "str",
         },
+        aliases=("download_flash_file",),
     ),
     ExpandAction.GET_FILESET_INFO: APIDef(
         action="get_fileset_info",
@@ -2077,6 +2101,7 @@ ALL_APIS: dict[str, APIDef] = {
         params={
             "fileset_id": "str",
         },
+        aliases=("get_flash_file_info",),
     ),
     ExpandAction.GET_FILESET_ID: APIDef(
         action="get_fileset_id",
@@ -2140,6 +2165,7 @@ ALL_APIS: dict[str, APIDef] = {
             "file": "str",
             "album_id": "str",
         },
+        aliases=("upload_group_album",),
     ),
     ExpandAction.GET_GROUP_ALBUM_MEDIA_LIST: APIDef(
         action="get_group_album_media_list",
@@ -2361,6 +2387,196 @@ ALL_APIS: dict[str, APIDef] = {
             "group_id": "int",
         },
     ),
+    # ==================== LLBot 扩展 API (20) ====================
+    ExpandAction.BATCH_DELETE_GROUP_MEMBER: APIDef(
+        action="batch_delete_group_member",
+        category=APICategory.GROUP_EXT,
+        source=APISource.EXPAND,
+        description="批量踢出群成员（LLBot 扩展）",
+        params={
+            "group_id": "int",
+            "user_ids": "list[int]",
+        },
+    ),
+    ExpandAction.SET_GROUP_MSG_MASK: APIDef(
+        action="set_group_msg_mask",
+        category=APICategory.GROUP_EXT,
+        source=APISource.EXPAND,
+        description="设置群消息屏蔽（LLBot 扩展）",
+        params={
+            "group_id": "int",
+            "mask": "int",
+        },
+    ),
+    ExpandAction.CREATE_GROUP_ALBUM: APIDef(
+        action="create_group_album",
+        category=APICategory.GROUP_ALBUM,
+        source=APISource.EXPAND,
+        description="创建群相册（LLBot 扩展）",
+        params={
+            "group_id": "int",
+            "name": "str",
+            "desc": "str",
+        },
+    ),
+    ExpandAction.DELETE_GROUP_ALBUM: APIDef(
+        action="delete_group_album",
+        category=APICategory.GROUP_ALBUM,
+        source=APISource.EXPAND,
+        description="删除群相册（LLBot 扩展）",
+        params={
+            "group_id": "int",
+            "album_id": "str",
+        },
+    ),
+    ExpandAction.GET_FLASH_FILE_DOWNLOAD_URLS: APIDef(
+        action="get_flash_file_download_urls",
+        category=APICategory.FLASH,
+        source=APISource.EXPAND,
+        description="获取闪传文件集所有文件的下载URL（LLBot 扩展）",
+        params={
+            "fileset_id": "str",
+            "share_link": "str",
+        },
+    ),
+    ExpandAction.UPLOAD_FLASH_FILE: APIDef(
+        action="upload_flash_file",
+        category=APICategory.FLASH,
+        source=APISource.EXPAND,
+        description="上传闪传文件（LLBot 扩展）",
+        params={
+            "title": "str",
+            "paths": "list[str]",
+        },
+    ),
+    ExpandAction.RESHARE_FLASH_FILE: APIDef(
+        action="reshare_flash_file",
+        category=APICategory.FLASH,
+        source=APISource.EXPAND,
+        description="重新分享闪传文件，获取新的分享链接（LLBot 扩展）",
+        params={
+            "fileset_id": "str",
+            "share_link": "str",
+        },
+    ),
+    ExpandAction.SET_GROUP_FILE_FOREVER: APIDef(
+        action="set_group_file_forever",
+        category=APICategory.GROUP_FILE,
+        source=APISource.EXPAND,
+        description="设置群文件永久保存（LLBot 扩展）",
+        params={
+            "group_id": "int",
+            "file_id": "str",
+        },
+    ),
+    ExpandAction.GET_PROFILE_LIKE_ME: APIDef(
+        action="get_profile_like_me",
+        category=APICategory.USER_EXT,
+        source=APISource.EXPAND,
+        description="获取自身被点赞列表（LLBot 扩展）",
+        params={
+            "start": "int",
+            "count": "int",
+        },
+    ),
+    ExpandAction.GET_PROFILE_LIKE_COUNT: APIDef(
+        action="get_profile_like_count",
+        category=APICategory.USER_EXT,
+        source=APISource.EXPAND,
+        description="获取用户点赞总数（LLBot 扩展）",
+        params={
+            "user_id": "int",
+        },
+    ),
+    ExpandAction.GET_QQ_AVATAR: APIDef(
+        action="get_qq_avatar",
+        category=APICategory.USER_EXT,
+        source=APISource.EXPAND,
+        description="获取QQ头像URL（LLBot 扩展）",
+        params={
+            "user_id": "int",
+            "group_id": "int",
+        },
+    ),
+    ExpandAction.SET_FRIEND_CATEGORY: APIDef(
+        action="set_friend_category",
+        category=APICategory.USER_EXT,
+        source=APISource.EXPAND,
+        description="设置好友分类（LLBot 扩展）",
+        params={
+            "user_id": "int",
+            "category_id": "int",
+        },
+    ),
+    ExpandAction.GET_RECOMMEND_FACE: APIDef(
+        action="get_recommend_face",
+        category=APICategory.EMOJI_EXT,
+        source=APISource.EXPAND,
+        description="获取推荐表情（LLBot 扩展）",
+        params={
+            "word": "str",
+        },
+    ),
+    ExpandAction.UNSET_MSG_EMOJI_LIKE: APIDef(
+        action="unset_msg_emoji_like",
+        category=APICategory.EMOJI_EXT,
+        source=APISource.EXPAND,
+        description="取消消息表情回应（LLBot 扩展）",
+        params={
+            "message_id": "int",
+            "emoji_id": "int",
+        },
+    ),
+    ExpandAction.GET_CONFIG: APIDef(
+        action="get_config",
+        category=APICategory.MISC,
+        source=APISource.EXPAND,
+        description="获取协议端配置（LLBot 扩展）",
+        params={},
+    ),
+    ExpandAction.SET_CONFIG: APIDef(
+        action="set_config",
+        category=APICategory.MISC,
+        source=APISource.EXPAND,
+        description="设置协议端配置（LLBot 扩展）",
+        params={
+            "config": "dict",
+        },
+    ),
+    ExpandAction.GET_EVENT: APIDef(
+        action="get_event",
+        category=APICategory.MISC,
+        source=APISource.EXPAND,
+        description="获取事件（LLBot 扩展）",
+        params={},
+    ),
+    ExpandAction.LLONEBOT_DEBUG: APIDef(
+        action="llonebot_debug",
+        category=APICategory.MISC,
+        source=APISource.EXPAND,
+        description="调试接口，调用内部API（LLBot 扩展）",
+        params={
+            "api_class": "str",
+            "method": "str",
+            "args": "list",
+        },
+    ),
+    ExpandAction.SCAN_QRCODE: APIDef(
+        action="scan_qrcode",
+        category=APICategory.MISC,
+        source=APISource.EXPAND,
+        description="扫码登录（LLBot 扩展）",
+        params={
+            "qrcode": "str",
+        },
+    ),
+    ExpandAction.GET_GUILD_LIST: APIDef(
+        action="get_guild_list",
+        category=APICategory.MISC,
+        source=APISource.EXPAND,
+        description="获取频道列表（NapCat/LLBot 扩展）",
+        params={},
+    ),
 }
 
 
@@ -2469,6 +2685,7 @@ GROUP_FILE_APIS: list[str] = [
     ExpandAction.RENAME_GROUP_FILE_FOLDER,
     ExpandAction.TRANS_GROUP_FILE,
     ExpandAction.GET_PRIVATE_FILE_URL,
+    ExpandAction.SET_GROUP_FILE_FOREVER,
 ]
 
 GROUP_NOTICE_APIS: list[str] = [
@@ -2490,6 +2707,8 @@ GROUP_EXT_APIS: list[str] = [
     ExpandAction.GET_GROUP_INFO_EX,
     ExpandAction.SET_GROUP_SIGN,
     ExpandAction.GET_GROUP_SIGNED_LIST,
+    ExpandAction.BATCH_DELETE_GROUP_MEMBER,
+    ExpandAction.SET_GROUP_MSG_MASK,
 ]
 
 REQUEST_APIS: list[str] = [
@@ -2510,6 +2729,10 @@ USER_EXT_APIS: list[str] = [
     ExpandAction.SET_SELF_LONGNICK,
     ExpandAction.GET_RECENT_CONTACT,
     ExpandAction.GET_PROFILE_LIKE,
+    ExpandAction.GET_PROFILE_LIKE_ME,
+    ExpandAction.GET_PROFILE_LIKE_COUNT,
+    ExpandAction.GET_QQ_AVATAR,
+    ExpandAction.SET_FRIEND_CATEGORY,
 ]
 
 STATUS_APIS: list[str] = [
@@ -2535,6 +2758,8 @@ EMOJI_EXT_APIS: list[str] = [
     ExpandAction.FETCH_EMOJI_LIKE,
     ExpandAction.GET_EMOJI_LIKES,
     ExpandAction.SET_GROUP_REACTION,
+    ExpandAction.GET_RECOMMEND_FACE,
+    ExpandAction.UNSET_MSG_EMOJI_LIKE,
 ]
 
 AI_VOICE_APIS: list[str] = [
@@ -2567,6 +2792,12 @@ MISC_APIS: list[str] = [
     ExpandAction.SEND_PACKET,
     GoCqhttpCompatAction.HANDLE_QUICK_OPERATION,
     GoCqhttpCompatAction.GET_WORD_SLICES,
+    ExpandAction.GET_CONFIG,
+    ExpandAction.SET_CONFIG,
+    ExpandAction.GET_EVENT,
+    ExpandAction.LLONEBOT_DEBUG,
+    ExpandAction.SCAN_QRCODE,
+    ExpandAction.GET_GUILD_LIST,
 ]
 
 FLASH_APIS: list[str] = [
@@ -2581,6 +2812,9 @@ FLASH_APIS: list[str] = [
     ExpandAction.LIST_FILESETS,
     ExpandAction.DELETE_FLASH_FILE,
     ExpandAction.RENAME_FLASH_FILE,
+    ExpandAction.GET_FLASH_FILE_DOWNLOAD_URLS,
+    ExpandAction.UPLOAD_FLASH_FILE,
+    ExpandAction.RESHARE_FLASH_FILE,
 ]
 
 GROUP_ALBUM_APIS: list[str] = [
@@ -2591,6 +2825,8 @@ GROUP_ALBUM_APIS: list[str] = [
     ExpandAction.SET_GROUP_ALBUM_MEDIA_LIKE,
     ExpandAction.CANCEL_GROUP_ALBUM_MEDIA_LIKE,
     ExpandAction.DEL_GROUP_ALBUM_MEDIA,
+    ExpandAction.CREATE_GROUP_ALBUM,
+    ExpandAction.DELETE_GROUP_ALBUM,
 ]
 
 GROUP_TODO_APIS: list[str] = [

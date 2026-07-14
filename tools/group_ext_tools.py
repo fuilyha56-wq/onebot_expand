@@ -37,6 +37,8 @@ __all__ = [
     "GetGroupInfoExTool",
     "SetGroupSignTool",
     "GetGroupSignedListTool",
+"BatchDeleteGroupMemberTool",
+    "SetGroupMsgMaskTool",
 ]
 
 
@@ -338,3 +340,56 @@ class GetGroupSignedListTool(BaseTool):
             data = result.get("data", [])
             return True, data
         return False, f"获取群今日打卡列表失败: {result.get('msg', '未知错误')}"
+
+
+class BatchDeleteGroupMemberTool(BaseTool):
+    """批量踢出群成员的 Tool。
+
+    对应 API: ``batch_delete_group_member``。
+    """
+
+    tool_name = "batch_delete_group_member"
+    tool_description = "批量踢出群成员"
+
+    async def execute(
+        self,
+        group_id: Annotated[int, "目标群号"],
+        user_ids: Annotated[list[int], "要踢出的QQ号列表"],
+    ) -> tuple[bool, str]:
+        """执行批量踢出群成员。"""
+        params: dict[str, Any] = {
+            "group_id": group_id,
+            "user_ids": user_ids,
+        }
+        result = await _call_onebot_api("batch_delete_group_member", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"批量踢出群成员失败: {result.get('msg', '未知错误')}"
+
+
+
+class SetGroupMsgMaskTool(BaseTool):
+    """设置群消息屏蔽的 Tool。
+
+    对应 API: ``set_group_msg_mask``。
+    """
+
+    tool_name = "set_group_msg_mask"
+    tool_description = "设置群消息屏蔽"
+
+    async def execute(
+        self,
+        group_id: Annotated[int, "目标群号"],
+        mask: Annotated[int, "屏蔽等级(1-4)"],
+    ) -> tuple[bool, str]:
+        """执行设置群消息屏蔽。"""
+        params: dict[str, Any] = {
+            "group_id": group_id,
+            "mask": mask,
+        }
+        result = await _call_onebot_api("set_group_msg_mask", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"设置群消息屏蔽失败: {result.get('msg', '未知错误')}"
+
+

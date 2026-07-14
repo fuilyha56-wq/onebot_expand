@@ -199,3 +199,36 @@ class GroupAlbumService(BaseService):
             "lloc": lloc,
         }
         return await _call_onebot_api("del_group_album_media", params)
+
+    async def CreateGroupAlbum(
+        self,
+        group_id: int,
+        name: str,
+        desc: str,
+    ) -> dict[str, Any]:
+        """创建群相册。
+
+        对应 OneBot API: ``create_group_album``。
+        """
+        params: dict[str, Any] = {
+            "group_id": group_id,
+            "name": name,
+            "desc": desc,
+        }
+        return await _call_onebot_api("create_group_album", params)
+
+    async def DeleteGroupAlbum(
+        self,
+        group_id: int,
+        album_id: str,
+    ) -> dict[str, Any]:
+        """删除群相册。
+
+        对应 OneBot API: ``delete_group_album``。
+        """
+        params: dict[str, Any] = {
+            "group_id": group_id,
+            "album_id": album_id,
+        }
+        return await _call_onebot_api("delete_group_album", params)
+

@@ -28,6 +28,8 @@ __all__ = [
     "SetGroupAlbumMediaLikeTool",
     "CancelGroupAlbumMediaLikeTool",
     "DelGroupAlbumMediaTool",
+"CreateGroupAlbumTool",
+    "DeleteGroupAlbumTool",
 ]
 
 
@@ -222,3 +224,58 @@ class DelGroupAlbumMediaTool(BaseTool):
         if result.get("status") == "ok":
             return True, "图片删除成功"
         return False, f"删除群相册媒体失败: {result.get('msg', '未知错误')}"
+
+
+class CreateGroupAlbumTool(BaseTool):
+    """创建群相册的 Tool。
+
+    对应 API: ``create_group_album``。
+    """
+
+    tool_name = "create_group_album"
+    tool_description = "创建群相册"
+
+    async def execute(
+        self,
+        group_id: Annotated[int, "目标群号"],
+        name: Annotated[str, "相册名称"],
+        desc: Annotated[str, "相册描述"],
+    ) -> tuple[bool, str]:
+        """执行创建群相册。"""
+        params: dict[str, Any] = {
+            "group_id": group_id,
+            "name": name,
+            "desc": desc,
+        }
+        result = await _call_onebot_api("create_group_album", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"创建群相册失败: {result.get('msg', '未知错误')}"
+
+
+
+class DeleteGroupAlbumTool(BaseTool):
+    """删除群相册的 Tool。
+
+    对应 API: ``delete_group_album``。
+    """
+
+    tool_name = "delete_group_album"
+    tool_description = "删除群相册"
+
+    async def execute(
+        self,
+        group_id: Annotated[int, "目标群号"],
+        album_id: Annotated[str, "相册ID"],
+    ) -> tuple[bool, str]:
+        """执行删除群相册。"""
+        params: dict[str, Any] = {
+            "group_id": group_id,
+            "album_id": album_id,
+        }
+        result = await _call_onebot_api("delete_group_album", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"删除群相册失败: {result.get('msg', '未知错误')}"
+
+

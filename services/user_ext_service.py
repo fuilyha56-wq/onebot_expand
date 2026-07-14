@@ -190,3 +190,62 @@ class UserExtService(BaseService):
             "count": count,
         }
         return await _call_onebot_api("get_profile_like", params)
+
+    async def GetProfileLikeMe(
+        self,
+        start: int,
+        count: int,
+    ) -> dict[str, Any]:
+        """获取自身被点赞列表。
+
+        对应 OneBot API: ``get_profile_like_me``。
+        """
+        params: dict[str, Any] = {
+            "start": start,
+            "count": count,
+        }
+        return await _call_onebot_api("get_profile_like_me", params)
+
+    async def GetProfileLikeCount(
+        self,
+        user_id: int,
+    ) -> dict[str, Any]:
+        """获取用户点赞总数。
+
+        对应 OneBot API: ``get_profile_like_count``。
+        """
+        params: dict[str, Any] = {
+            "user_id": user_id,
+        }
+        return await _call_onebot_api("get_profile_like_count", params)
+
+    async def GetQQAvatar(
+        self,
+        user_id: int,
+        group_id: int,
+    ) -> dict[str, Any]:
+        """获取QQ头像URL。
+
+        对应 OneBot API: ``get_qq_avatar``。
+        """
+        params: dict[str, Any] = {
+            "user_id": user_id,
+            "group_id": group_id,
+        }
+        return await _call_onebot_api("get_qq_avatar", params)
+
+    async def SetFriendCategory(
+        self,
+        user_id: int,
+        category_id: int,
+    ) -> dict[str, Any]:
+        """设置好友分类。
+
+        对应 OneBot API: ``set_friend_category``。
+        """
+        params: dict[str, Any] = {
+            "user_id": user_id,
+            "category_id": category_id,
+        }
+        return await _call_onebot_api("set_friend_category", params)
+

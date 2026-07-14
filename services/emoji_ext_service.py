@@ -235,3 +235,32 @@ class EmojiExtService(BaseService):
         if group_id is not None:
             params["group_id"] = group_id
         return await _call_onebot_api("set_group_reaction", params)
+
+    async def GetRecommendFace(
+        self,
+        word: str,
+    ) -> dict[str, Any]:
+        """获取推荐表情。
+
+        对应 OneBot API: ``get_recommend_face``。
+        """
+        params: dict[str, Any] = {
+            "word": word,
+        }
+        return await _call_onebot_api("get_recommend_face", params)
+
+    async def UnSetMsgEmojiLike(
+        self,
+        message_id: int,
+        emoji_id: int,
+    ) -> dict[str, Any]:
+        """取消消息表情回应。
+
+        对应 OneBot API: ``unset_msg_emoji_like``。
+        """
+        params: dict[str, Any] = {
+            "message_id": message_id,
+            "emoji_id": emoji_id,
+        }
+        return await _call_onebot_api("unset_msg_emoji_like", params)
+

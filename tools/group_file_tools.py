@@ -38,6 +38,7 @@ __all__ = [
     "RenameGroupFileFolderTool",
     "TransGroupFileTool",
     "GetPrivateFileUrlTool",
+"SetGroupFileForeverTool",
 ]
 
 
@@ -371,3 +372,30 @@ class GetPrivateFileUrlTool(BaseTool):
             data = result.get("data", {})
             return True, data
         return False, f"获取私聊文件下载链接失败: {result.get('msg', '未知错误')}"
+
+
+class SetGroupFileForeverTool(BaseTool):
+    """设置群文件永久保存的 Tool。
+
+    对应 API: ``set_group_file_forever``。
+    """
+
+    tool_name = "set_group_file_forever"
+    tool_description = "设置群文件永久保存"
+
+    async def execute(
+        self,
+        group_id: Annotated[int, "目标群号"],
+        file_id: Annotated[str, "文件ID"],
+    ) -> tuple[bool, str]:
+        """执行设置群文件永久保存。"""
+        params: dict[str, Any] = {
+            "group_id": group_id,
+            "file_id": file_id,
+        }
+        result = await _call_onebot_api("set_group_file_forever", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"设置群文件永久保存失败: {result.get('msg', '未知错误')}"
+
+

@@ -32,6 +32,10 @@ __all__ = [
     "SetSelfLongnickTool",
     "GetRecentContactTool",
     "GetProfileLikeTool",
+"GetProfileLikeMeTool",
+    "GetProfileLikeCountTool",
+    "GetQQAvatarTool",
+    "SetFriendCategoryTool",
 ]
 
 
@@ -253,3 +257,106 @@ class GetProfileLikeTool(BaseTool):
             data = result.get("data", {})
             return True, data
         return False, f"获取资料点赞失败: {result.get('msg', '未知错误')}"
+
+
+class GetProfileLikeMeTool(BaseTool):
+    """获取自身被点赞列表的 Tool。
+
+    对应 API: ``get_profile_like_me``。
+    """
+
+    tool_name = "get_profile_like_me"
+    tool_description = "获取自身被点赞列表"
+
+    async def execute(
+        self,
+        start: Annotated[int, "起始位置(默认0)"],
+        count: Annotated[int, "数量(默认20,最多30)"],
+    ) -> tuple[bool, str]:
+        """执行获取自身被点赞列表。"""
+        params: dict[str, Any] = {
+            "start": start,
+            "count": count,
+        }
+        result = await _call_onebot_api("get_profile_like_me", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"获取自身被点赞列表失败: {result.get('msg', '未知错误')}"
+
+
+
+class GetProfileLikeCountTool(BaseTool):
+    """获取用户点赞总数的 Tool。
+
+    对应 API: ``get_profile_like_count``。
+    """
+
+    tool_name = "get_profile_like_count"
+    tool_description = "获取用户点赞总数"
+
+    async def execute(
+        self,
+        user_id: Annotated[int, "目标QQ号"],
+    ) -> tuple[bool, str]:
+        """执行获取用户点赞总数。"""
+        params: dict[str, Any] = {
+            "user_id": user_id,
+        }
+        result = await _call_onebot_api("get_profile_like_count", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"获取用户点赞总数失败: {result.get('msg', '未知错误')}"
+
+
+
+class GetQQAvatarTool(BaseTool):
+    """获取QQ头像URL的 Tool。
+
+    对应 API: ``get_qq_avatar``。
+    """
+
+    tool_name = "get_qq_avatar"
+    tool_description = "获取QQ头像URL"
+
+    async def execute(
+        self,
+        user_id: Annotated[int, "目标QQ号(与group_id二选一)"],
+        group_id: Annotated[int, "目标群号(与user_id二选一)"],
+    ) -> tuple[bool, str]:
+        """执行获取QQ头像URL。"""
+        params: dict[str, Any] = {
+            "user_id": user_id,
+            "group_id": group_id,
+        }
+        result = await _call_onebot_api("get_qq_avatar", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"获取QQ头像URL失败: {result.get('msg', '未知错误')}"
+
+
+
+class SetFriendCategoryTool(BaseTool):
+    """设置好友分类的 Tool。
+
+    对应 API: ``set_friend_category``。
+    """
+
+    tool_name = "set_friend_category"
+    tool_description = "设置好友分类"
+
+    async def execute(
+        self,
+        user_id: Annotated[int, "目标QQ号"],
+        category_id: Annotated[int, "分类ID"],
+    ) -> tuple[bool, str]:
+        """执行设置好友分类。"""
+        params: dict[str, Any] = {
+            "user_id": user_id,
+            "category_id": category_id,
+        }
+        result = await _call_onebot_api("set_friend_category", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"设置好友分类失败: {result.get('msg', '未知错误')}"
+
+

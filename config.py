@@ -905,6 +905,88 @@ class OnebotExpandConfig(BaseConfig):
             description="是否启用 send_group_ark_share API（发送群Ark分享）",
         )
 
+        # --- LLBot 扩展类 API (20) ---
+        enable_batch_delete_group_member: bool = Field(
+            default=False,
+            description="是否启用 batch_delete_group_member API（批量踢出群成员，LLBot 扩展）",
+        )
+        enable_set_group_msg_mask: bool = Field(
+            default=False,
+            description="是否启用 set_group_msg_mask API（设置群消息屏蔽，LLBot 扩展）",
+        )
+        enable_create_group_album: bool = Field(
+            default=False,
+            description="是否启用 create_group_album API（创建群相册，LLBot 扩展）",
+        )
+        enable_delete_group_album: bool = Field(
+            default=False,
+            description="是否启用 delete_group_album API（删除群相册，LLBot 扩展）",
+        )
+        enable_get_flash_file_download_urls: bool = Field(
+            default=False,
+            description="是否启用 get_flash_file_download_urls API（获取闪传文件集下载URL，LLBot 扩展）",
+        )
+        enable_upload_flash_file: bool = Field(
+            default=False,
+            description="是否启用 upload_flash_file API（上传闪传文件，LLBot 扩展）",
+        )
+        enable_reshare_flash_file: bool = Field(
+            default=False,
+            description="是否启用 reshare_flash_file API（重新分享闪传文件，LLBot 扩展）",
+        )
+        enable_set_group_file_forever: bool = Field(
+            default=False,
+            description="是否启用 set_group_file_forever API（设置群文件永久保存，LLBot 扩展）",
+        )
+        enable_get_profile_like_me: bool = Field(
+            default=False,
+            description="是否启用 get_profile_like_me API（获取自身被点赞列表，LLBot 扩展）",
+        )
+        enable_get_profile_like_count: bool = Field(
+            default=False,
+            description="是否启用 get_profile_like_count API（获取用户点赞总数，LLBot 扩展）",
+        )
+        enable_get_qq_avatar: bool = Field(
+            default=False,
+            description="是否启用 get_qq_avatar API（获取QQ头像URL，LLBot 扩展）",
+        )
+        enable_set_friend_category: bool = Field(
+            default=False,
+            description="是否启用 set_friend_category API（设置好友分类，LLBot 扩展）",
+        )
+        enable_get_recommend_face: bool = Field(
+            default=False,
+            description="是否启用 get_recommend_face API（获取推荐表情，LLBot 扩展）",
+        )
+        enable_unset_msg_emoji_like: bool = Field(
+            default=False,
+            description="是否启用 unset_msg_emoji_like API（取消消息表情回应，LLBot 扩展）",
+        )
+        enable_get_config: bool = Field(
+            default=False,
+            description="是否启用 get_config API（获取协议端配置，LLBot 扩展）",
+        )
+        enable_set_config: bool = Field(
+            default=False,
+            description="是否启用 set_config API（设置协议端配置，LLBot 扩展）",
+        )
+        enable_get_event: bool = Field(
+            default=False,
+            description="是否启用 get_event API（获取事件，LLBot 扩展）",
+        )
+        enable_llonebot_debug: bool = Field(
+            default=False,
+            description="是否启用 llonebot_debug API（调试接口，调用内部API，LLBot 扩展）",
+        )
+        enable_scan_qrcode: bool = Field(
+            default=False,
+            description="是否启用 scan_qrcode API（扫码登录，LLBot 扩展）",
+        )
+        enable_get_guild_list: bool = Field(
+            default=False,
+            description="是否启用 get_guild_list API（获取频道列表，NapCat/LLBot 扩展）",
+        )
+
     # ==================== emoji 节 ====================
     @config_section("emoji")
     class EmojiSection(SectionBase):

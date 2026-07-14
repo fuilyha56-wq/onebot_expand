@@ -324,3 +324,19 @@ class GroupFileService(BaseService):
             "file_hash": file_hash,
         }
         return await _call_onebot_api("get_private_file_url", params)
+
+    async def SetGroupFileForever(
+        self,
+        group_id: int,
+        file_id: str,
+    ) -> dict[str, Any]:
+        """设置群文件永久保存。
+
+        对应 OneBot API: ``set_group_file_forever``。
+        """
+        params: dict[str, Any] = {
+            "group_id": group_id,
+            "file_id": file_id,
+        }
+        return await _call_onebot_api("set_group_file_forever", params)
+

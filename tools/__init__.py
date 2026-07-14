@@ -1,24 +1,24 @@
 """onebot_expand 插件 Tool 组件包。
 
-导出全部 185 个 Tool 类，按功能域分组：
+导出全部 205 个 Tool 类，按功能域分组：
     - 消息相关 (20): message_tools
     - 群操作 (10): group_tools
     - 文件操作 (16): file_tools
     - 账号信息 (10): account_tools
     - NapCat 扩展 (15): napcat_tools
-    - 群文件管理 (12): group_file_tools
+    - 群文件管理 (13): group_file_tools
     - 群公告 (3): group_notice_tools
-    - 群管理扩展 (12): group_ext_tools
+    - 群管理扩展 (14): group_ext_tools
     - 请求处理 (5): request_tools
-    - 用户信息扩展 (9): user_ext_tools
+    - 用户信息扩展 (13): user_ext_tools
     - 在线状态 (4): status_tools
     - 戳一拍 (2): poke_tools
-    - 表情/收藏扩展 (10): emoji_ext_tools
+    - 表情/收藏扩展 (12): emoji_ext_tools
     - AI语音 (3): ai_voice_tools
     - 凭证/安全/下载 (8): cred_tools
-    - 机型/其他 (12): misc_tools
-    - 闪传 (11): flash_tools
-    - 群相册 (7): group_album_tools
+    - 机型/其他 (18): misc_tools
+    - 闪传 (14): flash_tools
+    - 群相册 (9): group_album_tools
     - 群待办 (3): group_todo_tools
     - QQ空间 (9): qzone_tools
     - Ark分享 (4): ark_tools
@@ -384,6 +384,7 @@ from .group_file_tools import (  # noqa: E402
     MoveGroupFileTool,
     RenameGroupFileTool,
     RenameGroupFileFolderTool,
+    SetGroupFileForeverTool,
     TransGroupFileTool,
 )
 from .group_notice_tools import (  # noqa: E402
@@ -392,6 +393,7 @@ from .group_notice_tools import (  # noqa: E402
     SendGroupNoticeTool,
 )
 from .group_ext_tools import (  # noqa: E402
+    BatchDeleteGroupMemberTool,
     GetGroupIgnoredNotifiesTool,
     GetGroupIgnoreAddRequestTool,
     GetGroupInfoExTool,
@@ -399,6 +401,7 @@ from .group_ext_tools import (  # noqa: E402
     GetGroupSignedListTool,
     SetGroupAddOptionTool,
     SetGroupKickMembersTool,
+    SetGroupMsgMaskTool,
     SetGroupPortraitTool,
     SetGroupRemarkTool,
     SetGroupRobotAddOptionTool,
@@ -415,9 +418,13 @@ from .request_tools import (  # noqa: E402
 from .user_ext_tools import (  # noqa: E402
     DeleteFriendTool,
     GetFriendsWithCategoryTool,
+    GetProfileLikeMeTool,
+    GetProfileLikeCountTool,
     GetProfileLikeTool,
+    GetQQAvatarTool,
     GetRecentContactTool,
     GetUnidirectionalFriendListTool,
+    SetFriendCategoryTool,
     SetFriendRemarkTool,
     SetQQAvatarTool,
     SetQQProfileTool,
@@ -440,10 +447,12 @@ from .emoji_ext_tools import (  # noqa: E402
     FetchCustomFaceTool,
     FetchEmojiLikeTool,
     GetEmojiLikesTool,
+    GetRecommendFaceTool,
     ModifyCustomFaceTool,
     MoveCustomFaceToFrontTool,
     SetCustomFaceDescTool,
     SetGroupReactionTool,
+    UnsetMsgEmojiLikeTool,
 )
 from .ai_voice_tools import (  # noqa: E402
     GetAiCharactersTool,
@@ -465,12 +474,18 @@ from .misc_tools import (  # noqa: E402
     ClickInlineKeyboardButtonTool,
     CreateCollectionTool,
     GetCollectionListTool,
+    GetConfigTool,
+    GetEventTool,
+    GetGuildListTool,
     GetMiniAppArkTool,
     GetModelShowTool,
     GetWordSlicesTool,
     HandleQuickOperationTool,
+    LlonebotDebugTool,
     NcGetPacketStatusTool,
+    ScanQRCodeTool,
     SendPacketTool,
+    SetConfigTool,
     SetModelShowTool,
     TranslateEn2zhTool,
 )
@@ -480,16 +495,21 @@ from .flash_tools import (  # noqa: E402
     DownloadFilesetTool,
     GetFilesetIdTool,
     GetFilesetInfoTool,
+    GetFlashFileDownloadUrlsTool,
     GetFlashFileListTool,
     GetFlashFileUrlTool,
     GetShareLinkTool,
     ListFilesetsTool,
     RenameFlashFileTool,
+    ReshareFlashFileTool,
     SendFlashMsgTool,
+    UploadFlashFileTool,
 )
 from .group_album_tools import (  # noqa: E402
     CancelGroupAlbumMediaLikeTool,
+    CreateGroupAlbumTool,
     DelGroupAlbumMediaTool,
+    DeleteGroupAlbumTool,
     DoGroupAlbumCommentTool,
     GetGroupAlbumMediaListTool,
     GetQunAlbumListTool,
@@ -519,7 +539,7 @@ from .ark_tools import (  # noqa: E402
     SharePeerTool,
 )
 
-# 全部 185 个 Tool 类列表
+# 全部 205 个 Tool 类列表
 ALL_TOOLS: list[type] = [
     # 消息相关 (18)
     SendGroupMsgTool,
@@ -727,6 +747,33 @@ ALL_TOOLS: list[type] = [
     SendArkShareTool,
     ShareGroupExTool,
     SendGroupArkShareTool,
+    # group_ext_tools 新增
+    BatchDeleteGroupMemberTool,
+    SetGroupMsgMaskTool,
+    # group_album_tools 新增
+    CreateGroupAlbumTool,
+    DeleteGroupAlbumTool,
+    # flash_tools 新增
+    GetFlashFileDownloadUrlsTool,
+    UploadFlashFileTool,
+    ReshareFlashFileTool,
+    # group_file_tools 新增
+    SetGroupFileForeverTool,
+    # user_ext_tools 新增
+    GetProfileLikeMeTool,
+    GetProfileLikeCountTool,
+    GetQQAvatarTool,
+    SetFriendCategoryTool,
+    # emoji_ext_tools 新增
+    GetRecommendFaceTool,
+    UnsetMsgEmojiLikeTool,
+    # misc_tools 新增
+    GetConfigTool,
+    SetConfigTool,
+    GetEventTool,
+    LlonebotDebugTool,
+    ScanQRCodeTool,
+    GetGuildListTool,
 ]
 
 

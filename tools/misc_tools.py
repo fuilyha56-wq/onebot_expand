@@ -39,6 +39,12 @@ __all__ = [
     "SendPacketTool",
     "HandleQuickOperationTool",
     "GetWordSlicesTool",
+"GetConfigTool",
+    "SetConfigTool",
+    "GetEventTool",
+    "LlonebotDebugTool",
+    "ScanQRCodeTool",
+    "GetGuildListTool",
 ]
 
 
@@ -335,3 +341,143 @@ class GetWordSlicesTool(BaseTool):
             data = result.get("data", {})
             return True, data
         return False, f"分词失败: {result.get('msg', '未知错误')}"
+
+
+class GetConfigTool(BaseTool):
+    """获取协议端配置的 Tool。
+
+    对应 API: ``get_config``。
+    """
+
+    tool_name = "get_config"
+    tool_description = "获取协议端配置"
+
+    async def execute(
+        self,
+    ) -> tuple[bool, str]:
+        """执行获取协议端配置。"""
+        params: dict[str, Any] = {}
+        result = await _call_onebot_api("get_config", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"获取协议端配置失败: {result.get('msg', '未知错误')}"
+
+
+
+class SetConfigTool(BaseTool):
+    """设置协议端配置的 Tool。
+
+    对应 API: ``set_config``。
+    """
+
+    tool_name = "set_config"
+    tool_description = "设置协议端配置"
+
+    async def execute(
+        self,
+        config: Annotated[dict, "配置字典"],
+    ) -> tuple[bool, str]:
+        """执行设置协议端配置。"""
+        params: dict[str, Any] = {
+            "config": config,
+        }
+        result = await _call_onebot_api("set_config", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"设置协议端配置失败: {result.get('msg', '未知错误')}"
+
+
+
+class GetEventTool(BaseTool):
+    """获取事件的 Tool。
+
+    对应 API: ``get_event``。
+    """
+
+    tool_name = "get_event"
+    tool_description = "获取事件"
+
+    async def execute(
+        self,
+    ) -> tuple[bool, str]:
+        """执行获取事件。"""
+        params: dict[str, Any] = {}
+        result = await _call_onebot_api("get_event", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"获取事件失败: {result.get('msg', '未知错误')}"
+
+
+
+class LlonebotDebugTool(BaseTool):
+    """调试接口的 Tool。
+
+    对应 API: ``llonebot_debug``。
+    """
+
+    tool_name = "llonebot_debug"
+    tool_description = "调试接口"
+
+    async def execute(
+        self,
+        api_class: Annotated[str, "API类名"],
+        method: Annotated[str, "方法名"],
+        args: Annotated[list, "参数列表"],
+    ) -> tuple[bool, str]:
+        """执行调试接口。"""
+        params: dict[str, Any] = {
+            "api_class": api_class,
+            "method": method,
+            "args": args,
+        }
+        result = await _call_onebot_api("llonebot_debug", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"调试接口失败: {result.get('msg', '未知错误')}"
+
+
+
+class ScanQRCodeTool(BaseTool):
+    """扫码登录的 Tool。
+
+    对应 API: ``scan_qrcode``。
+    """
+
+    tool_name = "scan_qrcode"
+    tool_description = "扫码登录"
+
+    async def execute(
+        self,
+        qrcode: Annotated[str, "二维码内容"],
+    ) -> tuple[bool, str]:
+        """执行扫码登录。"""
+        params: dict[str, Any] = {
+            "qrcode": qrcode,
+        }
+        result = await _call_onebot_api("scan_qrcode", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"扫码登录失败: {result.get('msg', '未知错误')}"
+
+
+
+class GetGuildListTool(BaseTool):
+    """获取频道列表的 Tool。
+
+    对应 API: ``get_guild_list``。
+    """
+
+    tool_name = "get_guild_list"
+    tool_description = "获取频道列表"
+
+    async def execute(
+        self,
+    ) -> tuple[bool, str]:
+        """执行获取频道列表。"""
+        params: dict[str, Any] = {}
+        result = await _call_onebot_api("get_guild_list", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"获取频道列表失败: {result.get('msg', '未知错误')}"
+
+
