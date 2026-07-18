@@ -1,17 +1,14 @@
 # onebot_expand API 索引名单
 
-共 **205** 个主名 action + **18** 个别名。
+> 共 **205** 个主名 action + **18** 个别名 · 覆盖 OneBot v11 / NapCat / SnowLuma / LLBot 四方协议端
 
-来源标记：OB11=OneBot v11 标准，NapCat=NapCat 扩展，go-cqhttp=go-cqhttp 兼容，Expand=插件扩展，LLBot=LLBot 扩展。
+**来源标记**：`OB11`=OneBot v11 标准 · `NapCat`=NapCat 扩展 · `go-cqhttp`=go-cqhttp 兼容 · `Expand`=插件扩展 · `LLBot`=LLBot 扩展
 
-`napcat_only=True` 表示 NapCat 专属（SnowLuma 不支持）；`snowluma_compat=False` 表示 SnowLuma 不兼容。
-
+**兼容性标记**：`napcat_only` 列 `✓`=NapCat 专属（SnowLuma 不支持）· `snowluma_compat` 列 `✓`=SnowLuma 兼容 · `—`=不适用/默认值
 
 ---
 
-
 ## 按分类
-
 
 ### 消息 (message, 20 个)
 
@@ -325,8 +322,9 @@
 
 ---
 
-
 ## 别名映射表
+
+> 别名与主名共用同一开关和 handler，调用时通过 `resolve_action()` 解析为主名。
 
 | 别名 | 主名 |
 |---|---|
@@ -351,11 +349,12 @@
 
 ---
 
-
 ## 按来源统计
 
-- OB11: 32 个
-- NapCat: 20 个
-- go-cqhttp: 20 个
-- Expand: 133 个
-- LLBot: 20 个
+- **OB11**：32 个 — OneBot v11 标准 API
+- **NapCat**：20 个 — NapCat 扩展 API
+- **go-cqhttp**：20 个 — go-cqhttp 兼容 API
+- **Expand**：133 个 — 插件扩展 API
+- **LLBot**：20 个 — LLBot 扩展 API
+
+**合计**：205 个主名 action + 18 个别名 = 223 个可调用名

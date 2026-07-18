@@ -1,10 +1,14 @@
 # OneBot Expand
 
-OneBot v11 + NapCat 扩展 API 完整封装插件，提供 **205 个 Tool 组件** 和 **23 个 Service 组件**，通过 onebot_adapter 调用 NapCat / SnowLuma / LLBot 等协议端的全部扩展能力。
+> OneBot v11 + NapCat 扩展 API 完整封装插件，通过 `onebot_adapter` 调用 NapCat / SnowLuma / LLBot 等协议端的全部扩展能力。
 
-- **版本**：1.0.3
-- **依赖**：`onebot_adapter` 插件
-- **协议端兼容**：NapCat、SnowLuma、LLBot（三适配器支持，按 API 单独标记兼容性）
+| 指标 | 值 |
+|---|---|
+| 版本 | 1.0.4 |
+| Tool 组件 | **205** 个 |
+| Service 组件 | **23** 个 |
+| 依赖插件 | `onebot_adapter` |
+| 协议端兼容 | NapCat · SnowLuma · LLBot（按 API 单独标记兼容性） |
 
 ## 功能概览
 
@@ -41,9 +45,9 @@ OneBot v11 + NapCat 扩展 API 完整封装插件，提供 **205 个 Tool 组件
 
 ### 调用链
 
-```
-LLM 调用 → Tool.execute（总开关 + 独立开关检查）→ _call_onebot_api → onebot_adapter → NapCat/SnowLuma
-其他插件 → Service.method（独立开关检查）→ _call_onebot_api → onebot_adapter → NapCat/SnowLuma
+```text
+LLM 调用 → Tool.execute（总开关 + 独立开关检查）→ _call_onebot_api → onebot_adapter → NapCat/SnowLuma/LLBot
+其他插件 → Service.method（独立开关检查）→ _call_onebot_api → onebot_adapter → NapCat/SnowLuma/LLBot
 ```
 
 ### 关键机制
@@ -55,26 +59,26 @@ LLM 调用 → Tool.execute（总开关 + 独立开关检查）→ _call_onebot_
 - **`true`**：各 Tool 的独立开关 `enable_<action>` 生效，可单独启停
 - **`false`（默认）**：所有 Tool 一律禁用，LLM 调用任何 Tool 都直接返回禁用响应
 
-**Service 不受总开关影响**——始终启用，确保其他插件通过 Service 调用的路径不会中断。
+✅ **Service 不受总开关影响**——始终启用，确保其他插件通过 Service 调用的路径不会中断。
 
 #### 2. Tool 独立开关 `enable_<action>`
 
 每个 Tool 对应一个独立开关，**默认全部 `false`**。需要启用某个 Tool 时，显式在配置里设为 `true`，并将 `enable_all_tools` 也设为 `true`。
 
-#### 2. 别名机制
+#### 3. 别名机制
 
 部分 action 有历史别名（如 `nc_get_rkey` → `get_rkey`、`.ocr_image` → `ocr_image`、`._get_model_show` → `_get_model_show`）。别名与主名共用同一开关和同一 handler，调用时通过 `resolve_action()` 解析为主名。
 
-别名列表见 [ACTION_INDEX.md](./ACTION_INDEX.md) 的"别名映射表"。
+别名列表见 [ACTION_INDEX.md](./docs/ACTION_INDEX.md) 的"别名映射表"。
 
-#### 3. 适配器兼容性标记
+#### 4. 适配器兼容性标记
 
 每个 API 在 `api_defs.py` 标记：
 
 - `napcat_only`：True 表示 NapCat 专属，SnowLuma 不支持
 - `snowluma_compat`：False 表示 SnowLuma 不兼容
 
-调用方可根据标记选择合适的 API。详见 [ACTION_INDEX.md](./ACTION_INDEX.md)。
+调用方可根据标记选择合适的 API。详见 [ACTION_INDEX.md](./docs/ACTION_INDEX.md)。
 
 ## 配置
 
@@ -82,12 +86,14 @@ LLM 调用 → Tool.execute（总开关 + 独立开关检查）→ _call_onebot_
 
 ### 主要配置节
 
-- `plugin`：插件启用与版本
-- `adapter`：适配器签名、默认超时、协议端
-- `api_switches`：API 级独立开关（含 `enable_all_tools` 总开关）
-- `emoji`：表情发送与回应开关
-- `file_transfer`：文件传输模式（路径映射/base64/共享卷）
-- `protocol`：协议端后端与兼容模式
+| 配置节 | 说明 |
+|---|---|
+| `plugin` | 插件启用与版本 |
+| `adapter` | 适配器签名、默认超时、协议端 |
+| `api_switches` | API 级独立开关（含 `enable_all_tools` 总开关） |
+| `emoji` | 表情发送与回应开关 |
+| `file_transfer` | 文件传输模式（路径映射/base64/共享卷） |
+| `protocol` | 协议端后端与兼容模式 |
 
 ### API 开关格式
 
@@ -101,7 +107,7 @@ enable_get_qzone_msg_list = true # QQ空间说说列表（默认 false）
 # ... 共 205 个独立开关
 ```
 
-**Service 路径不受这些开关影响**——Service 方法始终可调用，供其他插件程序化使用。
+✅ **Service 路径不受这些开关影响**——Service 方法始终可调用，供其他插件程序化使用。
 
 ## API 索引
 
@@ -114,12 +120,14 @@ enable_get_qzone_msg_list = true # QQ空间说说列表（默认 false）
 
 ## 开发文档
 
-- [API_DEFS_REFACTOR.md](./docs/API_DEFS_REFACTOR.md)：重构历史与决策记录
-- [ACTION_INDEX.md](./docs/ACTION_INDEX.md)：API 完整索引名单
+| 文档 | 说明 |
+|---|---|
+| [ACTION_INDEX.md](./docs/ACTION_INDEX.md) | API 完整索引名单 |
+| [API_DEFS_REFACTOR.md](./docs/API_DEFS_REFACTOR.md) | 重构历史与决策记录 |
 
 ## 模块结构
 
-```
+```text
 onebot_expand/
 ├── plugin.py              # 插件入口
 ├── config.py              # 配置定义
