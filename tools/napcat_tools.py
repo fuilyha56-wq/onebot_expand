@@ -58,8 +58,8 @@ class SetMsgEmojiLikeTool(BaseTool):
     emoji_id 需为表情回应表中的有效 ID，通过 emoji_tables 模块验证。
     """
 
-    tool_name = "set_msg_emoji_like"
-    tool_description = "对消息添加或取消表情回应（贴表情），需使用有效的表情ID"
+    name = "set_msg_emoji_like"
+    description = "对消息添加或取消表情回应（贴表情），需使用有效的表情ID"
 
     async def execute(
         self,
@@ -94,8 +94,8 @@ class GetEssenceMsgListTool(BaseTool):
     返回指定群的精华消息列表。
     """
 
-    tool_name = "get_essence_msg_list"
-    tool_description = "获取指定群的精华消息列表（NapCat扩展）"
+    name = "get_essence_msg_list"
+    description = "获取指定群的精华消息列表（NapCat扩展）"
 
     async def execute(
         self,
@@ -118,8 +118,8 @@ class GetOnlineClientsTool(BaseTool):
     返回当前 Bot 在各平台的在线客户端列表。
     """
 
-    tool_name = "get_online_clients"
-    tool_description = "获取当前Bot的在线客户端列表（NapCat扩展）"
+    name = "get_online_clients"
+    description = "获取当前Bot的在线客户端列表（NapCat扩展）"
 
     async def execute(
         self,
@@ -140,8 +140,8 @@ class GetCookiesTool(BaseTool):
     获取当前 Bot 在指定域名的 Cookies。
     """
 
-    tool_name = "get_cookies"
-    tool_description = "获取当前Bot在指定域名的Cookies（NapCat扩展）"
+    name = "get_cookies"
+    description = "获取当前Bot在指定域名的Cookies（NapCat扩展）"
 
     async def execute(
         self,
@@ -171,8 +171,8 @@ class GetCsrfTokenTool(BaseTool):
     获取当前 Bot 的 CSRF Token。
     """
 
-    tool_name = "get_csrf_token"
-    tool_description = "获取当前Bot的CSRF Token（NapCat扩展）"
+    name = "get_csrf_token"
+    description = "获取当前Bot的CSRF Token（NapCat扩展）"
 
     async def execute(
         self,
@@ -200,8 +200,8 @@ class GetStatusTool(BaseTool):
     返回协议端的运行状态信息（在线状态、资源占用等）。
     """
 
-    tool_name = "get_status"
-    tool_description = "获取协议端的运行状态信息"
+    name = "get_status"
+    description = "获取协议端的运行状态信息"
 
     async def execute(
         self,
@@ -222,8 +222,8 @@ class SetRestartTool(BaseTool):
     重启协议端，延迟时间后生效。请谨慎使用。
     """
 
-    tool_name = "set_restart"
-    tool_description = "重启协议端，延迟指定秒数后生效（请谨慎使用）"
+    name = "set_restart"
+    description = "重启协议端，延迟指定秒数后生效（请谨慎使用）"
 
     async def execute(
         self,
@@ -244,8 +244,8 @@ class CleanCacheTool(BaseTool):
     清理协议端的缓存数据。
     """
 
-    tool_name = "clean_cache"
-    tool_description = "清理协议端的缓存数据（NapCat扩展）"
+    name = "clean_cache"
+    description = "清理协议端的缓存数据（NapCat扩展）"
 
     async def execute(
         self,
@@ -265,8 +265,8 @@ class CanSendImageTool(BaseTool):
     检查当前协议端是否支持发送图片。
     """
 
-    tool_name = "can_send_image"
-    tool_description = "检查当前协议端是否支持发送图片"
+    name = "can_send_image"
+    description = "检查当前协议端是否支持发送图片"
 
     async def execute(
         self,
@@ -292,8 +292,8 @@ class CanSendRecordTool(BaseTool):
     检查当前协议端是否支持发送语音。
     """
 
-    tool_name = "can_send_record"
-    tool_description = "检查当前协议端是否支持发送语音"
+    name = "can_send_record"
+    description = "检查当前协议端是否支持发送语音"
 
     async def execute(
         self,
@@ -319,8 +319,8 @@ class GetVersionInfoTool(BaseTool):
     返回协议端的版本信息（版本号、协议类型等）。
     """
 
-    tool_name = "get_version_info"
-    tool_description = "获取协议端的版本信息"
+    name = "get_version_info"
+    description = "获取协议端的版本信息"
 
     async def execute(
         self,
@@ -341,8 +341,8 @@ class SetEssenceMsgTool(BaseTool):
     将指定消息设置为群精华消息。
     """
 
-    tool_name = "set_essence_msg"
-    tool_description = "设置精华消息（go-cqhttp兼容）"
+    name = "set_essence_msg"
+    description = "设置精华消息（go-cqhttp兼容）"
 
     async def execute(
         self,
@@ -363,8 +363,8 @@ class DeleteEssenceMsgTool(BaseTool):
     将指定消息从群精华消息中移除。
     """
 
-    tool_name = "delete_essence_msg"
-    tool_description = "删除精华消息（go-cqhttp兼容）"
+    name = "delete_essence_msg"
+    description = "删除精华消息（go-cqhttp兼容）"
 
     async def execute(
         self,
@@ -385,8 +385,8 @@ class GetGroupAtAllRemainTool(BaseTool):
     获取在指定群中@全体的剩余次数。
     """
 
-    tool_name = "get_group_at_all_remain"
-    tool_description = "获取@全体剩余次数（go-cqhttp兼容）"
+    name = "get_group_at_all_remain"
+    description = "获取@全体剩余次数（go-cqhttp兼容）"
 
     async def execute(
         self,
@@ -408,8 +408,8 @@ class FetchPttTextTool(BaseTool):
     将指定语音消息转换为文字。
     """
 
-    tool_name = "fetch_ptt_text"
-    tool_description = "获取语音转文字（扩展）"
+    name = "fetch_ptt_text"
+    description = "获取语音转文字（扩展）"
 
     async def execute(
         self,

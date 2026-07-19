@@ -53,8 +53,8 @@ class MessageService(BaseService):
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
-    service_name: str = "message_service"
-    service_description: str = "消息发送与管理服务"
+    name: str = "message_service"
+    description: str = "消息发送与管理服务"
     version: str = "1.0.0"
 
     async def send_group_msg(

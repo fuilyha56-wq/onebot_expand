@@ -32,8 +32,8 @@ class SharePeerTool(BaseTool):
     分享用户或群的 Ark 卡片。
     """
 
-    tool_name = "share_peer"
-    tool_description = "分享用户或群的Ark卡片"
+    name = "share_peer"
+    description = "分享用户或群的Ark卡片"
 
     async def execute(
         self,
@@ -60,8 +60,8 @@ class SendArkShareTool(BaseTool):
     发送 Ark 卡片到指定用户或群。
     """
 
-    tool_name = "send_ark_share"
-    tool_description = "发送Ark卡片到指定用户或群"
+    name = "send_ark_share"
+    description = "发送Ark卡片到指定用户或群"
 
     async def execute(
         self,
@@ -87,8 +87,8 @@ class ShareGroupExTool(BaseTool):
     分享群的扩展 Ark 卡片。
     """
 
-    tool_name = "share_group_ex"
-    tool_description = "分享群的扩展Ark卡片"
+    name = "share_group_ex"
+    description = "分享群的扩展Ark卡片"
 
     async def execute(
         self,
@@ -110,8 +110,8 @@ class SendGroupArkShareTool(BaseTool):
     向指定群发送 Ark 分享卡片。
     """
 
-    tool_name = "send_group_ark_share"
-    tool_description = "向指定群发送Ark分享卡片"
+    name = "send_group_ark_share"
+    description = "向指定群发送Ark分享卡片"
 
     async def execute(
         self,

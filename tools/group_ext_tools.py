@@ -49,8 +49,8 @@ class SetGroupPortraitTool(BaseTool):
     设置指定群的群头像。
     """
 
-    tool_name = "set_group_portrait"
-    tool_description = "设置群头像"
+    name = "set_group_portrait"
+    description = "设置群头像"
 
     async def execute(
         self,
@@ -75,8 +75,8 @@ class SetGroupRemarkTool(BaseTool):
     设置指定群的群备注。
     """
 
-    tool_name = "set_group_remark"
-    tool_description = "设置群备注"
+    name = "set_group_remark"
+    description = "设置群备注"
 
     async def execute(
         self,
@@ -101,8 +101,8 @@ class SetGroupAddOptionTool(BaseTool):
     设置指定群的加群方式选项。
     """
 
-    tool_name = "set_group_add_option"
-    tool_description = "设置加群选项"
+    name = "set_group_add_option"
+    description = "设置加群选项"
 
     async def execute(
         self,
@@ -129,8 +129,8 @@ class SetGroupSearchTool(BaseTool):
     设置指定群是否允许被搜索。
     """
 
-    tool_name = "set_group_search"
-    tool_description = "允许群被搜索"
+    name = "set_group_search"
+    description = "允许群被搜索"
 
     async def execute(
         self,
@@ -153,8 +153,8 @@ class SetGroupRobotAddOptionTool(BaseTool):
     设置群机器人是否允许加群。
     """
 
-    tool_name = "set_group_robot_add_option"
-    tool_description = "设置群机器人加群选项"
+    name = "set_group_robot_add_option"
+    description = "设置群机器人加群选项"
 
     async def execute(
         self,
@@ -180,8 +180,8 @@ class SetGroupKickMembersTool(BaseTool):
     批量将指定群成员移出群聊，可选是否拒绝再次加群请求。
     """
 
-    tool_name = "set_group_kick_members"
-    tool_description = "批量踢出群成员"
+    name = "set_group_kick_members"
+    description = "批量踢出群成员"
 
     async def execute(
         self,
@@ -208,8 +208,8 @@ class GetGroupShutListTool(BaseTool):
     获取指定群中被禁言的成员列表。
     """
 
-    tool_name = "get_group_shut_list"
-    tool_description = "获取群禁言列表"
+    name = "get_group_shut_list"
+    description = "获取群禁言列表"
 
     async def execute(
         self,
@@ -233,8 +233,8 @@ class GetGroupIgnoredNotifiesTool(BaseTool):
     获取被过滤的入群请求列表。
     """
 
-    tool_name = "get_group_ignored_notifies"
-    tool_description = "获取被过滤的入群请求"
+    name = "get_group_ignored_notifies"
+    description = "获取被过滤的入群请求"
 
     async def execute(
         self,
@@ -255,8 +255,8 @@ class GetGroupIgnoreAddRequestTool(BaseTool):
     获取被忽略的入群请求列表。
     """
 
-    tool_name = "get_group_ignore_add_request"
-    tool_description = "获取被忽略的入群请求"
+    name = "get_group_ignore_add_request"
+    description = "获取被忽略的入群请求"
 
     async def execute(
         self,
@@ -277,8 +277,8 @@ class GetGroupInfoExTool(BaseTool):
     获取指定群的扩展信息。
     """
 
-    tool_name = "get_group_info_ex"
-    tool_description = "获取群信息扩展"
+    name = "get_group_info_ex"
+    description = "获取群信息扩展"
 
     async def execute(
         self,
@@ -302,8 +302,8 @@ class SetGroupSignTool(BaseTool):
     在指定群中进行签到。
     """
 
-    tool_name = "set_group_sign"
-    tool_description = "群签到"
+    name = "set_group_sign"
+    description = "群签到"
 
     async def execute(
         self,
@@ -326,8 +326,8 @@ class GetGroupSignedListTool(BaseTool):
     获取指定群今日已签到的成员列表。
     """
 
-    tool_name = "get_group_signed_list"
-    tool_description = "获取群今日打卡列表"
+    name = "get_group_signed_list"
+    description = "获取群今日打卡列表"
 
     async def execute(
         self,
@@ -348,8 +348,8 @@ class BatchDeleteGroupMemberTool(BaseTool):
     对应 API: ``batch_delete_group_member``。
     """
 
-    tool_name = "batch_delete_group_member"
-    tool_description = "批量踢出群成员"
+    name = "batch_delete_group_member"
+    description = "批量踢出群成员"
 
     async def execute(
         self,
@@ -374,8 +374,8 @@ class SetGroupMsgMaskTool(BaseTool):
     对应 API: ``set_group_msg_mask``。
     """
 
-    tool_name = "set_group_msg_mask"
-    tool_description = "设置群消息屏蔽"
+    name = "set_group_msg_mask"
+    description = "设置群消息屏蔽"
 
     async def execute(
         self,

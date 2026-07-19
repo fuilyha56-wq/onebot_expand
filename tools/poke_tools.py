@@ -28,8 +28,8 @@ class FriendPokeTool(BaseTool):
     向指定好友发送戳一戳。
     """
 
-    tool_name = "friend_poke"
-    tool_description = "向指定好友发送戳一戳"
+    name = "friend_poke"
+    description = "向指定好友发送戳一戳"
 
     async def execute(
         self,
@@ -53,8 +53,8 @@ class GroupPokeTool(BaseTool):
     在指定群中向指定成员发送戳一戳。
     """
 
-    tool_name = "group_poke"
-    tool_description = "在指定群中向指定成员发送戳一戳"
+    name = "group_poke"
+    description = "在指定群中向指定成员发送戳一戳"
 
     async def execute(
         self,

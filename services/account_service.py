@@ -34,8 +34,8 @@ class AccountService(BaseService):
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
-    service_name: str = "account_service"
-    service_description: str = "账号与群组信息查询服务"
+    name: str = "account_service"
+    description: str = "账号与群组信息查询服务"
     version: str = "1.0.0"
 
     async def get_login_info(self) -> dict[str, Any]:

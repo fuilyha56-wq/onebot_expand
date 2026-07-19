@@ -30,8 +30,8 @@ class SendGroupNoticeTool(BaseTool):
     向指定群发送群公告，可附带图片。
     """
 
-    tool_name = "_send_group_notice"
-    tool_description = "发送群公告"
+    name = "_send_group_notice"
+    description = "发送群公告"
 
     async def execute(
         self,
@@ -59,8 +59,8 @@ class GetGroupNoticeTool(BaseTool):
     获取指定群的群公告列表。
     """
 
-    tool_name = "_get_group_notice"
-    tool_description = "获取群公告列表"
+    name = "_get_group_notice"
+    description = "获取群公告列表"
 
     async def execute(
         self,
@@ -84,8 +84,8 @@ class DelGroupNoticeTool(BaseTool):
     删除指定群中的群公告。
     """
 
-    tool_name = "_del_group_notice"
-    tool_description = "删除群公告"
+    name = "_del_group_notice"
+    description = "删除群公告"
 
     async def execute(
         self,

@@ -55,8 +55,8 @@ class GetModelShowTool(BaseTool):
     获取指定机型型号的展示信息。
     """
 
-    tool_name = "_get_model_show"
-    tool_description = "获取指定机型型号的展示信息"
+    name = "_get_model_show"
+    description = "获取指定机型型号的展示信息"
 
     async def execute(
         self,
@@ -78,8 +78,8 @@ class SetModelShowTool(BaseTool):
     设置当前 Bot 的机型展示信息。
     """
 
-    tool_name = "_set_model_show"
-    tool_description = "设置当前Bot的机型展示信息"
+    name = "_set_model_show"
+    description = "设置当前Bot的机型展示信息"
 
     async def execute(
         self,
@@ -104,8 +104,8 @@ class BotExitTool(BaseTool):
     退出当前 Bot 实例。请谨慎使用。
     """
 
-    tool_name = "bot_exit"
-    tool_description = "退出当前Bot实例（请谨慎使用）"
+    name = "bot_exit"
+    description = "退出当前Bot实例（请谨慎使用）"
 
     async def execute(
         self,
@@ -125,8 +125,8 @@ class NcGetPacketStatusTool(BaseTool):
     获取协议端的 packet 处理状态。
     """
 
-    tool_name = "nc_get_packet_status"
-    tool_description = "获取协议端的packet处理状态"
+    name = "nc_get_packet_status"
+    description = "获取协议端的packet处理状态"
 
     async def execute(
         self,
@@ -147,8 +147,8 @@ class ClickInlineKeyboardButtonTool(BaseTool):
     点击指定群中的内联键盘按钮。
     """
 
-    tool_name = "click_inline_keyboard_button"
-    tool_description = "点击指定群中的内联键盘按钮"
+    name = "click_inline_keyboard_button"
+    description = "点击指定群中的内联键盘按钮"
 
     async def execute(
         self,
@@ -177,8 +177,8 @@ class GetMiniAppArkTool(BaseTool):
     生成小程序 Ark 卡片数据。
     """
 
-    tool_name = "get_mini_app_ark"
-    tool_description = "生成小程序Ark卡片数据"
+    name = "get_mini_app_ark"
+    description = "生成小程序Ark卡片数据"
 
     async def execute(
         self,
@@ -210,8 +210,8 @@ class TranslateEn2zhTool(BaseTool):
     将英文单词列表翻译为中文。
     """
 
-    tool_name = "translate_en2zh"
-    tool_description = "将英文单词列表翻译为中文"
+    name = "translate_en2zh"
+    description = "将英文单词列表翻译为中文"
 
     async def execute(
         self,
@@ -233,8 +233,8 @@ class CreateCollectionTool(BaseTool):
     创建一条收藏内容。
     """
 
-    tool_name = "create_collection"
-    tool_description = "创建一条收藏内容"
+    name = "create_collection"
+    description = "创建一条收藏内容"
 
     async def execute(
         self,
@@ -255,8 +255,8 @@ class GetCollectionListTool(BaseTool):
     获取当前 Bot 的收藏列表。
     """
 
-    tool_name = "get_collection_list"
-    tool_description = "获取当前Bot的收藏列表"
+    name = "get_collection_list"
+    description = "获取当前Bot的收藏列表"
 
     async def execute(
         self,
@@ -277,8 +277,8 @@ class SendPacketTool(BaseTool):
     发送原始 SSO 数据包。高级功能，请谨慎使用。
     """
 
-    tool_name = "send_packet"
-    tool_description = "发送原始SSO数据包（高级功能，请谨慎使用）"
+    name = "send_packet"
+    description = "发送原始SSO数据包（高级功能，请谨慎使用）"
 
     async def execute(
         self,
@@ -301,8 +301,8 @@ class HandleQuickOperationTool(BaseTool):
     对应 go-cqhttp 兼容 API: ``handle_quick_operation``（别名 ``.handle_quick_operation``）。
     """
 
-    tool_name = "handle_quick_operation"
-    tool_description = "go-cqhttp 快速操作（NapCat 与 SnowLuma 均支持）"
+    name = "handle_quick_operation"
+    description = "go-cqhttp 快速操作（NapCat 与 SnowLuma 均支持）"
 
     async def execute(
         self,
@@ -327,8 +327,8 @@ class GetWordSlicesTool(BaseTool):
     对文本内容进行分词，返回切分后的词组列表。仅 NapCat 支持，SnowLuma 未实现。
     """
 
-    tool_name = "get_word_slices"
-    tool_description = "对文本内容进行分词（go-cqhttp 兼容，仅 NapCat 支持）"
+    name = "get_word_slices"
+    description = "对文本内容进行分词（go-cqhttp 兼容，仅 NapCat 支持）"
 
     async def execute(
         self,
@@ -349,8 +349,8 @@ class GetConfigTool(BaseTool):
     对应 API: ``get_config``。
     """
 
-    tool_name = "get_config"
-    tool_description = "获取协议端配置"
+    name = "get_config"
+    description = "获取协议端配置"
 
     async def execute(
         self,
@@ -370,8 +370,8 @@ class SetConfigTool(BaseTool):
     对应 API: ``set_config``。
     """
 
-    tool_name = "set_config"
-    tool_description = "设置协议端配置"
+    name = "set_config"
+    description = "设置协议端配置"
 
     async def execute(
         self,
@@ -394,8 +394,8 @@ class GetEventTool(BaseTool):
     对应 API: ``get_event``。
     """
 
-    tool_name = "get_event"
-    tool_description = "获取事件"
+    name = "get_event"
+    description = "获取事件"
 
     async def execute(
         self,
@@ -415,8 +415,8 @@ class LlonebotDebugTool(BaseTool):
     对应 API: ``llonebot_debug``。
     """
 
-    tool_name = "llonebot_debug"
-    tool_description = "调试接口"
+    name = "llonebot_debug"
+    description = "调试接口"
 
     async def execute(
         self,
@@ -443,8 +443,8 @@ class ScanQRCodeTool(BaseTool):
     对应 API: ``scan_qrcode``。
     """
 
-    tool_name = "scan_qrcode"
-    tool_description = "扫码登录"
+    name = "scan_qrcode"
+    description = "扫码登录"
 
     async def execute(
         self,
@@ -467,8 +467,8 @@ class GetGuildListTool(BaseTool):
     对应 API: ``get_guild_list``。
     """
 
-    tool_name = "get_guild_list"
-    tool_description = "获取频道列表"
+    name = "get_guild_list"
+    description = "获取频道列表"
 
     async def execute(
         self,

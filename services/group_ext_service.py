@@ -35,8 +35,8 @@ class GroupExtService(BaseService):
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
-    service_name: str = "group_ext_service"
-    service_description: str = "群管理扩展服务"
+    name: str = "group_ext_service"
+    description: str = "群管理扩展服务"
     version: str = "1.0.0"
 
     async def set_group_portrait(

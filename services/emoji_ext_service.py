@@ -35,8 +35,8 @@ class EmojiExtService(BaseService):
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
-    service_name: str = "emoji_ext_service"
-    service_description: str = "表情/收藏扩展服务"
+    name: str = "emoji_ext_service"
+    description: str = "表情/收藏扩展服务"
     version: str = "1.0.0"
 
     async def fetch_custom_face(self, count: int = 48) -> dict[str, Any]:

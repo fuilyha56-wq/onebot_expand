@@ -34,7 +34,7 @@ class OnebotExpandPlugin(BasePlugin):
         plugin_description: 插件描述
         plugin_version: 插件版本
         configs: 配置类列表
-        dependent_components: 依赖的其他组件列表
+        dependencies: 依赖的其他组件列表
     """
 
     plugin_name: str = "onebot_expand"
@@ -46,7 +46,7 @@ class OnebotExpandPlugin(BasePlugin):
     plugin_version: str = "1.0.6"
 
     configs: list[type] = [OnebotExpandConfig]
-    dependent_components: list[str] = []
+    dependencies: list[str] = []
 
     def _get_enabled_tools(self) -> list[type]:
         """返回配置中明确启用、需要注册的工具类。"""
@@ -60,7 +60,7 @@ class OnebotExpandPlugin(BasePlugin):
 
         enabled_tools: list[type] = []
         for tool_cls in ALL_TOOLS:
-            tool_name = str(getattr(tool_cls, "tool_name", "") or "")
+            tool_name = str(getattr(tool_cls, "name", "") or "")
             if not tool_name:
                 continue
             primary_action = resolve_action(tool_name) or tool_name

@@ -65,8 +65,8 @@ class OnebotExpandConfig(BaseConfig):
         - protocol: 协议端后端与兼容模式
     """
 
-    config_name: ClassVar[str] = "config"
-    config_description: ClassVar[str] = "OneBot Expand 插件配置"
+    name: ClassVar[str] = "config"
+    description: ClassVar[str] = "OneBot Expand 插件配置"
 
     # ==================== plugin 节 ====================
     @config_section("plugin")

@@ -49,8 +49,8 @@ class GetGroupFileUrlTool(BaseTool):
     根据群号、文件 ID 和 busid 获取群文件的下载链接。
     """
 
-    tool_name = "get_group_file_url"
-    tool_description = "获取群文件下载链接"
+    name = "get_group_file_url"
+    description = "获取群文件下载链接"
 
     async def execute(
         self,
@@ -78,8 +78,8 @@ class GetGroupRootFilesTool(BaseTool):
     获取指定群根目录下的文件和文件夹列表。
     """
 
-    tool_name = "get_group_root_files"
-    tool_description = "获取群根目录文件列表"
+    name = "get_group_root_files"
+    description = "获取群根目录文件列表"
 
     async def execute(
         self,
@@ -103,8 +103,8 @@ class GetGroupFilesByFolderTool(BaseTool):
     根据文件夹 ID 获取群子目录下的文件列表。
     """
 
-    tool_name = "get_group_files_by_folder"
-    tool_description = "获取群子目录文件列表"
+    name = "get_group_files_by_folder"
+    description = "获取群子目录文件列表"
 
     async def execute(
         self,
@@ -130,8 +130,8 @@ class DeleteGroupFileTool(BaseTool):
     删除指定群中的群文件。
     """
 
-    tool_name = "delete_group_file"
-    tool_description = "删除群文件"
+    name = "delete_group_file"
+    description = "删除群文件"
 
     async def execute(
         self,
@@ -158,8 +158,8 @@ class CreateGroupFileFolderTool(BaseTool):
     在指定群中创建文件夹，可指定父文件夹。
     """
 
-    tool_name = "create_group_file_folder"
-    tool_description = "创建群文件夹"
+    name = "create_group_file_folder"
+    description = "创建群文件夹"
 
     async def execute(
         self,
@@ -187,8 +187,8 @@ class DeleteGroupFolderTool(BaseTool):
     删除指定群中的群文件夹。
     """
 
-    tool_name = "delete_group_folder"
-    tool_description = "删除群文件夹"
+    name = "delete_group_folder"
+    description = "删除群文件夹"
 
     async def execute(
         self,
@@ -213,8 +213,8 @@ class GetGroupFileSystemInfoTool(BaseTool):
     获取指定群的文件系统信息（总容量、已用容量等）。
     """
 
-    tool_name = "get_group_file_system_info"
-    tool_description = "获取群文件系统信息"
+    name = "get_group_file_system_info"
+    description = "获取群文件系统信息"
 
     async def execute(
         self,
@@ -238,8 +238,8 @@ class MoveGroupFileTool(BaseTool):
     将群文件从当前目录移动到目标目录。
     """
 
-    tool_name = "move_group_file"
-    tool_description = "移动群文件到目标目录"
+    name = "move_group_file"
+    description = "移动群文件到目标目录"
 
     async def execute(
         self,
@@ -268,8 +268,8 @@ class RenameGroupFileTool(BaseTool):
     重命名指定群文件的文件名。
     """
 
-    tool_name = "rename_group_file"
-    tool_description = "重命名群文件"
+    name = "rename_group_file"
+    description = "重命名群文件"
 
     async def execute(
         self,
@@ -298,8 +298,8 @@ class RenameGroupFileFolderTool(BaseTool):
     重命名指定群文件夹的名称。
     """
 
-    tool_name = "rename_group_file_folder"
-    tool_description = "重命名群文件夹（SnowLuma扩展）"
+    name = "rename_group_file_folder"
+    description = "重命名群文件夹（SnowLuma扩展）"
 
     async def execute(
         self,
@@ -326,8 +326,8 @@ class TransGroupFileTool(BaseTool):
     将群文件转存到自己的文件存储中。
     """
 
-    tool_name = "trans_group_file"
-    tool_description = "转存群文件"
+    name = "trans_group_file"
+    description = "转存群文件"
 
     async def execute(
         self,
@@ -352,8 +352,8 @@ class GetPrivateFileUrlTool(BaseTool):
     根据用户 ID、文件 ID 和文件哈希获取私聊文件的下载链接。
     """
 
-    tool_name = "get_private_file_url"
-    tool_description = "获取私聊文件下载链接"
+    name = "get_private_file_url"
+    description = "获取私聊文件下载链接"
 
     async def execute(
         self,
@@ -380,8 +380,8 @@ class SetGroupFileForeverTool(BaseTool):
     对应 API: ``set_group_file_forever``。
     """
 
-    tool_name = "set_group_file_forever"
-    tool_description = "设置群文件永久保存"
+    name = "set_group_file_forever"
+    description = "设置群文件永久保存"
 
     async def execute(
         self,

@@ -26,8 +26,8 @@ class GroupNoticeService(BaseService):
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
-    service_name: str = "group_notice_service"
-    service_description: str = "群公告管理服务"
+    name: str = "group_notice_service"
+    description: str = "群公告管理服务"
     version: str = "1.0.0"
 
     async def send_group_notice(

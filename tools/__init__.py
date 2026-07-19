@@ -808,7 +808,7 @@ def _is_tool_master_switch_on(plugin: Any) -> bool:
 def _is_tool_independently_enabled(plugin: Any, tool_name: str) -> bool:
     """读取单个 Tool 的独立开关状态。
 
-    tool_name 应等于 action 主名。若 Tool 类的 tool_name 与主名不一致
+    tool_name 应等于 action 主名。若 Tool 类的 name 与主名不一致
     （历史遗留），通过 resolve_action 解析到主名后查 ``enable_<primary>``。
     """
     try:
@@ -832,7 +832,7 @@ def _wrap_tool_execute(tool_cls: type) -> None:
         plugin = getattr(self, "plugin", None)
         if not _is_tool_master_switch_on(plugin):
             return False, "工具已被总开关禁用（enable_all_tools=False）"
-        tool_name = getattr(tool_cls, "tool_name", "")
+        tool_name = getattr(tool_cls, "name", "")
         if tool_name and not _is_tool_independently_enabled(plugin, tool_name):
             return False, f"工具 {tool_name} 已被独立开关禁用"
         return await original(self, *args, **kwargs)
