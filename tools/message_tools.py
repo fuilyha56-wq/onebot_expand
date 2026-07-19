@@ -27,8 +27,11 @@ from __future__ import annotations
 
 from typing import Annotated, Any
 
+from pydantic import BaseModel, Field
+
 from src.app.plugin_system.base import BaseTool
 
+from ..message_utils import MessageId, build_text_message, normalize_message_id
 from . import _call_onebot_api
 
 __all__ = [
@@ -56,6 +59,14 @@ __all__ = [
 ]
 
 
+class ForwardNode(BaseModel):
+    """合并转发的单条消息节点。"""
+
+    uin: str = Field(description="原消息发送者的 QQ 号")
+    nick: str = Field(description="原消息发送者的昵称")
+    content: str | list[dict[str, Any]] = Field(description="原消息文本或 OneBot 消息段列表")
+
+
 def _build_text_message(text: str) -> list[dict[str, Any]]:
     """将纯文本构造成 OneBot 消息段列表。
 
@@ -65,7 +76,7 @@ def _build_text_message(text: str) -> list[dict[str, Any]]:
     Returns:
         OneBot 消息段列表，格式为 ``[{"type": "text", "data": {"text": ...}}]``。
     """
-    return [{"type": "text", "data": {"text": text}}]
+    return build_text_message(text)
 
 
 def _extract_message_id(result: dict[str, Any]) -> str:
@@ -85,6 +96,37 @@ def _extract_message_id(result: dict[str, Any]) -> str:
     return ""
 
 
+def _normalize_forward_messages(messages: list[ForwardNode | dict[str, Any]]) -> list[dict[str, Any]]:
+    """将简写合并转发节点转换为 OneBot 标准 node 消息段。"""
+    normalized: list[dict[str, Any]] = []
+    for message in messages:
+        if isinstance(message, ForwardNode):
+            message = message.model_dump()
+        if message.get("type") == "node":
+            normalized.append(message)
+            continue
+
+        uin = message.get("uin")
+        name = message.get("name", message.get("nick"))
+        content = message.get("content")
+        if uin is None or not name or content is None:
+            raise ValueError(
+                "合并转发节点必须是标准 node 段，或包含 uin、nick（或 name）和 content"
+            )
+
+        normalized.append(
+            {
+                "type": "node",
+                "data": {
+                    "uin": str(uin),
+                    "name": str(name),
+                    "content": content,
+                },
+            }
+        )
+    return normalized
+
+
 
 class SendGroupMsgTool(BaseTool):
     """发送群聊消息的 Tool。
@@ -99,11 +141,15 @@ class SendGroupMsgTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         message: Annotated[str, "消息内容文本"],
+        reply_to_message_id: Annotated[
+            MessageId | None,
+            "引用回复的消息ID，可直接使用主程序消息表中的message_id",
+        ] = None,
     ) -> tuple[bool, str]:
         """执行发送群消息。"""
         params: dict[str, Any] = {
             "group_id": group_id,
-            "message": _build_text_message(message),
+            "message": build_text_message(message, reply_to_message_id),
         }
         result = await _call_onebot_api("send_group_msg", params)
         if result.get("status") == "ok":
@@ -128,11 +174,15 @@ class SendPrivateMsgTool(BaseTool):
         self,
         user_id: Annotated[int, "目标用户QQ号"],
         message: Annotated[str, "消息内容文本"],
+        reply_to_message_id: Annotated[
+            MessageId | None,
+            "引用回复的消息ID，可直接使用主程序消息表中的message_id",
+        ] = None,
     ) -> tuple[bool, str]:
         """执行发送私聊消息。"""
         params: dict[str, Any] = {
             "user_id": user_id,
-            "message": _build_text_message(message),
+            "message": build_text_message(message, reply_to_message_id),
         }
         result = await _call_onebot_api("send_private_msg", params)
         if result.get("status") == "ok":
@@ -157,10 +207,10 @@ class DeleteMsgTool(BaseTool):
 
     async def execute(
         self,
-        message_id: Annotated[int, "要撤回的消息ID"],
+        message_id: Annotated[MessageId, "要撤回的消息ID"],
     ) -> tuple[bool, str]:
         """执行撤回消息。"""
-        params: dict[str, Any] = {"message_id": message_id}
+        params: dict[str, Any] = {"message_id": normalize_message_id(message_id)}
         result = await _call_onebot_api("delete_msg", params)
         if result.get("status") == "ok":
             return True, "消息撤回成功"
@@ -179,10 +229,10 @@ class GetMsgTool(BaseTool):
 
     async def execute(
         self,
-        message_id: Annotated[int, "消息ID"],
+        message_id: Annotated[MessageId, "消息ID"],
     ) -> tuple[bool, str | dict[str, Any]]:
         """执行获取消息详情。"""
-        params: dict[str, Any] = {"message_id": message_id}
+        params: dict[str, Any] = {"message_id": normalize_message_id(message_id)}
         result = await _call_onebot_api("get_msg", params)
         if result.get("status") == "ok":
             data = result.get("data", {})
@@ -273,7 +323,7 @@ class SendForwardMsgTool(BaseTool):
 
     对应 NapCat API: ``send_forward_msg``。
     发送合并转发消息，可指定群聊或私聊目标。
-    messages 参数为自定义消息段列表，每条消息需包含 uin、nick、content 等字段。
+    messages 可传入标准 node 段，或简写节点 ``{uin, nick, content}``。
     """
 
     tool_name = "send_forward_msg"
@@ -282,13 +332,13 @@ class SendForwardMsgTool(BaseTool):
     async def execute(
         self,
         messages: Annotated[
-            list[dict[str, Any]], "合并转发消息段列表，每条包含 uin/nick/content"
+            list[ForwardNode], "合并转发节点列表"
         ],
         group_id: Annotated[int, "目标群号（0表示私聊）"] = 0,
         user_id: Annotated[int, "目标用户QQ号（私聊时必填）"] = 0,
     ) -> tuple[bool, str]:
         """执行发送合并转发消息。"""
-        params: dict[str, Any] = {"messages": messages}
+        params: dict[str, Any] = {"messages": _normalize_forward_messages(messages)}
         if group_id:
             params["group_id"] = group_id
         if user_id:
@@ -310,7 +360,7 @@ class SendGroupForwardMsgTool(BaseTool):
     """发送群合并转发消息的 Tool（go-cqhttp 兼容）。
 
     对应 go-cqhttp 兼容 API: ``send_group_forward_msg``。
-    向指定群发送合并转发消息，messages 为自定义消息节点列表。
+    向指定群发送合并转发消息，支持 ``{uin, nick, content}`` 简写节点。
     """
 
     tool_name = "send_group_forward_msg"
@@ -320,13 +370,13 @@ class SendGroupForwardMsgTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         messages: Annotated[
-            list[dict[str, Any]], "合并转发消息段列表，每条包含 uin/nick/content"
+            list[ForwardNode], "合并转发节点列表"
         ],
     ) -> tuple[bool, str]:
         """执行发送群合并转发消息。"""
         params: dict[str, Any] = {
             "group_id": group_id,
-            "messages": messages,
+            "messages": _normalize_forward_messages(messages),
         }
         result = await _call_onebot_api("send_group_forward_msg", params)
         if result.get("status") == "ok":
@@ -344,7 +394,7 @@ class SendPrivateForwardMsgTool(BaseTool):
     """发送私聊合并转发消息的 Tool（go-cqhttp 兼容）。
 
     对应 go-cqhttp 兼容 API: ``send_private_forward_msg``。
-    向指定用户发送合并转发消息，messages 为自定义消息节点列表。
+    向指定用户发送合并转发消息，支持 ``{uin, nick, content}`` 简写节点。
     """
 
     tool_name = "send_private_forward_msg"
@@ -354,13 +404,13 @@ class SendPrivateForwardMsgTool(BaseTool):
         self,
         user_id: Annotated[int, "目标用户QQ号"],
         messages: Annotated[
-            list[dict[str, Any]], "合并转发消息段列表，每条包含 uin/nick/content"
+            list[ForwardNode], "合并转发节点列表"
         ],
     ) -> tuple[bool, str]:
         """执行发送私聊合并转发消息。"""
         params: dict[str, Any] = {
             "user_id": user_id,
-            "messages": messages,
+            "messages": _normalize_forward_messages(messages),
         }
         result = await _call_onebot_api("send_private_forward_msg", params)
         if result.get("status") == "ok":
@@ -448,7 +498,7 @@ class ForwardFriendSingleMsgTool(BaseTool):
 
     async def execute(
         self,
-        message_id: Annotated[int, "要转发的消息ID"],
+        message_id: Annotated[MessageId, "要转发的消息ID"],
         user_id: Annotated[int, "目标用户QQ号"],
     ) -> tuple[bool, str]:
         """执行转发单条消息给好友。"""
@@ -474,7 +524,7 @@ class ForwardGroupSingleMsgTool(BaseTool):
 
     async def execute(
         self,
-        message_id: Annotated[int, "要转发的消息ID"],
+        message_id: Annotated[MessageId, "要转发的消息ID"],
         group_id: Annotated[int, "目标群号"],
     ) -> tuple[bool, str]:
         """执行转发单条消息到群。"""
@@ -500,7 +550,7 @@ class MarkMsgAsReadTool(BaseTool):
 
     async def execute(
         self,
-        message_id: Annotated[int, "要标记已读的消息ID"],
+        message_id: Annotated[MessageId, "要标记已读的消息ID"],
         target_id: Annotated[int, "目标ID（可选，群号或用户QQ号）"] = 0,
     ) -> tuple[bool, str]:
         """执行标记消息已读。"""
@@ -526,7 +576,7 @@ class MarkGroupMsgAsReadTool(BaseTool):
 
     async def execute(
         self,
-        message_id: Annotated[int, "要标记已读的消息ID"],
+        message_id: Annotated[MessageId, "要标记已读的消息ID"],
         group_id: Annotated[int, "目标群号（可选，0表示当前群）"] = 0,
     ) -> tuple[bool, str]:
         """执行标记群消息已读。"""
@@ -553,7 +603,7 @@ class MarkPrivateMsgAsReadTool(BaseTool):
 
     async def execute(
         self,
-        message_id: Annotated[int, "要标记已读的消息ID"],
+        message_id: Annotated[MessageId, "要标记已读的消息ID"],
         user_id: Annotated[int, "目标用户QQ号（可选，0表示当前私聊）"] = 0,
     ) -> tuple[bool, str]:
         """执行标记私聊消息已读。"""
@@ -604,10 +654,14 @@ class SendMsgTool(BaseTool):
         message_type: Annotated[str, "消息类型 private 或 group"] = "",
         user_id: Annotated[int, "目标用户QQ号（私聊时）"] = 0,
         group_id: Annotated[int, "目标群号（群聊时）"] = 0,
+        reply_to_message_id: Annotated[
+            MessageId | None,
+            "引用回复的消息ID，可直接使用主程序消息表中的message_id",
+        ] = None,
     ) -> tuple[bool, str]:
         """执行发送消息。"""
         params: dict[str, Any] = {
-            "message": _build_text_message(message),
+            "message": build_text_message(message, reply_to_message_id),
         }
         if message_type:
             params["message_type"] = message_type

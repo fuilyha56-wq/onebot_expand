@@ -29,9 +29,21 @@ from typing import Any
 
 from src.app.plugin_system.base import BaseService
 
+from ..message_utils import MessageId, build_text_message
 from ..tools import _call_onebot_api
 
 __all__ = ["MessageService"]
+
+
+def _prepend_reply(
+    message: list[dict[str, Any]],
+    reply_to_message_id: MessageId | None,
+) -> list[dict[str, Any]]:
+    """在现有消息段前添加引用回复段。"""
+    if reply_to_message_id is None:
+        return message
+    reply_segment = build_text_message("", reply_to_message_id)[0]
+    return [reply_segment, *message]
 
 
 class MessageService(BaseService):
@@ -50,6 +62,7 @@ class MessageService(BaseService):
         group_id: int,
         message: list[dict[str, Any]],
         auto_escape: bool = False,
+        reply_to_message_id: MessageId | None = None,
     ) -> dict[str, Any]:
         """发送群聊消息。
 
@@ -59,13 +72,14 @@ class MessageService(BaseService):
             group_id: 群号。
             message: OneBot 消息段列表。
             auto_escape: 是否不解析 CQ 码，默认为 False。
+            reply_to_message_id: 引用回复的消息 ID，为 None 时不引用。
 
         Returns:
             适配器返回的响应字典，通常包含 ``message_id``。
         """
         params: dict[str, Any] = {
             "group_id": group_id,
-            "message": message,
+            "message": _prepend_reply(message, reply_to_message_id),
             "auto_escape": auto_escape,
         }
         return await _call_onebot_api("send_group_msg", params)
@@ -75,6 +89,7 @@ class MessageService(BaseService):
         user_id: int,
         message: list[dict[str, Any]],
         auto_escape: bool = False,
+        reply_to_message_id: MessageId | None = None,
     ) -> dict[str, Any]:
         """发送私聊消息。
 
@@ -84,18 +99,19 @@ class MessageService(BaseService):
             user_id: 用户 QQ 号。
             message: OneBot 消息段列表。
             auto_escape: 是否不解析 CQ 码，默认为 False。
+            reply_to_message_id: 引用回复的消息 ID，为 None 时不引用。
 
         Returns:
             适配器返回的响应字典，通常包含 ``message_id``。
         """
         params: dict[str, Any] = {
             "user_id": user_id,
-            "message": message,
+            "message": _prepend_reply(message, reply_to_message_id),
             "auto_escape": auto_escape,
         }
         return await _call_onebot_api("send_private_msg", params)
 
-    async def delete_msg(self, message_id: int) -> dict[str, Any]:
+    async def delete_msg(self, message_id: MessageId) -> dict[str, Any]:
         """撤回消息。
 
         对应 OneBot API: ``delete_msg``。
@@ -109,7 +125,7 @@ class MessageService(BaseService):
         params: dict[str, Any] = {"message_id": message_id}
         return await _call_onebot_api("delete_msg", params)
 
-    async def get_msg(self, message_id: int) -> dict[str, Any]:
+    async def get_msg(self, message_id: MessageId) -> dict[str, Any]:
         """获取消息详情。
 
         对应 OneBot API: ``get_msg``。
@@ -299,7 +315,7 @@ class MessageService(BaseService):
 
     async def forward_friend_single_msg(
         self,
-        message_id: int,
+        message_id: MessageId,
         user_id: int,
     ) -> dict[str, Any]:
         """转发单条消息给好友（扩展）。
@@ -321,7 +337,7 @@ class MessageService(BaseService):
 
     async def forward_group_single_msg(
         self,
-        message_id: int,
+        message_id: MessageId,
         group_id: int,
     ) -> dict[str, Any]:
         """转发单条消息到群（扩展）。
@@ -343,7 +359,7 @@ class MessageService(BaseService):
 
     async def mark_msg_as_read(
         self,
-        message_id: int,
+        message_id: MessageId,
         target_id: int | None = None,
     ) -> dict[str, Any]:
         """标记消息已读（go-cqhttp 兼容）。
@@ -364,7 +380,7 @@ class MessageService(BaseService):
 
     async def mark_group_msg_as_read(
         self,
-        message_id: int,
+        message_id: MessageId,
         group_id: int | None = None,
     ) -> dict[str, Any]:
         """标记群消息已读（扩展）。
@@ -385,7 +401,7 @@ class MessageService(BaseService):
 
     async def mark_private_msg_as_read(
         self,
-        message_id: int,
+        message_id: MessageId,
         user_id: int | None = None,
     ) -> dict[str, Any]:
         """标记私聊消息已读（扩展）。
@@ -421,6 +437,7 @@ class MessageService(BaseService):
         user_id: int | None = None,
         group_id: int | None = None,
         auto_escape: bool = False,
+        reply_to_message_id: MessageId | None = None,
     ) -> dict[str, Any]:
         """发送消息（通用，按 message_type 或 user_id/group_id 自动路由）。
 
@@ -432,12 +449,13 @@ class MessageService(BaseService):
             user_id: 私聊目标 QQ 号。
             group_id: 群聊目标群号。
             auto_escape: 是否不解析 CQ 码，默认为 False。
+            reply_to_message_id: 引用回复的消息 ID，为 None 时不引用。
 
         Returns:
             适配器返回的响应字典，通常包含 ``message_id``。
         """
         params: dict[str, Any] = {
-            "message": message,
+            "message": _prepend_reply(message, reply_to_message_id),
             "auto_escape": auto_escape,
         }
         if message_type is not None:

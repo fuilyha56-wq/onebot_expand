@@ -1,7 +1,7 @@
 {
     "name": "onebot_expand",
     "display_name": "OneBot Expand",
-    "version": "1.0.4",
+    "version": "1.0.6",
     "description": "OneBot v11 + NapCat + LLBot 扩展 API 完整封装，提供 205 个 Tool 组件和 23 个 Service 组件，含 18 个别名机制",
     "author": "Lycoris",
     "dependencies": {

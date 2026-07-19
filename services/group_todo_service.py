@@ -14,6 +14,7 @@ from typing import Any
 
 from src.app.plugin_system.base import BaseService
 
+from ..message_utils import MessageId
 from ..tools import _call_onebot_api
 
 __all__ = ["GroupTodoService"]
@@ -33,7 +34,7 @@ class GroupTodoService(BaseService):
     async def set_group_todo(
         self,
         group_id: int,
-        message_id: int,
+        message_id: MessageId,
     ) -> dict[str, Any]:
         """设置群待办。
 
@@ -55,7 +56,7 @@ class GroupTodoService(BaseService):
     async def complete_group_todo(
         self,
         group_id: int,
-        message_id: int,
+        message_id: MessageId,
     ) -> dict[str, Any]:
         """完成群待办。
 
@@ -77,7 +78,7 @@ class GroupTodoService(BaseService):
     async def cancel_group_todo(
         self,
         group_id: int,
-        message_id: int,
+        message_id: MessageId,
     ) -> dict[str, Any]:
         """取消群待办。
 

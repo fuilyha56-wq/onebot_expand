@@ -14,6 +14,7 @@ from __future__ import annotations
 from src.app.plugin_system.api.log_api import get_logger
 from src.app.plugin_system.base import BasePlugin, register_plugin
 
+from .api_defs import resolve_action
 from .config import OnebotExpandConfig
 from .services import ALL_SERVICES
 from .tools import ALL_TOOLS
@@ -42,25 +43,45 @@ class OnebotExpandPlugin(BasePlugin):
         "提供 185 个 Tool 组件和 23 个 Service 组件，"
         "含 13 个别名机制"
     )
-    plugin_version: str = "1.0.2"
+    plugin_version: str = "1.0.6"
 
     configs: list[type] = [OnebotExpandConfig]
     dependent_components: list[str] = []
 
+    def _get_enabled_tools(self) -> list[type]:
+        """返回配置中明确启用、需要注册的工具类。"""
+        config = self.config
+        if not isinstance(config, OnebotExpandConfig):
+            return []
+
+        switches = config.api_switches
+        if not switches.enable_all_tools:
+            return []
+
+        enabled_tools: list[type] = []
+        for tool_cls in ALL_TOOLS:
+            tool_name = str(getattr(tool_cls, "tool_name", "") or "")
+            if not tool_name:
+                continue
+            primary_action = resolve_action(tool_name) or tool_name
+            if bool(getattr(switches, f"enable_{primary_action}", False)):
+                enabled_tools.append(tool_cls)
+        return enabled_tools
+
     def get_components(self) -> list[type]:
-        """返回插件提供的全部组件类。
+        """返回已启用的工具和始终可用的服务组件。
 
         Returns:
-            全部 Tool 和 Service 组件类的列表（共 196 个）
+            配置中启用的工具类与全部服务类
         """
-        return ALL_TOOLS + ALL_SERVICES
+        return self._get_enabled_tools() + ALL_SERVICES
 
     async def on_plugin_loaded(self) -> None:
         """插件加载完成后的初始化。"""
+        enabled_tools = self._get_enabled_tools()
         logger.info(
-            "onebot_expand 插件已加载: %d 个 Tool, %d 个 Service",
-            len(ALL_TOOLS),
-            len(ALL_SERVICES),
+            f"onebot_expand 插件已加载: 注册 {len(enabled_tools)} 个工具, "
+            f"{len(ALL_SERVICES)} 个服务"
         )
 
     async def on_plugin_unloaded(self) -> None:

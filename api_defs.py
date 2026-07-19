@@ -540,7 +540,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.ONEBOT_V11,
         description="撤回消息",
         params={
-            "message_id": "int",
+            "message_id": "int | str",
         },
     ),
     OneBotAction.GET_MSG: APIDef(
@@ -549,7 +549,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.ONEBOT_V11,
         description="获取消息详情",
         params={
-            "message_id": "int",
+            "message_id": "int | str",
         },
     ),
     OneBotAction.GET_FORWARD_MSG: APIDef(
@@ -644,7 +644,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.EXPAND,
         description="转发单条消息给好友（扩展）",
         params={
-            "message_id": "int",
+            "message_id": "int | str",
             "user_id": "int",
         },
     ),
@@ -654,7 +654,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.EXPAND,
         description="转发单条消息到群（扩展）",
         params={
-            "message_id": "int",
+            "message_id": "int | str",
             "group_id": "int",
         },
     ),
@@ -664,7 +664,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.GOCQHTTP_COMPAT,
         description="标记消息已读（go-cqhttp兼容）",
         params={
-            "message_id": "int",
+            "message_id": "int | str",
             "target_id": "int",
         },
     ),
@@ -674,7 +674,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.EXPAND,
         description="标记群消息已读（扩展）",
         params={
-            "message_id": "int",
+            "message_id": "int | str",
             "group_id": "int",
         },
     ),
@@ -684,7 +684,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.EXPAND,
         description="标记私聊消息已读（扩展）",
         params={
-            "message_id": "int",
+            "message_id": "int | str",
             "user_id": "int",
         },
     ),
@@ -1100,7 +1100,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.NAPCAT_EXT,
         description="对消息添加/取消表情回应",
         params={
-            "message_id": "int",
+            "message_id": "int | str",
             "emoji_id": "int",
             "set": "bool",
         },
@@ -1196,7 +1196,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.GOCQHTTP_COMPAT,
         description="设置精华消息（go-cqhttp兼容）",
         params={
-            "message_id": "int",
+            "message_id": "int | str",
         },
     ),
     GoCqhttpCompatAction.DELETE_ESSENCE_MSG: APIDef(
@@ -1205,7 +1205,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.GOCQHTTP_COMPAT,
         description="删除精华消息（go-cqhttp兼容）",
         params={
-            "message_id": "int",
+            "message_id": "int | str",
         },
     ),
     GoCqhttpCompatAction.GET_GROUP_AT_ALL_REMAIN: APIDef(
@@ -1223,7 +1223,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.EXPAND,
         description="获取语音转文字（扩展）",
         params={
-            "message_id": "int",
+            "message_id": "int | str",
         },
         aliases=("get_ptt_text", "get_record_text", "voice_msg_to_text"),
     ),
@@ -1780,7 +1780,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.EXPAND,
         description="获取表情回应分页",
         params={
-            "message_id": "int",
+            "message_id": "int | str",
             "emoji_id": "int",
             "count": "int",
         },
@@ -1791,7 +1791,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.EXPAND,
         description="获取表情回应用户",
         params={
-            "message_id": "int",
+            "message_id": "int | str",
             "emoji_id": "int",
         },
     ),
@@ -1802,7 +1802,7 @@ ALL_APIS: dict[str, APIDef] = {
         description="群聊消息表情回应（SnowLuma 扩展）",
         params={
             "group_id": "int",
-            "message_id": "int",
+            "message_id": "int | str",
             "code": "str",
             "is_set": "bool",
         },
@@ -2230,7 +2230,7 @@ ALL_APIS: dict[str, APIDef] = {
         description="设置群待办",
         params={
             "group_id": "int",
-            "message_id": "int",
+            "message_id": "int | str",
         },
     ),
     ExpandAction.COMPLETE_GROUP_TODO: APIDef(
@@ -2240,7 +2240,7 @@ ALL_APIS: dict[str, APIDef] = {
         description="完成群待办",
         params={
             "group_id": "int",
-            "message_id": "int",
+            "message_id": "int | str",
         },
     ),
     ExpandAction.CANCEL_GROUP_TODO: APIDef(
@@ -2250,7 +2250,7 @@ ALL_APIS: dict[str, APIDef] = {
         description="取消群待办",
         params={
             "group_id": "int",
-            "message_id": "int",
+            "message_id": "int | str",
         },
     ),
     # ==================== QQ空间 API (7) ====================
@@ -2523,7 +2523,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.EXPAND,
         description="取消消息表情回应（LLBot 扩展）",
         params={
-            "message_id": "int",
+            "message_id": "int | str",
             "emoji_id": "int",
         },
     ),

@@ -22,6 +22,7 @@ from typing import Any
 
 from src.app.plugin_system.base import BaseService
 
+from ..message_utils import MessageId
 from ..tools import _call_onebot_api
 
 __all__ = ["EmojiExtService"]
@@ -161,7 +162,7 @@ class EmojiExtService(BaseService):
 
     async def fetch_emoji_like(
         self,
-        message_id: int,
+        message_id: MessageId,
         emoji_id: int = 0,
         count: int = 30,
     ) -> dict[str, Any]:
@@ -186,7 +187,7 @@ class EmojiExtService(BaseService):
 
     async def get_emoji_likes(
         self,
-        message_id: int,
+        message_id: MessageId,
         emoji_id: int,
     ) -> dict[str, Any]:
         """获取表情回应用户。
@@ -208,7 +209,7 @@ class EmojiExtService(BaseService):
 
     async def set_group_reaction(
         self,
-        message_id: int,
+        message_id: MessageId,
         code: str,
         group_id: int | None = None,
         is_set: bool = True,
@@ -251,7 +252,7 @@ class EmojiExtService(BaseService):
 
     async def UnSetMsgEmojiLike(
         self,
-        message_id: int,
+        message_id: MessageId,
         emoji_id: int,
     ) -> dict[str, Any]:
         """取消消息表情回应。

@@ -14,6 +14,7 @@ from typing import Annotated, Any
 
 from src.app.plugin_system.base import BaseTool
 
+from ..message_utils import MessageId
 from . import _call_onebot_api
 
 __all__ = [
@@ -36,7 +37,7 @@ class SetGroupTodoTool(BaseTool):
     async def execute(
         self,
         group_id: Annotated[int, "目标群号"],
-        message_id: Annotated[int, "消息ID"],
+        message_id: Annotated[MessageId, "消息ID"],
     ) -> tuple[bool, str]:
         """执行设置群待办。"""
         params: dict[str, Any] = {
@@ -62,7 +63,7 @@ class CompleteGroupTodoTool(BaseTool):
     async def execute(
         self,
         group_id: Annotated[int, "目标群号"],
-        message_id: Annotated[int, "消息ID"],
+        message_id: Annotated[MessageId, "消息ID"],
     ) -> tuple[bool, str]:
         """执行完成群待办。"""
         params: dict[str, Any] = {
@@ -88,7 +89,7 @@ class CancelGroupTodoTool(BaseTool):
     async def execute(
         self,
         group_id: Annotated[int, "目标群号"],
-        message_id: Annotated[int, "消息ID"],
+        message_id: Annotated[MessageId, "消息ID"],
     ) -> tuple[bool, str]:
         """执行取消群待办。"""
         params: dict[str, Any] = {

@@ -38,6 +38,7 @@ from ..api_defs import (
     DEFAULT_TIMEOUT,
     resolve_action,
 )
+from ..message_utils import normalize_message_ids
 
 __all__ = [
     # 消息相关 Tool (18)
@@ -281,7 +282,7 @@ async def _call_onebot_api(
     return await send_adapter_command(
         adapter_sign=ADAPTER_SIGNATURE,
         command_name=primary,
-        command_data=params,
+        command_data=normalize_message_ids(params),
         timeout=timeout,
     )
 
@@ -778,12 +779,11 @@ ALL_TOOLS: list[type] = [
 
 
 # ============================================================================
-# Tool 总开关包装器
+# Tool 执行阶段开关保护
 # ============================================================================
 #
-# ``enable_all_tools``（位于 api_switches 节）是 Tool 层总开关：
-# - True（默认）：各 Tool 的独立 ``enable_<action>`` 开关正常生效。
-# - False：所有 Tool 一律禁用，LLM 调用任何 Tool 都直接返回禁用响应。
+# 插件入口会在注册阶段按 ``enable_all_tools`` 和独立开关过滤工具。
+# 本包装器作为第二层保护，避免旧实例或配置异常绕过注册过滤。
 #
 # Service 不走 Tool.execute，故不受影响，始终可用——其他插件通过 Service
 # 调用的路径不会被总开关拦截。Tool 直接调 ``_call_onebot_api`` 也不经过
@@ -795,14 +795,14 @@ from ..api_defs import resolve_action as _resolve_action
 
 
 def _is_tool_master_switch_on(plugin: Any) -> bool:
-    """读取 Tool 总开关状态。配置缺失时默认 True（不阻断）。"""
+    """读取工具总开关状态。配置缺失时默认关闭。"""
     try:
         switches = getattr(getattr(plugin, "config", None), "api_switches", None)
         if switches is None:
-            return True
-        return bool(getattr(switches, "enable_all_tools", True))
+            return False
+        return bool(getattr(switches, "enable_all_tools", False))
     except (AttributeError, TypeError):
-        return True
+        return False
 
 
 def _is_tool_independently_enabled(plugin: Any, tool_name: str) -> bool:
@@ -814,11 +814,11 @@ def _is_tool_independently_enabled(plugin: Any, tool_name: str) -> bool:
     try:
         switches = getattr(getattr(plugin, "config", None), "api_switches", None)
         if switches is None:
-            return True
+            return False
         primary = _resolve_action(tool_name) or tool_name
-        return bool(getattr(switches, f"enable_{primary}", True))
+        return bool(getattr(switches, f"enable_{primary}", False))
     except (AttributeError, ImportError, TypeError):
-        return True
+        return False
 
 
 def _wrap_tool_execute(tool_cls: type) -> None:
@@ -831,10 +831,10 @@ def _wrap_tool_execute(tool_cls: type) -> None:
     async def wrapped(self: Any, *args: Any, **kwargs: Any) -> tuple[bool, Any]:
         plugin = getattr(self, "plugin", None)
         if not _is_tool_master_switch_on(plugin):
-            return False, "Tool 已被总开关禁用（enable_all_tools=False）"
+            return False, "工具已被总开关禁用（enable_all_tools=False）"
         tool_name = getattr(tool_cls, "tool_name", "")
         if tool_name and not _is_tool_independently_enabled(plugin, tool_name):
-            return False, f"Tool {tool_name} 已被独立开关禁用"
+            return False, f"工具 {tool_name} 已被独立开关禁用"
         return await original(self, *args, **kwargs)
 
     wrapped._onebot_expand_wrapped = True  # type: ignore[attr-defined]

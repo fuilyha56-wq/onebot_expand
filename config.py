@@ -107,19 +107,19 @@ class OnebotExpandConfig(BaseConfig):
         """API 级独立开关配置。
 
         每个 API 拥有独立的布尔开关，格式为 ``enable_<api_name>``，默认全部 False。
-        Tool 路径受总开关 ``enable_all_tools`` 和独立开关双重控制（见下）。
-        Service 路径不受这些开关影响，始终可调用。
+        工具注册受总开关 ``enable_all_tools`` 和独立开关双重控制（见下）。
+        服务不受这些开关影响，始终注册并可调用。
 
-        ``enable_all_tools`` 是 Tool 层总开关（默认 False）：
-        - True：各 Tool 的独立开关生效，可单独启停。
-        - False（默认）：所有 Tool 一律禁用，无论独立开关如何。
-        Service 不受此开关影响，始终启用，供其他插件调用。
+        ``enable_all_tools`` 是工具总开关（默认 False）：
+        - True：只注册独立开关为 True 的工具。
+        - False（默认）：不注册任何工具，无论独立开关如何。
+        服务不受此开关影响，始终注册，供其他插件调用。
         """
 
-        # --- Tool 总开关 ---
+        # --- 工具总开关 ---
         enable_all_tools: bool = Field(
             default=False,
-            description="Tool 总开关。开时各 Tool 独立开关生效；关时所有 Tool 一律禁用。Service 不受影响。",
+            description="工具总开关。开启时只注册独立开关为真的工具；关闭时不注册任何工具。服务不受影响。",
         )
 
         # --- 消息类 API (18) ---

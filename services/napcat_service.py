@@ -28,6 +28,7 @@ from typing import Any
 from src.app.plugin_system.base import BaseService
 
 from ..emoji_tables import get_emoji_by_id
+from ..message_utils import MessageId
 from ..tools import _call_onebot_api
 
 __all__ = ["NapcatExtService"]
@@ -73,7 +74,7 @@ class NapcatExtService(BaseService):
 
     async def set_msg_emoji_like(
         self,
-        message_id: int,
+        message_id: MessageId,
         emoji_id: int,
         set: bool = True,
     ) -> dict[str, Any]:
@@ -228,7 +229,7 @@ class NapcatExtService(BaseService):
         """
         return await _call_onebot_api("get_version_info", {})
 
-    async def set_essence_msg(self, message_id: int) -> dict[str, Any]:
+    async def set_essence_msg(self, message_id: MessageId) -> dict[str, Any]:
         """设置精华消息（go-cqhttp 兼容）。
 
         对应 go-cqhttp 兼容 API: ``set_essence_msg``。
@@ -242,7 +243,7 @@ class NapcatExtService(BaseService):
         params: dict[str, Any] = {"message_id": message_id}
         return await _call_onebot_api("set_essence_msg", params)
 
-    async def delete_essence_msg(self, message_id: int) -> dict[str, Any]:
+    async def delete_essence_msg(self, message_id: MessageId) -> dict[str, Any]:
         """删除精华消息（go-cqhttp 兼容）。
 
         对应 go-cqhttp 兼容 API: ``delete_essence_msg``。
@@ -270,7 +271,7 @@ class NapcatExtService(BaseService):
         params: dict[str, Any] = {"group_id": group_id}
         return await _call_onebot_api("get_group_at_all_remain", params)
 
-    async def fetch_ptt_text(self, message_id: int) -> dict[str, Any]:
+    async def fetch_ptt_text(self, message_id: MessageId) -> dict[str, Any]:
         """获取语音转文字（扩展）。
 
         对应扩展 API: ``fetch_ptt_text``。

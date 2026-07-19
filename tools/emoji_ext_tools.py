@@ -21,6 +21,7 @@ from typing import Annotated, Any
 
 from src.app.plugin_system.base import BaseTool
 
+from ..message_utils import MessageId
 from . import _call_onebot_api
 
 __all__ = [
@@ -219,7 +220,7 @@ class FetchEmojiLikeTool(BaseTool):
 
     async def execute(
         self,
-        message_id: Annotated[int, "目标消息ID"],
+        message_id: Annotated[MessageId, "目标消息ID"],
         emoji_id: Annotated[int, "表情ID"] = 0,
         count: Annotated[int, "获取数量"] = 30,
     ) -> tuple[bool, str | dict[str, Any]]:
@@ -248,7 +249,7 @@ class GetEmojiLikesTool(BaseTool):
 
     async def execute(
         self,
-        message_id: Annotated[int, "目标消息ID"],
+        message_id: Annotated[MessageId, "目标消息ID"],
         emoji_id: Annotated[int, "表情ID"],
     ) -> tuple[bool, str | dict[str, Any]]:
         """执行获取表情回应用户。"""
@@ -275,7 +276,7 @@ class SetGroupReactionTool(BaseTool):
 
     async def execute(
         self,
-        message_id: Annotated[int, "目标消息ID"],
+        message_id: Annotated[MessageId, "目标消息ID"],
         code: Annotated[str, "表情code"],
         group_id: Annotated[int, "群号（可选，不传则自动从消息派生）"] = 0,
         is_set: Annotated[bool, "True=设置，False=取消"] = True,
@@ -329,7 +330,7 @@ class UnsetMsgEmojiLikeTool(BaseTool):
 
     async def execute(
         self,
-        message_id: Annotated[int, "消息ID"],
+        message_id: Annotated[MessageId, "消息ID"],
         emoji_id: Annotated[int, "表情ID"],
     ) -> tuple[bool, str]:
         """执行取消消息表情回应。"""

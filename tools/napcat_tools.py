@@ -27,6 +27,7 @@ from typing import Annotated, Any
 
 from src.app.plugin_system.base import BaseTool
 
+from ..message_utils import MessageId
 from . import _call_onebot_api
 
 __all__ = [
@@ -62,7 +63,7 @@ class SetMsgEmojiLikeTool(BaseTool):
 
     async def execute(
         self,
-        message_id: Annotated[int, "目标消息ID"],
+        message_id: Annotated[MessageId, "目标消息ID"],
         emoji_id: Annotated[int, "表情ID（QQNT回应表情ID）"],
         set_like: Annotated[bool, "True为添加回应，False为取消回应"] = True,
     ) -> tuple[bool, str]:
@@ -345,7 +346,7 @@ class SetEssenceMsgTool(BaseTool):
 
     async def execute(
         self,
-        message_id: Annotated[int, "要设置精华的消息ID"],
+        message_id: Annotated[MessageId, "要设置精华的消息ID"],
     ) -> tuple[bool, str]:
         """执行设置精华消息。"""
         params: dict[str, Any] = {"message_id": message_id}
@@ -367,7 +368,7 @@ class DeleteEssenceMsgTool(BaseTool):
 
     async def execute(
         self,
-        message_id: Annotated[int, "要删除精华的消息ID"],
+        message_id: Annotated[MessageId, "要删除精华的消息ID"],
     ) -> tuple[bool, str]:
         """执行删除精华消息。"""
         params: dict[str, Any] = {"message_id": message_id}
@@ -412,7 +413,7 @@ class FetchPttTextTool(BaseTool):
 
     async def execute(
         self,
-        message_id: Annotated[int, "语音消息ID"],
+        message_id: Annotated[MessageId, "语音消息ID"],
     ) -> tuple[bool, str | dict[str, Any]]:
         """执行获取语音转文字。"""
         params: dict[str, Any] = {"message_id": message_id}

@@ -2,9 +2,11 @@
 
 > OneBot v11 + NapCat 扩展 API 完整封装插件，通过 `onebot_adapter` 调用 NapCat / SnowLuma / LLBot 等协议端的全部扩展能力。
 
+> 老实说，我并不清楚这是否违背了我的中心，在最开始只是想提供一点方便的api供后续的插件调用。不过……在这次执行中，我提供了一套简易的message id和对应的适配，让llm更方便的构建消息类型和使用工具。
+
 | 指标 | 值 |
 |---|---|
-| 版本 | 1.0.4 |
+| 版本 | 1.0.6 |
 | Tool 组件 | **205** 个 |
 | Service 组件 | **23** 个 |
 | 依赖插件 | `onebot_adapter` |
@@ -46,7 +48,7 @@
 ### 调用链
 
 ```text
-LLM 调用 → Tool.execute（总开关 + 独立开关检查）→ _call_onebot_api → onebot_adapter → NapCat/SnowLuma/LLBot
+插件加载 → 按总开关和独立开关注册 Tool → LLM 调用 Tool.execute → _call_onebot_api → onebot_adapter → NapCat/SnowLuma/LLBot
 其他插件 → Service.method（独立开关检查）→ _call_onebot_api → onebot_adapter → NapCat/SnowLuma/LLBot
 ```
 
@@ -56,14 +58,16 @@ LLM 调用 → Tool.execute（总开关 + 独立开关检查）→ _call_onebot_
 
 位于 `api_switches` 节，**默认 `false`**：
 
-- **`true`**：各 Tool 的独立开关 `enable_<action>` 生效，可单独启停
-- **`false`（默认）**：所有 Tool 一律禁用，LLM 调用任何 Tool 都直接返回禁用响应
+- **`true`**：只注册独立开关 `enable_<action> = true` 的 Tool
+- **`false`（默认）**：不注册任何 Tool，工具不会出现在 LLM 组件列表和注册日志中
 
 ✅ **Service 不受总开关影响**——始终启用，确保其他插件通过 Service 调用的路径不会中断。
 
 #### 2. Tool 独立开关 `enable_<action>`
 
 每个 Tool 对应一个独立开关，**默认全部 `false`**。需要启用某个 Tool 时，显式在配置里设为 `true`，并将 `enable_all_tools` 也设为 `true`。
+
+工具开关在插件注册阶段读取。修改配置后需要重载插件或重启 Bot，注册列表才会更新。执行阶段仍保留开关检查，作为配置异常时的第二层保护。
 
 #### 3. 别名机制
 
