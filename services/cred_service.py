@@ -31,8 +31,8 @@ class CredService(BaseService):
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
-    name: str = "cred_service"
-    description: str = "凭证/安全/下载服务"
+    service_name: str = "cred_service"
+    service_description: str = "凭证/安全/下载服务"
     version: str = "1.0.0"
 
     async def get_clientkey(self) -> dict[str, Any]:

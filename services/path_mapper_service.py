@@ -90,8 +90,8 @@ class PathMapperService(BaseService):
     内部每次创建新的 PathMapper 实例（Service 不是单例）。
     """
 
-    name: str = "path_mapper_service"
-    description: str = "文件路径映射服务"
+    service_name: str = "path_mapper_service"
+    service_description: str = "文件路径映射服务"
     version: str = "1.0.0"
 
     def _get_path_mapper(self) -> PathMapper:

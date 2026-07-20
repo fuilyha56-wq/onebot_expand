@@ -31,8 +31,8 @@ class QzoneService(BaseService):
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
-    name: str = "qzone_service"
-    description: str = "QQ空间服务"
+    service_name: str = "qzone_service"
+    service_description: str = "QQ空间服务"
     version: str = "1.0.0"
 
     async def get_qzone_msg_list(

@@ -32,8 +32,8 @@ class EmojiService(BaseService):
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
-    name: str = "emoji_service"
-    description: str = "QQNT 表情表查询服务"
+    service_name: str = "emoji_service"
+    service_description: str = "QQNT 表情表查询服务"
     version: str = "1.0.0"
 
     def _is_emoji_function_enabled(self, table_type: str) -> bool:

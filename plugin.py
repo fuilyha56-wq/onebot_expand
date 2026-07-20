@@ -60,7 +60,7 @@ class OnebotExpandPlugin(BasePlugin):
 
         enabled_tools: list[type] = []
         for tool_cls in ALL_TOOLS:
-            tool_name = str(getattr(tool_cls, "name", "") or "")
+            tool_name = str(getattr(tool_cls, "tool_name", "") or "")
             if not tool_name:
                 continue
             primary_action = resolve_action(tool_name) or tool_name

@@ -30,8 +30,8 @@ class GetAiCharactersTool(BaseTool):
     获取可用的 AI 语音角色列表。
     """
 
-    name = "get_ai_characters"
-    description = "获取可用的AI语音角色列表"
+    tool_name = "get_ai_characters"
+    tool_description = "获取可用的AI语音角色列表"
 
     async def execute(
         self,
@@ -58,8 +58,8 @@ class GetAiRecordTool(BaseTool):
     使用指定 AI 角色生成语音。
     """
 
-    name = "get_ai_record"
-    description = "使用指定AI角色生成语音"
+    tool_name = "get_ai_record"
+    tool_description = "使用指定AI角色生成语音"
 
     async def execute(
         self,
@@ -87,8 +87,8 @@ class SendGroupAiRecordTool(BaseTool):
     使用指定 AI 角色生成语音并发送到群聊。
     """
 
-    name = "send_group_ai_record"
-    description = "使用指定AI角色生成语音并发送到群聊"
+    tool_name = "send_group_ai_record"
+    tool_description = "使用指定AI角色生成语音并发送到群聊"
 
     async def execute(
         self,

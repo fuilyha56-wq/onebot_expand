@@ -40,8 +40,8 @@ class GetQunAlbumListTool(BaseTool):
     获取指定群的相册列表。
     """
 
-    name = "get_qun_album_list"
-    description = "获取指定群的相册列表"
+    tool_name = "get_qun_album_list"
+    tool_description = "获取指定群的相册列表"
 
     async def execute(
         self,
@@ -63,8 +63,8 @@ class UploadImageToQunAlbumTool(BaseTool):
     上传图片到指定群的相册中。
     """
 
-    name = "upload_image_to_qun_album"
-    description = "上传图片到指定群的相册中"
+    tool_name = "upload_image_to_qun_album"
+    tool_description = "上传图片到指定群的相册中"
 
     async def execute(
         self,
@@ -92,8 +92,8 @@ class GetGroupAlbumMediaListTool(BaseTool):
     获取指定群相册中的媒体文件列表。
     """
 
-    name = "get_group_album_media_list"
-    description = "获取指定群相册中的媒体文件列表"
+    tool_name = "get_group_album_media_list"
+    tool_description = "获取指定群相册中的媒体文件列表"
 
     async def execute(
         self,
@@ -119,8 +119,8 @@ class DoGroupAlbumCommentTool(BaseTool):
     对群相册中的图片发表评论。
     """
 
-    name = "do_group_album_comment"
-    description = "对群相册中的图片发表评论"
+    tool_name = "do_group_album_comment"
+    tool_description = "对群相册中的图片发表评论"
 
     async def execute(
         self,
@@ -149,8 +149,8 @@ class SetGroupAlbumMediaLikeTool(BaseTool):
     对群相册中的图片点赞。
     """
 
-    name = "set_group_album_media_like"
-    description = "对群相册中的图片点赞"
+    tool_name = "set_group_album_media_like"
+    tool_description = "对群相册中的图片点赞"
 
     async def execute(
         self,
@@ -177,8 +177,8 @@ class CancelGroupAlbumMediaLikeTool(BaseTool):
     取消对群相册中图片的点赞。
     """
 
-    name = "cancel_group_album_media_like"
-    description = "取消对群相册中图片的点赞"
+    tool_name = "cancel_group_album_media_like"
+    tool_description = "取消对群相册中图片的点赞"
 
     async def execute(
         self,
@@ -205,8 +205,8 @@ class DelGroupAlbumMediaTool(BaseTool):
     删除群相册中的指定图片。
     """
 
-    name = "del_group_album_media"
-    description = "删除群相册中的指定图片"
+    tool_name = "del_group_album_media"
+    tool_description = "删除群相册中的指定图片"
 
     async def execute(
         self,
@@ -232,8 +232,8 @@ class CreateGroupAlbumTool(BaseTool):
     对应 API: ``create_group_album``。
     """
 
-    name = "create_group_album"
-    description = "创建群相册"
+    tool_name = "create_group_album"
+    tool_description = "创建群相册"
 
     async def execute(
         self,
@@ -260,8 +260,8 @@ class DeleteGroupAlbumTool(BaseTool):
     对应 API: ``delete_group_album``。
     """
 
-    name = "delete_group_album"
-    description = "删除群相册"
+    tool_name = "delete_group_album"
+    tool_description = "删除群相册"
 
     async def execute(
         self,

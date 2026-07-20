@@ -46,8 +46,8 @@ class DeleteFriendTool(BaseTool):
     删除指定好友，可选是否同时拉黑。
     """
 
-    name = "delete_friend"
-    description = "删除指定好友，可选是否同时拉黑"
+    tool_name = "delete_friend"
+    tool_description = "删除指定好友，可选是否同时拉黑"
 
     async def execute(
         self,
@@ -73,8 +73,8 @@ class SetFriendRemarkTool(BaseTool):
     设置指定好友的备注名。
     """
 
-    name = "set_friend_remark"
-    description = "设置指定好友的备注名"
+    tool_name = "set_friend_remark"
+    tool_description = "设置指定好友的备注名"
 
     async def execute(
         self,
@@ -99,8 +99,8 @@ class GetFriendsWithCategoryTool(BaseTool):
     返回按分组分类的好友列表。
     """
 
-    name = "get_friends_with_category"
-    description = "获取按分组分类的好友列表"
+    tool_name = "get_friends_with_category"
+    tool_description = "获取按分组分类的好友列表"
 
     async def execute(
         self,
@@ -121,8 +121,8 @@ class GetUnidirectionalFriendListTool(BaseTool):
     返回单向好友列表（对方加了自己但自己未加对方）。
     """
 
-    name = "get_unidirectional_friend_list"
-    description = "获取单向好友列表"
+    tool_name = "get_unidirectional_friend_list"
+    tool_description = "获取单向好友列表"
 
     async def execute(
         self,
@@ -143,8 +143,8 @@ class SetQQProfileTool(BaseTool):
     设置当前 Bot 的 QQ 资料（昵称、个人说明等）。
     """
 
-    name = "set_qq_profile"
-    description = "设置当前Bot的QQ资料（昵称、个人说明等）"
+    tool_name = "set_qq_profile"
+    tool_description = "设置当前Bot的QQ资料（昵称、个人说明等）"
 
     async def execute(
         self,
@@ -170,8 +170,8 @@ class SetQQAvatarTool(BaseTool):
     设置当前 Bot 的 QQ 头像。
     """
 
-    name = "set_qq_avatar"
-    description = "设置当前Bot的QQ头像"
+    tool_name = "set_qq_avatar"
+    tool_description = "设置当前Bot的QQ头像"
 
     async def execute(
         self,
@@ -192,8 +192,8 @@ class SetSelfLongnickTool(BaseTool):
     设置当前 Bot 的个性签名。
     """
 
-    name = "set_self_longnick"
-    description = "设置当前Bot的个性签名"
+    tool_name = "set_self_longnick"
+    tool_description = "设置当前Bot的个性签名"
 
     async def execute(
         self,
@@ -214,8 +214,8 @@ class GetRecentContactTool(BaseTool):
     返回最近联系人列表。
     """
 
-    name = "get_recent_contact"
-    description = "获取最近联系人列表"
+    tool_name = "get_recent_contact"
+    tool_description = "获取最近联系人列表"
 
     async def execute(
         self,
@@ -237,8 +237,8 @@ class GetProfileLikeTool(BaseTool):
     获取指定用户的资料点赞信息。
     """
 
-    name = "get_profile_like"
-    description = "获取指定用户的资料点赞信息"
+    tool_name = "get_profile_like"
+    tool_description = "获取指定用户的资料点赞信息"
 
     async def execute(
         self,
@@ -265,8 +265,8 @@ class GetProfileLikeMeTool(BaseTool):
     对应 API: ``get_profile_like_me``。
     """
 
-    name = "get_profile_like_me"
-    description = "获取自身被点赞列表"
+    tool_name = "get_profile_like_me"
+    tool_description = "获取自身被点赞列表"
 
     async def execute(
         self,
@@ -291,8 +291,8 @@ class GetProfileLikeCountTool(BaseTool):
     对应 API: ``get_profile_like_count``。
     """
 
-    name = "get_profile_like_count"
-    description = "获取用户点赞总数"
+    tool_name = "get_profile_like_count"
+    tool_description = "获取用户点赞总数"
 
     async def execute(
         self,
@@ -315,8 +315,8 @@ class GetQQAvatarTool(BaseTool):
     对应 API: ``get_qq_avatar``。
     """
 
-    name = "get_qq_avatar"
-    description = "获取QQ头像URL"
+    tool_name = "get_qq_avatar"
+    tool_description = "获取QQ头像URL"
 
     async def execute(
         self,
@@ -341,8 +341,8 @@ class SetFriendCategoryTool(BaseTool):
     对应 API: ``set_friend_category``。
     """
 
-    name = "set_friend_category"
-    description = "设置好友分类"
+    tool_name = "set_friend_category"
+    tool_description = "设置好友分类"
 
     async def execute(
         self,

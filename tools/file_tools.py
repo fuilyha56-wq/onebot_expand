@@ -170,8 +170,8 @@ class UploadGroupFileTool(BaseTool):
     使用 PathMapper 进行路径映射适配。
     """
 
-    name = "upload_group_file"
-    description = "上传文件到指定群的群文件"
+    tool_name = "upload_group_file"
+    tool_description = "上传文件到指定群的群文件"
 
     async def execute(
         self,
@@ -204,8 +204,8 @@ class UploadPrivateFileTool(BaseTool):
     使用 PathMapper 进行路径映射适配。
     """
 
-    name = "upload_private_file"
-    description = "上传文件到指定用户的私聊会话"
+    tool_name = "upload_private_file"
+    tool_description = "上传文件到指定用户的私聊会话"
 
     async def execute(
         self,
@@ -237,8 +237,8 @@ class GetFileTool(BaseTool):
     根据文件 ID 获取文件信息，可选返回下载 URL。
     """
 
-    name = "get_file"
-    description = "根据文件ID获取文件信息（NapCat扩展）"
+    tool_name = "get_file"
+    tool_description = "根据文件ID获取文件信息（NapCat扩展）"
 
     async def execute(
         self,
@@ -264,8 +264,8 @@ class GetImageTool(BaseTool):
     根据图片文件名或 ID 获取图片信息（包括下载 URL）。
     """
 
-    name = "get_image"
-    description = "获取图片信息（包括下载URL）"
+    tool_name = "get_image"
+    tool_description = "获取图片信息（包括下载URL）"
 
     async def execute(
         self,
@@ -287,8 +287,8 @@ class GetRecordTool(BaseTool):
     根据语音文件名获取语音文件信息，可指定输出格式。
     """
 
-    name = "get_record"
-    description = "获取语音文件信息，可指定转换格式"
+    tool_name = "get_record"
+    tool_description = "获取语音文件信息，可指定转换格式"
 
     async def execute(
         self,
@@ -316,8 +316,8 @@ class SendOnlineFileTool(BaseTool):
     向私聊用户发送在线文件（走在线文件通道，非普通私聊文件）。
     """
 
-    name = "send_online_file"
-    description = "发送在线文件到指定私聊用户（NapCat扩展）"
+    tool_name = "send_online_file"
+    tool_description = "发送在线文件到指定私聊用户（NapCat扩展）"
 
     async def execute(
         self,
@@ -346,8 +346,8 @@ class SendOnlineFolderTool(BaseTool):
     向私聊用户发送在线文件夹。
     """
 
-    name = "send_online_folder"
-    description = "发送在线文件夹到指定私聊用户（NapCat扩展）"
+    tool_name = "send_online_folder"
+    tool_description = "发送在线文件夹到指定私聊用户（NapCat扩展）"
 
     async def execute(
         self,
@@ -376,8 +376,8 @@ class GetOnlineFileMsgTool(BaseTool):
     获取与指定用户的在线文件消息列表。
     """
 
-    name = "get_online_file_msg"
-    description = "获取与指定用户的在线文件消息列表（NapCat扩展）"
+    tool_name = "get_online_file_msg"
+    tool_description = "获取与指定用户的在线文件消息列表（NapCat扩展）"
 
     async def execute(
         self,
@@ -399,8 +399,8 @@ class ReceiveOnlineFileTool(BaseTool):
     接收对方发送的在线文件。
     """
 
-    name = "receive_online_file"
-    description = "接收对方发送的在线文件（NapCat扩展）"
+    tool_name = "receive_online_file"
+    tool_description = "接收对方发送的在线文件（NapCat扩展）"
 
     async def execute(
         self,
@@ -427,8 +427,8 @@ class RefuseOnlineFileTool(BaseTool):
     拒绝对方发送的在线文件。
     """
 
-    name = "refuse_online_file"
-    description = "拒绝对方发送的在线文件（NapCat扩展）"
+    tool_name = "refuse_online_file"
+    tool_description = "拒绝对方发送的在线文件（NapCat扩展）"
 
     async def execute(
         self,
@@ -455,8 +455,8 @@ class CancelOnlineFileTool(BaseTool):
     取消自己已发送的在线文件。
     """
 
-    name = "cancel_online_file"
-    description = "取消自己已发送的在线文件（NapCat扩展）"
+    tool_name = "cancel_online_file"
+    tool_description = "取消自己已发送的在线文件（NapCat扩展）"
 
     async def execute(
         self,
@@ -480,8 +480,8 @@ class CleanStreamTempFileTool(BaseTool):
     对应扩展 API: ``clean_stream_temp_file``。
     """
 
-    name = "clean_stream_temp_file"
-    description = "清理流式传输临时文件"
+    tool_name = "clean_stream_temp_file"
+    tool_description = "清理流式传输临时文件"
 
     async def execute(self) -> tuple[bool, str]:
         """执行清理流式临时文件。"""
@@ -498,8 +498,8 @@ class UploadFileStreamTool(BaseTool):
     对应扩展 API: ``upload_file_stream``。
     """
 
-    name = "upload_file_stream"
-    description = "流式上传文件（分块传输，NapCat 与 SnowLuma 均支持）"
+    tool_name = "upload_file_stream"
+    tool_description = "流式上传文件（分块传输，NapCat 与 SnowLuma 均支持）"
 
     async def execute(
         self,
@@ -547,8 +547,8 @@ class DownloadFileStreamTool(BaseTool):
     对应扩展 API: ``download_file_stream``。
     """
 
-    name = "download_file_stream"
-    description = "流式下载文件（分块传输）"
+    tool_name = "download_file_stream"
+    tool_description = "流式下载文件（分块传输）"
 
     async def execute(
         self,
@@ -576,8 +576,8 @@ class DownloadFileRecordStreamTool(BaseTool):
     对应扩展 API: ``download_file_record_stream``。
     """
 
-    name = "download_file_record_stream"
-    description = "流式下载语音文件并转换格式"
+    tool_name = "download_file_record_stream"
+    tool_description = "流式下载语音文件并转换格式"
 
     async def execute(
         self,
@@ -608,8 +608,8 @@ class DownloadFileImageStreamTool(BaseTool):
     对应扩展 API: ``download_file_image_stream``。
     """
 
-    name = "download_file_image_stream"
-    description = "流式下载图片文件"
+    tool_name = "download_file_image_stream"
+    tool_description = "流式下载图片文件"
 
     async def execute(
         self,

@@ -832,7 +832,7 @@ def _wrap_tool_execute(tool_cls: type) -> None:
         plugin = getattr(self, "plugin", None)
         if not _is_tool_master_switch_on(plugin):
             return False, "工具已被总开关禁用（enable_all_tools=False）"
-        tool_name = getattr(tool_cls, "name", "")
+        tool_name = getattr(tool_cls, "tool_name", "")
         if tool_name and not _is_tool_independently_enabled(plugin, tool_name):
             return False, f"工具 {tool_name} 已被独立开关禁用"
         return await original(self, *args, **kwargs)

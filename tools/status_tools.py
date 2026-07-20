@@ -32,8 +32,8 @@ class SetOnlineStatusTool(BaseTool):
     设置当前 Bot 的在线状态。
     """
 
-    name = "set_online_status"
-    description = "设置当前Bot的在线状态"
+    tool_name = "set_online_status"
+    tool_description = "设置当前Bot的在线状态"
 
     async def execute(
         self,
@@ -60,8 +60,8 @@ class SetDiyOnlineStatusTool(BaseTool):
     设置当前 Bot 的自定义在线状态（含表情和文字）。
     """
 
-    name = "set_diy_online_status"
-    description = "设置当前Bot的自定义在线状态（含表情和文字）"
+    tool_name = "set_diy_online_status"
+    tool_description = "设置当前Bot的自定义在线状态（含表情和文字）"
 
     async def execute(
         self,
@@ -89,8 +89,8 @@ class SetInputStatusTool(BaseTool):
     向指定用户发送输入状态通知。
     """
 
-    name = "set_input_status"
-    description = "向指定用户发送输入状态通知"
+    tool_name = "set_input_status"
+    tool_description = "向指定用户发送输入状态通知"
 
     async def execute(
         self,
@@ -115,8 +115,8 @@ class NcGetUserStatusTool(BaseTool):
     获取指定用户的在线状态信息。
     """
 
-    name = "nc_get_user_status"
-    description = "获取指定用户的在线状态信息"
+    tool_name = "nc_get_user_status"
+    tool_description = "获取指定用户的在线状态信息"
 
     async def execute(
         self,

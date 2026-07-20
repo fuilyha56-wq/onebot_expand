@@ -134,8 +134,8 @@ class SendGroupMsgTool(BaseTool):
     对应 OneBot API: ``send_group_msg``。
     """
 
-    name = "send_group_msg"
-    description = "向指定QQ群发送消息"
+    tool_name = "send_group_msg"
+    tool_description = "向指定QQ群发送消息"
 
     async def execute(
         self,
@@ -167,8 +167,8 @@ class SendPrivateMsgTool(BaseTool):
     对应 OneBot API: ``send_private_msg``。
     """
 
-    name = "send_private_msg"
-    description = "向指定用户发送私聊消息"
+    tool_name = "send_private_msg"
+    tool_description = "向指定用户发送私聊消息"
 
     async def execute(
         self,
@@ -202,8 +202,8 @@ class DeleteMsgTool(BaseTool):
     对应 OneBot API: ``delete_msg``。
     """
 
-    name = "delete_msg"
-    description = "撤回指定消息"
+    tool_name = "delete_msg"
+    tool_description = "撤回指定消息"
 
     async def execute(
         self,
@@ -224,8 +224,8 @@ class GetMsgTool(BaseTool):
     返回消息的元信息和内容。
     """
 
-    name = "get_msg"
-    description = "获取指定消息的详情信息"
+    tool_name = "get_msg"
+    tool_description = "获取指定消息的详情信息"
 
     async def execute(
         self,
@@ -247,8 +247,8 @@ class GetForwardMsgTool(BaseTool):
     根据合并转发消息的 ID 获取其内容。
     """
 
-    name = "get_forward_msg"
-    description = "获取合并转发消息的内容"
+    tool_name = "get_forward_msg"
+    tool_description = "获取合并转发消息的内容"
 
     async def execute(
         self,
@@ -270,8 +270,8 @@ class SendLikeTool(BaseTool):
     对指定用户发送名片点赞，每天次数有限。
     """
 
-    name = "send_like"
-    description = "对指定用户发送名片点赞"
+    tool_name = "send_like"
+    tool_description = "对指定用户发送名片点赞"
 
     async def execute(
         self,
@@ -296,8 +296,8 @@ class SendPokeTool(BaseTool):
     可对群内成员或私聊用户发送戳一戳。
     """
 
-    name = "send_poke"
-    description = "发送戳一戳（NapCat扩展），可对群成员或私聊用户发送"
+    tool_name = "send_poke"
+    tool_description = "发送戳一戳（NapCat扩展），可对群成员或私聊用户发送"
 
     async def execute(
         self,
@@ -326,8 +326,8 @@ class SendForwardMsgTool(BaseTool):
     messages 可传入标准 node 段，或简写节点 ``{uin, nick, content}``。
     """
 
-    name = "send_forward_msg"
-    description = "发送合并转发消息（NapCat扩展），支持自定义多条消息内容"
+    tool_name = "send_forward_msg"
+    tool_description = "发送合并转发消息（NapCat扩展），支持自定义多条消息内容"
 
     async def execute(
         self,
@@ -363,8 +363,8 @@ class SendGroupForwardMsgTool(BaseTool):
     向指定群发送合并转发消息，支持 ``{uin, nick, content}`` 简写节点。
     """
 
-    name = "send_group_forward_msg"
-    description = "发送群合并转发消息（go-cqhttp兼容）"
+    tool_name = "send_group_forward_msg"
+    tool_description = "发送群合并转发消息（go-cqhttp兼容）"
 
     async def execute(
         self,
@@ -397,8 +397,8 @@ class SendPrivateForwardMsgTool(BaseTool):
     向指定用户发送合并转发消息，支持 ``{uin, nick, content}`` 简写节点。
     """
 
-    name = "send_private_forward_msg"
-    description = "发送私聊合并转发消息（go-cqhttp兼容）"
+    tool_name = "send_private_forward_msg"
+    tool_description = "发送私聊合并转发消息（go-cqhttp兼容）"
 
     async def execute(
         self,
@@ -431,8 +431,8 @@ class GetGroupMsgHistoryTool(BaseTool):
     获取指定群的消息历史记录。
     """
 
-    name = "get_group_msg_history"
-    description = "获取群消息历史记录（go-cqhttp兼容）"
+    tool_name = "get_group_msg_history"
+    tool_description = "获取群消息历史记录（go-cqhttp兼容）"
 
     async def execute(
         self,
@@ -462,8 +462,8 @@ class GetFriendMsgHistoryTool(BaseTool):
     获取指定好友的消息历史记录。
     """
 
-    name = "get_friend_msg_history"
-    description = "获取好友消息历史记录（go-cqhttp兼容）"
+    tool_name = "get_friend_msg_history"
+    tool_description = "获取好友消息历史记录（go-cqhttp兼容）"
 
     async def execute(
         self,
@@ -493,8 +493,8 @@ class ForwardFriendSingleMsgTool(BaseTool):
     将指定消息转发给好友。
     """
 
-    name = "forward_friend_single_msg"
-    description = "转发单条消息给好友（扩展）"
+    tool_name = "forward_friend_single_msg"
+    tool_description = "转发单条消息给好友（扩展）"
 
     async def execute(
         self,
@@ -519,8 +519,8 @@ class ForwardGroupSingleMsgTool(BaseTool):
     将指定消息转发到群。
     """
 
-    name = "forward_group_single_msg"
-    description = "转发单条消息到群（扩展）"
+    tool_name = "forward_group_single_msg"
+    tool_description = "转发单条消息到群（扩展）"
 
     async def execute(
         self,
@@ -545,8 +545,8 @@ class MarkMsgAsReadTool(BaseTool):
     标记指定消息为已读。
     """
 
-    name = "mark_msg_as_read"
-    description = "标记指定消息为已读（go-cqhttp兼容）"
+    tool_name = "mark_msg_as_read"
+    tool_description = "标记指定消息为已读（go-cqhttp兼容）"
 
     async def execute(
         self,
@@ -571,8 +571,8 @@ class MarkGroupMsgAsReadTool(BaseTool):
     标记指定群的消息为已读。
     """
 
-    name = "mark_group_msg_as_read"
-    description = "标记群消息已读（扩展）"
+    tool_name = "mark_group_msg_as_read"
+    tool_description = "标记群消息已读（扩展）"
 
     async def execute(
         self,
@@ -598,8 +598,8 @@ class MarkPrivateMsgAsReadTool(BaseTool):
     标记指定私聊的消息为已读。
     """
 
-    name = "mark_private_msg_as_read"
-    description = "标记私聊消息已读（扩展）"
+    tool_name = "mark_private_msg_as_read"
+    tool_description = "标记私聊消息已读（扩展）"
 
     async def execute(
         self,
@@ -625,8 +625,8 @@ class MarkAllAsReadTool(BaseTool):
     标记所有消息为已读。
     """
 
-    name = "_mark_all_as_read"
-    description = "标记全部消息为已读（扩展）"
+    tool_name = "_mark_all_as_read"
+    tool_description = "标记全部消息为已读（扩展）"
 
     async def execute(
         self,
@@ -645,8 +645,8 @@ class SendMsgTool(BaseTool):
     对应 OneBot API: ``send_msg``。
     """
 
-    name = "send_msg"
-    description = "发送消息（通用，按 message_type 自动路由群聊或私聊）"
+    tool_name = "send_msg"
+    tool_description = "发送消息（通用，按 message_type 自动路由群聊或私聊）"
 
     async def execute(
         self,
@@ -685,8 +685,8 @@ class UploadForwardMsgTool(BaseTool):
     对应扩展 API: ``upload_forward_msg``。
     """
 
-    name = "upload_forward_msg"
-    description = "上传合并转发消息，返回 res_id（扩展，SnowLuma 支持）"
+    tool_name = "upload_forward_msg"
+    tool_description = "上传合并转发消息，返回 res_id（扩展，SnowLuma 支持）"
 
     async def execute(
         self,

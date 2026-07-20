@@ -31,8 +31,8 @@ class SetGroupTodoTool(BaseTool):
     在指定群中设置待办事项。
     """
 
-    name = "set_group_todo"
-    description = "在指定群中设置待办事项"
+    tool_name = "set_group_todo"
+    tool_description = "在指定群中设置待办事项"
 
     async def execute(
         self,
@@ -57,8 +57,8 @@ class CompleteGroupTodoTool(BaseTool):
     完成指定群中的待办事项。
     """
 
-    name = "complete_group_todo"
-    description = "完成指定群中的待办事项"
+    tool_name = "complete_group_todo"
+    tool_description = "完成指定群中的待办事项"
 
     async def execute(
         self,
@@ -83,8 +83,8 @@ class CancelGroupTodoTool(BaseTool):
     取消指定群中的待办事项。
     """
 
-    name = "cancel_group_todo"
-    description = "取消指定群中的待办事项"
+    tool_name = "cancel_group_todo"
+    tool_description = "取消指定群中的待办事项"
 
     async def execute(
         self,

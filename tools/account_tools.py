@@ -45,8 +45,8 @@ class GetLoginInfoTool(BaseTool):
     返回当前 Bot 的 QQ 号和昵称。
     """
 
-    name = "get_login_info"
-    description = "获取当前Bot的登录信息（QQ号和昵称）"
+    tool_name = "get_login_info"
+    tool_description = "获取当前Bot的登录信息（QQ号和昵称）"
 
     async def execute(
         self,
@@ -67,8 +67,8 @@ class GetStrangerInfoTool(BaseTool):
     根据 QQ 号获取陌生人的资料信息。
     """
 
-    name = "get_stranger_info"
-    description = "获取陌生人信息（根据QQ号查询用户资料）"
+    tool_name = "get_stranger_info"
+    tool_description = "获取陌生人信息（根据QQ号查询用户资料）"
 
     async def execute(
         self,
@@ -94,8 +94,8 @@ class GetFriendListTool(BaseTool):
     返回当前 Bot 的全部好友列表。
     """
 
-    name = "get_friend_list"
-    description = "获取当前Bot的全部好友列表"
+    tool_name = "get_friend_list"
+    tool_description = "获取当前Bot的全部好友列表"
 
     async def execute(
         self,
@@ -116,8 +116,8 @@ class GetGroupListTool(BaseTool):
     返回当前 Bot 加入的全部群列表。
     """
 
-    name = "get_group_list"
-    description = "获取当前Bot加入的全部群列表"
+    tool_name = "get_group_list"
+    tool_description = "获取当前Bot加入的全部群列表"
 
     async def execute(
         self,
@@ -138,8 +138,8 @@ class GetGroupMemberListTool(BaseTool):
     返回指定群的全部成员列表。
     """
 
-    name = "get_group_member_list"
-    description = "获取指定群的全部成员列表"
+    tool_name = "get_group_member_list"
+    tool_description = "获取指定群的全部成员列表"
 
     async def execute(
         self,
@@ -165,8 +165,8 @@ class GetGroupMemberInfoTool(BaseTool):
     返回指定群中指定成员的详细信息。
     """
 
-    name = "get_group_member_info"
-    description = "获取指定群中指定成员的详细信息"
+    tool_name = "get_group_member_info"
+    tool_description = "获取指定群中指定成员的详细信息"
 
     async def execute(
         self,
@@ -194,8 +194,8 @@ class GetGroupInfoTool(BaseTool):
     返回指定群的基本信息（群名、群主、群人数等）。
     """
 
-    name = "get_group_info"
-    description = "获取指定群的基本信息"
+    tool_name = "get_group_info"
+    tool_description = "获取指定群的基本信息"
 
     async def execute(
         self,
@@ -221,8 +221,8 @@ class GetGroupDetailInfoTool(BaseTool):
     返回指定群的详细信息（比标准 get_group_info 更多字段）。
     """
 
-    name = "get_group_detail_info"
-    description = "获取指定群的详细信息（NapCat扩展，比标准API更多字段）"
+    tool_name = "get_group_detail_info"
+    tool_description = "获取指定群的详细信息（NapCat扩展，比标准API更多字段）"
 
     async def execute(
         self,
@@ -246,8 +246,8 @@ class GetGroupHonorInfoTool(BaseTool):
     strong_newbie（冒尖小春笋）、emotion（快乐之源）、all（全部）。
     """
 
-    name = "get_group_honor_info"
-    description = "获取指定群的荣誉信息（龙王、群聊之火等）"
+    tool_name = "get_group_honor_info"
+    tool_description = "获取指定群的荣誉信息（龙王、群聊之火等）"
 
     async def execute(
         self,
@@ -275,8 +275,8 @@ class GetRobotUinRangeTool(BaseTool):
     返回当前可用的机器人 UIN 范围列表。
     """
 
-    name = "get_robot_uin_range"
-    description = "获取机器人 UIN 范围（NapCat扩展）"
+    tool_name = "get_robot_uin_range"
+    tool_description = "获取机器人 UIN 范围（NapCat扩展）"
 
     async def execute(
         self,

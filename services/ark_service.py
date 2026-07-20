@@ -28,8 +28,8 @@ class ArkService(BaseService):
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
-    name: str = "ark_service"
-    description: str = "Ark分享服务"
+    service_name: str = "ark_service"
+    service_description: str = "Ark分享服务"
     version: str = "1.0.0"
 
     async def share_peer(

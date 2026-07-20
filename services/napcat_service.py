@@ -42,8 +42,8 @@ class NapcatExtService(BaseService):
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
-    name: str = "napcat_ext_service"
-    description: str = "NapCat 扩展功能服务"
+    service_name: str = "napcat_ext_service"
+    service_description: str = "NapCat 扩展功能服务"
     version: str = "1.0.0"
 
     def _is_reaction_emoji_enabled(self, emoji_id: int) -> bool:
