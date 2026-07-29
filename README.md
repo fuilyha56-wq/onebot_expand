@@ -197,4 +197,4 @@ onebot_expand/
 
 ## 许可证
 
-见 [LICENSE](../../LICENSE)。
+AGPL-3.0
