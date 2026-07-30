@@ -1,6 +1,6 @@
 """onebot_expand 插件 Tool 组件包。
 
-导出全部 205 个 Tool 类，按功能域分组：
+导出全部 206 个 Tool 类，按功能域分组：
     - 消息相关 (20): message_tools
     - 群操作 (10): group_tools
     - 文件操作 (16): file_tools
@@ -10,7 +10,7 @@
     - 群公告 (3): group_notice_tools
     - 群管理扩展 (14): group_ext_tools
     - 请求处理 (5): request_tools
-    - 用户信息扩展 (13): user_ext_tools
+    - 用户信息扩展 (14): user_ext_tools
     - 在线状态 (4): status_tools
     - 戳一拍 (2): poke_tools
     - 表情/收藏扩展 (12): emoji_ext_tools
@@ -31,14 +31,8 @@ from __future__ import annotations
 import functools
 from typing import Any
 
-from src.app.plugin_system.api.adapter_api import send_adapter_command
-
-from ..api_defs import (
-    ADAPTER_SIGNATURE,
-    DEFAULT_TIMEOUT,
-    resolve_action,
-)
-from ..message_utils import normalize_message_ids
+from ..api_client import _call_onebot_api  # noqa: F401  re-export 供各 Tool 模块使用
+from ..api_defs import resolve_action
 
 __all__ = [
     # 消息相关 Tool (18)
@@ -163,6 +157,7 @@ __all__ = [
     "SetSelfLongnickTool",
     "GetRecentContactTool",
     "GetProfileLikeTool",
+    "GetFriendDressTool",
     # 在线状态 Tool (4)
     "SetOnlineStatusTool",
     "SetDiyOnlineStatusTool",
@@ -252,39 +247,9 @@ __all__ = [
 ]
 
 
-async def _call_onebot_api(
-    action: str,
-    params: dict[str, Any],
-    timeout: float = DEFAULT_TIMEOUT,
-) -> dict[str, Any]:
-    """调用 OneBot API 的统一入口。
-
-    通过 adapter_api 向 onebot_adapter 适配器发送命令，并等待响应。
-    调用前会先通过 :func:`resolve_action` 将别名解析为主名，
-    保证配置开关、协议端兼容性检查、文档引用的一致性。
-
-    Args:
-        action: OneBot API action 名称（主名或别名，如 ``"send_group_msg"`` 或 ``"nc_get_rkey"``）。
-        params: API 参数字典。
-        timeout: 超时时间（秒），默认为 :data:`DEFAULT_TIMEOUT`。
-
-    Returns:
-        适配器返回的响应字典，通常包含 ``status``、``retcode``、``data`` 等字段。
-        若 action 名（含别名）无法识别，返回 ``{"status": "error", "retcode": -1, "msg": ...}``。
-    """
-    primary = resolve_action(action)
-    if primary is None:
-        return {
-            "status": "error",
-            "retcode": -1,
-            "msg": f"未知 action: {action}",
-        }
-    return await send_adapter_command(
-        adapter_sign=ADAPTER_SIGNATURE,
-        command_name=primary,
-        command_data=normalize_message_ids(params),
-        timeout=timeout,
-    )
+# ============================================================================
+# _call_onebot_api 已迁移至 ..api_client，本模块通过 re-export 提供向后兼容
+# ============================================================================
 
 
 # ============================================================================
@@ -418,6 +383,7 @@ from .request_tools import (  # noqa: E402
 )
 from .user_ext_tools import (  # noqa: E402
     DeleteFriendTool,
+    GetFriendDressTool,
     GetFriendsWithCategoryTool,
     GetProfileLikeMeTool,
     GetProfileLikeCountTool,
@@ -540,7 +506,7 @@ from .ark_tools import (  # noqa: E402
     SharePeerTool,
 )
 
-# 全部 205 个 Tool 类列表
+# 全部 206 个 Tool 类列表
 ALL_TOOLS: list[type] = [
     # 消息相关 (18)
     SendGroupMsgTool,
@@ -664,6 +630,7 @@ ALL_TOOLS: list[type] = [
     SetSelfLongnickTool,
     GetRecentContactTool,
     GetProfileLikeTool,
+    GetFriendDressTool,
     # 在线状态 (4)
     SetOnlineStatusTool,
     SetDiyOnlineStatusTool,

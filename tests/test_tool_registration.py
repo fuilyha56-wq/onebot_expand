@@ -34,18 +34,24 @@ def test_master_switch_off_registers_services_only() -> None:
 
 
 def test_only_explicitly_enabled_tools_are_registered() -> None:
-    """总开关开启后只注册独立开关为真的工具。"""
+    """总开关开启后 _get_enabled_tools 只返回独立开关为真的工具。
+
+    Tool 层已从 get_components() 分离，但 _get_enabled_tools 保留供未来恢复。
+    get_components() 当前仅返回 ALL_SERVICES。
+    """
     config = OnebotExpandConfig()
     config.api_switches.enable_all_tools = True
     config.api_switches.enable_send_group_msg = True
     config.api_switches.enable_send_private_msg = True
     plugin = OnebotExpandPlugin(config=config)
 
+    # Tool 层已分离：get_components 仅返回 Service
     components = plugin.get_components()
-    registered_tools = [component for component in components if component in ALL_TOOLS]
+    assert components == ALL_SERVICES
 
-    assert registered_tools == [SendGroupMsgTool, SendPrivateMsgTool]
-    assert components[-len(ALL_SERVICES):] == ALL_SERVICES
+    # _get_enabled_tools 仍按开关过滤，供未来恢复 Tool 注册时使用
+    enabled_tools = plugin._get_enabled_tools()
+    assert enabled_tools == [SendGroupMsgTool, SendPrivateMsgTool]
 
 
 def test_wrapper_defaults_missing_switch_to_disabled() -> None:

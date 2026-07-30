@@ -23,7 +23,7 @@ from typing import Any
 from src.app.plugin_system.base import BaseService
 
 from ..message_utils import MessageId
-from ..tools import _call_onebot_api
+from ..api_client import _call_onebot_api
 
 __all__ = ["EmojiExtService"]
 

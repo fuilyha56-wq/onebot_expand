@@ -590,6 +590,10 @@ class OnebotExpandConfig(BaseConfig):
             default=False,
             description="是否启用 get_profile_like API（获取资料点赞）",
         )
+        enable__get_friend_dress: bool = Field(
+            default=False,
+            description="是否启用 _get_friend_dress API（获取好友个性装扮，SnowLuma 扩展）",
+        )
 
         # --- 在线状态类 API (4) ---
         enable_set_online_status: bool = Field(

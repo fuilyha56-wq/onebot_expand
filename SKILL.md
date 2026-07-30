@@ -225,7 +225,7 @@ assert result.get("status") == "ok", f"调用失败: {result}"
 
 #### 批量测试
 
-维护后可对全部 184 个 API 跑一遍冒烟测试：
+维护后可对全部 206 个 API 跑一遍冒烟测试：
 
 ```python
 from onebot_expand.api_defs import ALL_APIS
@@ -243,11 +243,11 @@ else:
 
 > 注意：写操作（如 `send_group_msg`、`set_group_kick`）会真实生效，测试时需用测试群/测试号。
 
-## 2. 当前快照（截至 2026-07-08）
+## 2. 当前快照（截至 2026-07-30）
 
 > 本节是参考快照，AI 在执行 Step 1-3 后应基于实际扫描结果对照，但不要修改本 skill 本身。
 
-**当前规模**：184 个主名 action + 12 个别名，196 个可调用名。已通过 `tests/run_api_tests.py` 在 NapCat（账号 3693525299）上跑过冒烟测试，全部 action 名被协议端识别。完整报告见 `tests/api_test_report.md`。
+**当前规模**：206 个主名 action + 18 个别名，224 个可调用名。已通过 `tests/run_api_tests.py` 在 NapCat（账号 3693525299）上跑过冒烟测试，全部 action 名被协议端识别。完整报告见 `tests/api_test_report.md`。
 
 ### 2.1 已适配的 NapCat 扩展 action
 
@@ -270,6 +270,7 @@ else:
 | `set_qzone_ban` | qzone | SnowLuma 独有空间封禁 |
 | `set_qzone_msg_right` | qzone | SnowLuma 独有空间权限 |
 | `upload_forward_msg` | message | SnowLuma 独有上传转发，别名 `upload_foward_msg`（拼写） |
+| `_get_friend_dress` | user_ext | SnowLuma 独有好友个性装扮查询（2026-07-30 新增） |
 
 ### 2.3 已处理的别名
 
@@ -312,14 +313,23 @@ send_online_file, send_online_folder, send_packet, set_custom_face_desc,
 set_group_sign
 ```
 
-### 2.6 插件适配 Qzone 但 NapCat 暂未实现
+### 2.6 插件适配 Qzone 的兼容性现状（截至 2026-07-30）
 
-```
-comment_qzone, delete_qzone_msg, get_qzone_feeds, get_qzone_msg_list,
-like_qzone, send_qzone_msg, unlike_qzone
-```
+NapCat 自 v4.18.10 起新增了 `send_qzone_msg` 和 `delete_qzone_msg` 两个 qzone action（位于 `packages/napcat-onebot/action/extends/`），数据层 `packages/napcat-core/data/qzone.ts` 仅实现发说说/上传图片/删除说说的数据构造。其余 qzone action（列表/动态/点赞/评论/拉黑/权限）NapCat 仍未实现。
 
-SnowLuma 已支持上述全部，外加 `set_qzone_ban`、`set_qzone_msg_right`。标记 `snowluma_compat=true`、`napcat_only=true`。
+| action | NapCat | SnowLuma | 插件标记 |
+|---|---|---|---|
+| `send_qzone_msg` | ✓（v4.18.10+，支持 images/ugc_right/target_uins） | ✓ | `napcat_only=false, snowluma_compat=true` |
+| `delete_qzone_msg` | ✓（v4.18.10+） | ✓ | `napcat_only=false, snowluma_compat=true` |
+| `get_qzone_msg_list` | ✗ | ✓ | `napcat_only=false, snowluma_compat=true`（fallback 走 SnowLuma） |
+| `get_qzone_feeds` | ✗ | ✓ | 同上 |
+| `like_qzone` | ✗ | ✓ | 同上 |
+| `unlike_qzone` | ✗ | ✓ | 同上 |
+| `comment_qzone` | ✗ | ✓（支持 images） | 同上 |
+| `set_qzone_ban` | ✗ | ✓ | 同上 |
+| `set_qzone_msg_right` | ✗ | ✓ | 同上 |
+
+> NapCat 端未实现的 qzone action，调用时会返回 `failed`；插件标记 `napcat_only=false` 意味着不本地拦截，由协议端自行返回不支持。下次维护复查 NapCat 是否补全其余 qzone action。
 
 ## 3. Service 聚合规则
 
@@ -438,13 +448,25 @@ class SendMsgTool(BaseTool):
 | `get_group_album_list` | `get_qun_album_list` |
 | `upload_foward_msg` | `upload_forward_msg` |
 
-## 7. Tool 开关规则
+## 7. Tool 开关规则与 Service/Tool 分离架构
+
+### 7.1 架构分离（截至 1.0.9）
+
+插件采用三层架构，底层调用逻辑抽到独立的 `api_client.py`：
+
+- **api_client 层**（`api_client.py`）：`_call_onebot_api` 统一调用入口，Service 与 Tool 共用
+- **Service 层**（23 个）：始终可用，通过 `from ..api_client import _call_onebot_api` 调协议端
+- **Tool 层**（206 个）：代码保留，但已从 `plugin.py` 的 `get_components()` 移除，不注册到组件列表
+
+**当前状态**：Tool 层已分离，Service 层独立可用。恢复 Tool 只需在 `plugin.py` 的 `get_components()` 加回 `+ self._get_enabled_tools()`。
+
+### 7.2 Tool 开关规则
 
 - `config.py` 的 `api_switches` 节里，每个 action 对应 `enable_<action>` 开关
 - **所有 `enable_<action>` 默认 `false`**
 - 总开关 `enable_all_tools` 默认 `false`，为 `false` 时所有 Tool 一律禁用
 - **Service 路径不受 `api_switches` 影响**，始终启用
-- 启用单个 Tool 的步骤：`enable_all_tools=true` + 对应 `enable_<action>=true`
+- 启用单个 Tool 的步骤：先在 `plugin.py` 恢复 Tool 注册，再 `enable_all_tools=true` + 对应 `enable_<action>=true`
 
 ## 8. 常见错误与修正
 
@@ -467,7 +489,9 @@ class SendMsgTool(BaseTool):
 4. Step 4-7 实际落地的 api_defs / tools / services / config / docs 变更
 5. Step 8 测试结果（每个 API 在 NapCat 与 SnowLuma 的实测情况）
 6. Step 9 文档同步结果
-7. 未完成项与下次维护建议
+7. 版本号递增结果（旧版本 → 新版本，三处是否一致）
+8. `mpdt market package-update` 执行结果（构建/Release/市场提交是否成功）
+9. 未完成项与下次维护建议
 
 ## 9. 更新所有文档
 
@@ -509,6 +533,20 @@ class SendMsgTool(BaseTool):
 4. **更新 `manifest.json`**（如包含数量字段）：
    - 检查是否有 `tool_count`、`service_count`、`actions` 等字段
    - 有则同步，无则跳过
+
+5. **递增版本号并打包发布**（每次维护落地变更后必做）：
+   - 版本号采用语义化版本，**patch 位 +0.0.1**（如 `1.0.9` → `1.0.10`）
+   - 需同步递增以下三处版本号，保持一致：
+     - `manifest.json` 的 `"version"` 字段
+     - `README.md` 顶部指标表的"版本"行
+     - `plugin.py` 的 `plugin_version` 字段
+   - 递增完成后执行打包发布命令：
+     ```bash
+     mpdt market package-update E:/plugins/onebot_expand
+     ```
+   - 命令会自动完成：构建 → GitHub Release → 市场版本提交
+   - 可选参数：`--with-docs`（含文档）、`--release-notes "说明"`（Release 说明）、`--skip-push`（跳过 Git 推送）
+   - 前置条件：插件已在市场注册、仓库有权限、版本号未重复
 
 ### 9.3 校验文档与代码一致
 

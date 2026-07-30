@@ -29,7 +29,7 @@ from src.app.plugin_system.base import BaseService
 
 from ..emoji_tables import get_emoji_by_id
 from ..message_utils import MessageId
-from ..tools import _call_onebot_api
+from ..api_client import _call_onebot_api
 
 __all__ = ["NapcatExtService"]
 

@@ -91,18 +91,25 @@ class SendQzoneMsgTool(BaseTool):
     """发表说说的 Tool。
 
     对应 NapCat API: ``send_qzone_msg``。
-    在 QQ 空间发表说说。
+    在 QQ 空间发表说说，支持纯文字或带图，可设置查看权限。
     """
 
     tool_name = "send_qzone_msg"
-    tool_description = "在QQ空间发表说说"
+    tool_description = "在QQ空间发表说说（支持纯文字或带图，可设置查看权限）"
 
     async def execute(
         self,
         content: Annotated[str, "说说内容"],
+        images: Annotated[list[str] | None, "图片数组（可选），支持 file:// http(s):// base://"] = None,
+        ugc_right: Annotated[int, "查看权限：1=所有人可见，4=好友可见，16=部分好友可见，64=仅自己可见，128=部分好友不可见"] = 1,
+        target_uins: Annotated[list[int] | None, "权限作用QQ号数组（ugc_right=16/128 时必填）"] = None,
     ) -> tuple[bool, str]:
         """执行发表说说。"""
-        params: dict[str, Any] = {"content": content}
+        params: dict[str, Any] = {"content": content, "ugc_right": ugc_right}
+        if images:
+            params["images"] = images
+        if target_uins:
+            params["target_uins"] = target_uins
         result = await _call_onebot_api("send_qzone_msg", params)
         if result.get("status") == "ok":
             return True, "说说发表成功"
@@ -185,17 +192,18 @@ class CommentQzoneTool(BaseTool):
     """评论说说的 Tool。
 
     对应 NapCat API: ``comment_qzone``。
-    对 QQ 空间说说发表评论。
+    对 QQ 空间说说发表评论，支持纯文字或带图。
     """
 
     tool_name = "comment_qzone"
-    tool_description = "对QQ空间说说发表评论"
+    tool_description = "对QQ空间说说发表评论（支持纯文字或带图）"
 
     async def execute(
         self,
         tid: Annotated[str, "说说ID"],
         content: Annotated[str, "评论内容"],
         target_uin: Annotated[int, "说说发布者QQ号（可选）"] = 0,
+        images: Annotated[list[str] | None, "图片数组（可选），支持 file:// http(s):// base://"] = None,
     ) -> tuple[bool, str]:
         """执行评论说说。"""
         params: dict[str, Any] = {
@@ -204,6 +212,8 @@ class CommentQzoneTool(BaseTool):
         }
         if target_uin:
             params["target_uin"] = target_uin
+        if images:
+            params["images"] = images
         result = await _call_onebot_api("comment_qzone", params)
         if result.get("status") == "ok":
             return True, "评论发送成功"

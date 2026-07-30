@@ -1,6 +1,6 @@
 """用户信息扩展 API 的 Tool 组件。
 
-包含 9 个用户信息扩展 Tool，对应 NapCat 用户信息扩展 API：
+包含 10 个用户信息扩展 Tool，对应 NapCat 用户信息扩展 API：
     - delete_friend: 删除好友
     - set_friend_remark: 设置好友备注
     - get_friends_with_category: 获取分组好友列表
@@ -10,6 +10,7 @@
     - set_self_longnick: 设置个性签名
     - get_recent_contact: 获取最近联系人
     - get_profile_like: 获取资料点赞
+    - _get_friend_dress: 获取好友个性装扮（SnowLuma 扩展）
 
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
 """
@@ -32,10 +33,11 @@ __all__ = [
     "SetSelfLongnickTool",
     "GetRecentContactTool",
     "GetProfileLikeTool",
-"GetProfileLikeMeTool",
+    "GetProfileLikeMeTool",
     "GetProfileLikeCountTool",
     "GetQQAvatarTool",
     "SetFriendCategoryTool",
+    "GetFriendDressTool",
 ]
 
 
@@ -358,5 +360,29 @@ class SetFriendCategoryTool(BaseTool):
         if result.get("status") == "ok":
             return True, str(result.get("data", ""))
         return False, f"设置好友分类失败: {result.get('msg', '未知错误')}"
+
+
+class GetFriendDressTool(BaseTool):
+    """获取好友个性装扮的 Tool。
+
+    对应 API: ``_get_friend_dress``（SnowLuma 扩展）。
+    获取指定 QQ 号正在使用的个性装扮（挂件/名片/来电/输入状态等）。
+    """
+
+    tool_name = "_get_friend_dress"
+    tool_description = "获取指定QQ号的个性装扮（挂件/名片/来电/输入状态等）"
+
+    async def execute(
+        self,
+        user_id: Annotated[int, "目标QQ号"],
+    ) -> tuple[bool, str]:
+        """执行获取好友个性装扮。"""
+        params: dict[str, Any] = {
+            "user_id": user_id,
+        }
+        result = await _call_onebot_api("_get_friend_dress", params)
+        if result.get("status") == "ok":
+            return True, str(result.get("data", ""))
+        return False, f"获取好友个性装扮失败: {result.get('msg', '未知错误')}"
 
 

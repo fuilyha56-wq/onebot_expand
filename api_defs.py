@@ -1,6 +1,6 @@
 """OneBot v11 + NapCat 扩展 API 定义模块。
 
-定义全部 185 个 OneBot API 的常量、元数据、分类索引和查询函数。
+定义全部 206 个 OneBot API 的常量、元数据、分类索引和查询函数。
 供 Service 层和 Tool 层引用，确保 API action 名称和参数定义的一致性。
 """
 
@@ -304,6 +304,7 @@ class ExpandAction:
     SET_SELF_LONGNICK = "set_self_longnick"
     GET_RECENT_CONTACT = "get_recent_contact"
     GET_PROFILE_LIKE = "get_profile_like"
+    GET_FRIEND_DRESS = "_get_friend_dress"
 
     # 在线状态
     SET_ONLINE_STATUS = "set_online_status"
@@ -2278,9 +2279,12 @@ ALL_APIS: dict[str, APIDef] = {
         action="send_qzone_msg",
         category=APICategory.QZONE,
         source=APISource.EXPAND,
-        description="发表说说",
+        description="发表说说（支持纯文字或带图，可设置查看权限）",
         params={
             "content": "str",
+            "images": "list[str]",
+            "ugc_right": "int",
+            "target_uins": "list[int]",
         },
     ),
     ExpandAction.DELETE_QZONE_MSG: APIDef(
@@ -2316,11 +2320,12 @@ ALL_APIS: dict[str, APIDef] = {
         action="comment_qzone",
         category=APICategory.QZONE,
         source=APISource.EXPAND,
-        description="评论说说",
+        description="评论说说（支持纯文字或带图）",
         params={
             "tid": "str",
             "content": "str",
             "target_uin": "int",
+            "images": "list[str]",
         },
     ),
     ExpandAction.SET_QZONE_BAN: APIDef(
@@ -2507,6 +2512,17 @@ ALL_APIS: dict[str, APIDef] = {
             "user_id": "int",
             "category_id": "int",
         },
+    ),
+    ExpandAction.GET_FRIEND_DRESS: APIDef(
+        action="_get_friend_dress",
+        category=APICategory.USER_EXT,
+        source=APISource.EXPAND,
+        description="获取指定 QQ 号正在使用的个性装扮（挂件/名片/来电/输入状态等，SnowLuma 扩展）",
+        params={
+            "user_id": "int",
+        },
+        napcat_only=False,
+        snowluma_compat=True,
     ),
     ExpandAction.GET_RECOMMEND_FACE: APIDef(
         action="get_recommend_face",
@@ -2733,6 +2749,7 @@ USER_EXT_APIS: list[str] = [
     ExpandAction.GET_PROFILE_LIKE_COUNT,
     ExpandAction.GET_QQ_AVATAR,
     ExpandAction.SET_FRIEND_CATEGORY,
+    ExpandAction.GET_FRIEND_DRESS,
 ]
 
 STATUS_APIS: list[str] = [

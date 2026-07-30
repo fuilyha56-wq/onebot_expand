@@ -19,7 +19,7 @@ from typing import Any
 
 from src.app.plugin_system.base import BaseService
 
-from ..tools import _call_onebot_api
+from ..api_client import _call_onebot_api
 
 __all__ = ["QzoneService"]
 
@@ -79,18 +79,33 @@ class QzoneService(BaseService):
         }
         return await _call_onebot_api("get_qzone_feeds", params)
 
-    async def send_qzone_msg(self, content: str) -> dict[str, Any]:
+    async def send_qzone_msg(
+        self,
+        content: str,
+        images: list[str] | None = None,
+        ugc_right: int = 1,
+        target_uins: list[int] | None = None,
+    ) -> dict[str, Any]:
         """发表说说。
 
         对应 NapCat 扩展 API: ``send_qzone_msg``。
+        支持纯文字或带图，可设置查看权限。
 
         Args:
             content: 说说内容。
+            images: 图片数组（可选），支持 file:// http(s):// base64://。
+            ugc_right: 查看权限（1=所有人可见，4=好友可见，16=部分好友可见，
+                64=仅自己可见，128=部分好友不可见），默认为 1。
+            target_uins: 权限作用 QQ 号数组；ugc_right=16 时为可见名单，128 时为不可见名单。
 
         Returns:
             适配器返回的响应字典。
         """
-        params: dict[str, Any] = {"content": content}
+        params: dict[str, Any] = {"content": content, "ugc_right": ugc_right}
+        if images is not None:
+            params["images"] = images
+        if target_uins is not None:
+            params["target_uins"] = target_uins
         return await _call_onebot_api("send_qzone_msg", params)
 
     async def delete_qzone_msg(self, tid: str) -> dict[str, Any]:
@@ -154,15 +169,18 @@ class QzoneService(BaseService):
         tid: str,
         content: str,
         target_uin: int | None = None,
+        images: list[str] | None = None,
     ) -> dict[str, Any]:
         """评论说说。
 
         对应 NapCat 扩展 API: ``comment_qzone``。
+        支持纯文字或带图。
 
         Args:
             tid: 说说 ID。
             content: 评论内容。
             target_uin: 说说发布者 QQ 号，默认为 None。
+            images: 图片数组（可选），支持 file:// http(s):// base64://。
 
         Returns:
             适配器返回的响应字典。
@@ -173,6 +191,8 @@ class QzoneService(BaseService):
         }
         if target_uin is not None:
             params["target_uin"] = target_uin
+        if images is not None:
+            params["images"] = images
         return await _call_onebot_api("comment_qzone", params)
     async def set_qzone_ban(
         self,

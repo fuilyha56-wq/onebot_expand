@@ -6,9 +6,9 @@
 
 | 指标 | 值 |
 |---|---|
-| 版本 | 1.0.6 |
-| Tool 组件 | **205** 个 |
-| Service 组件 | **23** 个 |
+| 版本 | 1.0.9 |
+| Tool 组件 | **206** 个（已分离，可按需启用） |
+| Service 组件 | **23** 个（始终可用） |
 | 依赖插件 | `onebot_adapter` |
 | 协议端兼容 | NapCat · SnowLuma · LLBot（按 API 单独标记兼容性） |
 
@@ -25,7 +25,7 @@
 | 群公告 | 3 | GroupNoticeService | 群公告发布/查询/删除 |
 | 群管理扩展 | 14 | GroupExtService | 群头像/备注/加群选项/签到/打卡列表/批量踢出/消息屏蔽 |
 | 请求处理 | 5 | RequestService | 好友/加群请求处理 |
-| 用户信息扩展 | 13 | UserExtService | 好友备注/分类/单向好友/资料/头像/点赞 |
+| 用户信息扩展 | 14 | UserExtService | 好友备注/分类/单向好友/资料/头像/点赞/个性装扮 |
 | 在线状态 | 4 | StatusService | 在线状态/DIY状态/输入状态 |
 | 戳一拍 | 2 | PokeService | 好友/群戳一拍 |
 | 表情/收藏扩展 | 12 | EmojiExtService | 收藏表情CRUD/详情/备注/移动/回应/推荐表情 |
@@ -40,17 +40,33 @@
 
 ## 架构
 
-### 双层组件设计
+### Service + Tool 分离设计
 
-- **Tool 层**：每个 API 对应一个 Tool 类（共 205 个），供 LLM 直接调用
-- **Service 层**：一类功能聚合为一个 Service（共 23 个），供其他插件程序化调用
+插件采用三层架构，底层调用逻辑抽到独立的 `api_client.py`，使 Service 与 Tool 解耦：
+
+- **api_client 层**：`_call_onebot_api` 统一调用入口，Service 与 Tool 共用，不依赖任何一层
+- **Service 层**（23 个）：始终可用，供其他插件程序化调用，通过 `api_client` 调协议端
+- **Tool 层**（206 个）：供 LLM 直接调用，默认全部关闭，可按需启用
+
+**当前状态**：Tool 层已从组件注册中移除，仅保留代码与开关保护逻辑。Service 层独立可用。
 
 ### 调用链
 
 ```text
-插件加载 → 按总开关和独立开关注册 Tool → LLM 调用 Tool.execute → _call_onebot_api → onebot_adapter → NapCat/SnowLuma/LLBot
-其他插件 → Service.method（独立开关检查）→ _call_onebot_api → onebot_adapter → NapCat/SnowLuma/LLBot
+其他插件 → Service.method → api_client._call_onebot_api → onebot_adapter → NapCat/SnowLuma/LLBot
+（Tool 恢复后）LLM → Tool.execute → api_client._call_onebot_api → onebot_adapter → NapCat/SnowLuma/LLBot
 ```
+
+### 恢复 Tool 注册
+
+Tool 层代码完整保留，恢复注册只需在 `plugin.py` 的 `get_components()` 末尾加回 `+ self._get_enabled_tools()`：
+
+```python
+def get_components(self) -> list[type]:
+    return self._get_enabled_tools() + ALL_SERVICES  # 加回 Tool
+```
+
+`_get_enabled_tools()` 已按总开关和独立开关过滤，恢复后 Tool 注册逻辑立即可用。
 
 ### 关键机制
 

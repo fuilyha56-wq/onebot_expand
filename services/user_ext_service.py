@@ -1,9 +1,9 @@
 """用户信息扩展服务。
 
 封装 NapCat 用户信息扩展 API，提供好友管理、资料设置、
-头像设置、个性签名、最近联系人、资料点赞等功能。
+头像设置、个性签名、最近联系人、资料点赞、个性装扮等功能。
 
-API 列表 (9):
+API 列表 (10):
     - delete_friend: 删除好友
     - set_friend_remark: 设置好友备注
     - get_friends_with_category: 获取分组好友列表
@@ -13,6 +13,7 @@ API 列表 (9):
     - set_self_longnick: 设置个性签名
     - get_recent_contact: 获取最近联系人
     - get_profile_like: 获取资料点赞
+    - _get_friend_dress: 获取好友个性装扮（SnowLuma 扩展）
 """
 
 from __future__ import annotations
@@ -21,7 +22,7 @@ from typing import Any
 
 from src.app.plugin_system.base import BaseService
 
-from ..tools import _call_onebot_api
+from ..api_client import _call_onebot_api
 
 __all__ = ["UserExtService"]
 
@@ -248,4 +249,22 @@ class UserExtService(BaseService):
             "category_id": category_id,
         }
         return await _call_onebot_api("set_friend_category", params)
+
+    async def get_friend_dress(
+        self,
+        user_id: int,
+    ) -> dict[str, Any]:
+        """获取好友个性装扮（SnowLuma 扩展）。
+
+        对应扩展 API: ``_get_friend_dress``。
+        获取指定 QQ 号正在使用的个性装扮（挂件/名片/来电/输入状态等）。
+
+        Args:
+            user_id: 目标 QQ 号。
+
+        Returns:
+            适配器返回的响应字典，包含装扮信息；目标未使用任何可查询装扮时 items 为空数组。
+        """
+        params: dict[str, Any] = {"user_id": user_id}
+        return await _call_onebot_api("_get_friend_dress", params)
 

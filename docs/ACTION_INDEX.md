@@ -1,6 +1,6 @@
 # onebot_expand API 索引名单
 
-> 共 **205** 个主名 action + **18** 个别名 · 覆盖 OneBot v11 / NapCat / SnowLuma / LLBot 四方协议端
+> 共 **206** 个主名 action + **18** 个别名 · 覆盖 OneBot v11 / NapCat / SnowLuma / LLBot 四方协议端
 
 **来源标记**：`OB11`=OneBot v11 标准 · `NapCat`=NapCat 扩展 · `go-cqhttp`=go-cqhttp 兼容 · `Expand`=插件扩展 · `LLBot`=LLBot 扩展
 
@@ -161,7 +161,7 @@
 | `get_doubt_friends_add_request` | Expand | — | ✓ | — |
 | `set_doubt_friends_add_request` | Expand | — | ✓ | — |
 
-### 用户信息扩展 (user_ext, 13 个)
+### 用户信息扩展 (user_ext, 14 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -178,6 +178,24 @@
 | `get_profile_like_count` | LLBot | — | ✓ | — |
 | `get_qq_avatar` | LLBot | — | ✓ | — |
 | `set_friend_category` | LLBot | — | ✓ | — |
+| `_get_friend_dress` | Expand | — | ✓ | — |
+
+> **`_get_friend_dress` 返回结构**（SnowLuma 静态分析，待实测）：
+> ```json
+> {
+>   "status": "ok", "retcode": 0,
+>   "data": {
+>     "target_uin": "10000",
+>     "is_svip": false,
+>     "avatar_url": "",
+>     "items": [
+>       {"app_id": 4, "kind": "挂件", "item_id": 0, "name": "...",
+>        "preview_url": "...", "video_url": "", "price": 0}
+>     ]
+>   }
+> }
+> ```
+> `items` 为空数组表示目标未使用任何可查询装扮。失败时 `status=failed`，`wording` 含 `(network|parse|structure|uin_mismatch)` 错误类别。
 
 ### 在线状态 (status, 4 个)
 
@@ -354,7 +372,7 @@
 - **OB11**：32 个 — OneBot v11 标准 API
 - **NapCat**：20 个 — NapCat 扩展 API
 - **go-cqhttp**：20 个 — go-cqhttp 兼容 API
-- **Expand**：133 个 — 插件扩展 API
+- **Expand**：134 个 — 插件扩展 API
 - **LLBot**：20 个 — LLBot 扩展 API
 
-**合计**：205 个主名 action + 18 个别名 = 223 个可调用名
+**合计**：206 个主名 action + 18 个别名 = 224 个可调用名
