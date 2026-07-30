@@ -5,10 +5,11 @@ OneBot v11 + NapCat 扩展 API 的完整封装插件。
 
 架构采用 Service + Tool 分离设计：
     - Service 层（23 个）：始终可用，供其他插件程序化调用，通过 api_client 调协议端
-    - Tool 层（206 个）：供 LLM 直接调用，默认全部关闭，可按需启用
+    - Tool 层（206 个）：供 LLM 直接调用，受总开关 ``enable_all_tools`` 控制
 
-Tool 层当前已从组件注册中移除，仅保留代码与开关保护逻辑。
-恢复 Tool 注册只需在 get_components() 末尾加回 ``+ ALL_TOOLS``。
+Tool 注册规则：
+    - ``enable_all_tools = False``（默认）：不注册任何 Tool，子开关无效。
+    - ``enable_all_tools = True``：仅注册子开关为 True 的 Tool。
 """
 
 from __future__ import annotations
@@ -28,7 +29,7 @@ class OnebotExpandPlugin(BasePlugin):
     """OneBot Expand 插件。
 
     扩展 onebot_adapter 的能力，提供全部 OneBot v11 + NapCat 扩展 API
-    的 Service 组件封装。Tool 层代码保留但默认不注册。
+    的 Service 组件封装。Tool 层受总开关 ``enable_all_tools`` 控制。
 
     Attributes:
         plugin_name: 插件名称
@@ -43,7 +44,7 @@ class OnebotExpandPlugin(BasePlugin):
         "OneBot v11 + NapCat 扩展 API 完整封装，"
         "提供 23 个 Service 组件（Tool 层已分离，可按需启用）"
     )
-    plugin_version: str = "1.0.9"
+    plugin_version: str = "1.0.10"
 
     configs: list[type] = [OnebotExpandConfig]
     dependencies: list[str] = []
@@ -51,8 +52,8 @@ class OnebotExpandPlugin(BasePlugin):
     def _get_enabled_tools(self) -> list[type]:
         """返回配置中明确启用、需要注册的工具类。
 
-        Tool 层当前已从组件注册中移除，本方法保留供未来恢复 Tool 时使用。
-        恢复方式：在 get_components() 末尾加回 ``+ self._get_enabled_tools()``。
+        总开关 ``enable_all_tools`` 为 False 时直接返回空列表，
+        所有子开关均无效。仅当总开关为 True 时，才逐个检查子开关。
         """
         from .tools import ALL_TOOLS
 
@@ -77,19 +78,22 @@ class OnebotExpandPlugin(BasePlugin):
     def get_components(self) -> list[type]:
         """返回需要注册的组件列表。
 
-        当前仅返回 Service 组件（Tool 层已分离）。
-        恢复 Tool 注册：将返回值改为 ``self._get_enabled_tools() + ALL_SERVICES``。
+        Service 始终注册；Tool 受总开关 ``enable_all_tools`` 控制：
+        - ``enable_all_tools = False``（默认）：不注册任何 Tool，子开关无效。
+        - ``enable_all_tools = True``：仅注册子开关为 True 的 Tool。
 
         Returns:
-            全部 Service 类
+            Service 类 + 经总开关过滤后的 Tool 类
         """
-        return ALL_SERVICES
+        return ALL_SERVICES + self._get_enabled_tools()
 
     async def on_plugin_loaded(self) -> None:
         """插件加载完成后的初始化。"""
+        enabled_tools = self._get_enabled_tools()
         logger.info(
             f"onebot_expand 插件已加载: 注册 {len(ALL_SERVICES)} 个服务"
-            "（Tool 层已分离，未注册）"
+            f" + {len(enabled_tools)} 个工具"
+            f"（总开关 enable_all_tools={self.config.api_switches.enable_all_tools}）"
         )
 
     async def on_plugin_unloaded(self) -> None:
