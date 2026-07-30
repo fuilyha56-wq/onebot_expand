@@ -456,22 +456,37 @@ class SendMsgTool(BaseTool):
 
 - **api_client 层**（`api_client.py`）：`_call_onebot_api` 统一调用入口，Service 与 Tool 共用
 - **Service 层**（23 个）：始终可用，通过 `from ..api_client import _call_onebot_api` 调协议端
-- **Tool 层**（206 个）：代码保留，但已从 `plugin.py` 的 `get_components()` 移除，不注册到组件列表
+- **Tool 层**（206 个）：代码保留，但已从组件注册中移除
 
-**当前状态**：Tool 层已分离，Service 层独立可用。恢复 Tool 只需在 `plugin.py` 的 `get_components()` 加回 `+ self._get_enabled_tools()`。
+**当前状态**：Tool 层已分离，Service 层独立可用。
 
-### 7.2 Tool 开关规则
+### 7.2 移除/恢复 Tool 的完整步骤（两处必须同步）
+
+移除 Tool 不能只改 `plugin.py`，**必须同时清理 `manifest.json` 的 `include` 列表**，否则插件系统加载 manifest 时仍会按 include 注册 Tool，绕过 `get_components()`。
+
+**移除 Tool（两处同步）**：
+1. `plugin.py` 的 `get_components()` 返回 `ALL_SERVICES`（不加 `ALL_TOOLS`）
+2. `manifest.json` 的 `include` 列表只保留 `component_type == "service"` 条目，删除所有 `component_type == "tool"` 条目；`categories` 改为 `["service"]`
+
+**恢复 Tool（两处同步）**：
+1. `plugin.py` 的 `get_components()` 改为 `return self._get_enabled_tools() + ALL_SERVICES`
+2. `manifest.json` 的 `include` 列表加回需要的 `component_type == "tool"` 条目（可按需启用，不必全量）；`categories` 加回 `"tool"`
+
+> ⚠️ **关键铁律**：`plugin.py` 的 `get_components()` 与 `manifest.json` 的 `include` 列表必须保持一致。manifest 是插件系统加载时的权威注册清单，`get_components()` 是运行时动态过滤。两者不一致会导致 Tool 仍被注册或注册失败。
+
+### 7.3 Tool 开关规则
 
 - `config.py` 的 `api_switches` 节里，每个 action 对应 `enable_<action>` 开关
 - **所有 `enable_<action>` 默认 `false`**
 - 总开关 `enable_all_tools` 默认 `false`，为 `false` 时所有 Tool 一律禁用
 - **Service 路径不受 `api_switches` 影响**，始终启用
-- 启用单个 Tool 的步骤：先在 `plugin.py` 恢复 Tool 注册，再 `enable_all_tools=true` + 对应 `enable_<action>=true`
+- 启用单个 Tool 的步骤：先按 §7.2 恢复 Tool 注册，再 `enable_all_tools=true` + 对应 `enable_<action>=true`
 
 ## 8. 常见错误与修正
 
 | 症状 | 原因 | 修正 |
 |---|---|---|
+| `plugin.py` 已移除 Tool 但注册后仍有 Tool | `manifest.json` 的 `include` 列表仍含 tool 条目 | 清理 manifest include，删除所有 `component_type=="tool"` 条目 |
 | Tool 调用直接返回"禁用" | 总开关或独立开关未开启 | `enable_all_tools=true` + 对应 `enable_<action>=true` |
 | 同一 action 注册两次 | 别名未声明导致重复适配 | 把别名写入 `APIDef.aliases`，删除重复 Tool 类 |
 | WebUI 名称变成额外可调用 action | 误把中文显示名写入 `APIDef.aliases` | 删除该别名；改在组件类声明 `display_name` |
