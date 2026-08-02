@@ -28,8 +28,8 @@ class RequestService(BaseService):
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
-    service_name: str = "request_service"
-    service_description: str = "请求处理服务"
+    name: str = "request_service"
+    description: str = "请求处理服务"
     version: str = "1.0.0"
 
     async def set_friend_add_request(

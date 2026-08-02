@@ -55,8 +55,6 @@ class OnebotExpandPlugin(BasePlugin):
         总开关 ``enable_all_tools`` 为 False 时直接返回空列表，
         所有子开关均无效。仅当总开关为 True 时，才逐个检查子开关。
         """
-        from .tools import ALL_TOOLS
-
         config = self.config
         if not isinstance(config, OnebotExpandConfig):
             return []
@@ -64,6 +62,8 @@ class OnebotExpandPlugin(BasePlugin):
         switches = config.api_switches
         if not switches.enable_all_tools:
             return []
+
+        from .tools import ALL_TOOLS
 
         enabled_tools: list[type] = []
         for tool_cls in ALL_TOOLS:
