@@ -149,6 +149,12 @@
             "component_name": "ark_service",
             "dependencies": [],
             "enabled": true
+        },
+        {
+            "component_type": "event_handler",
+            "component_name": "self_id_inject_handler",
+            "dependencies": [],
+            "enabled": true
         }
     ],
     "entry_point": "plugin.py",

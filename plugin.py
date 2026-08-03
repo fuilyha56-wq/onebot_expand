@@ -19,6 +19,7 @@ from src.app.plugin_system.base import BasePlugin, register_plugin
 
 from .api_defs import resolve_action
 from .config import OnebotExpandConfig
+from .event_handler import SelfIdInjectHandler
 from .services import ALL_SERVICES
 
 logger = get_logger("onebot_expand")
@@ -78,21 +79,22 @@ class OnebotExpandPlugin(BasePlugin):
     def get_components(self) -> list[type]:
         """返回需要注册的组件列表。
 
-        Service 始终注册；Tool 受总开关 ``enable_all_tools`` 控制：
+        Service 始终注册；EventHandler 始终注册；Tool 受总开关
+        ``enable_all_tools`` 控制：
         - ``enable_all_tools = False``（默认）：不注册任何 Tool，子开关无效。
         - ``enable_all_tools = True``：仅注册子开关为 True 的 Tool。
 
         Returns:
-            Service 类 + 经总开关过滤后的 Tool 类
+            Service 类 + EventHandler + 经总开关过滤后的 Tool 类
         """
-        return ALL_SERVICES + self._get_enabled_tools()
+        return ALL_SERVICES + [SelfIdInjectHandler] + self._get_enabled_tools()
 
     async def on_plugin_loaded(self) -> None:
         """插件加载完成后的初始化。"""
         enabled_tools = self._get_enabled_tools()
         logger.info(
             f"onebot_expand 插件已加载: 注册 {len(ALL_SERVICES)} 个服务"
-            f" + {len(enabled_tools)} 个工具"
+            f" + 1 个事件处理器 + {len(enabled_tools)} 个工具"
             f"（总开关 enable_all_tools={self.config.api_switches.enable_all_tools}）"
         )
 
