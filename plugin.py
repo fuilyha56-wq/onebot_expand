@@ -45,7 +45,7 @@ class OnebotExpandPlugin(BasePlugin):
         "OneBot v11 + NapCat 扩展 API 完整封装，"
         "提供 23 个 Service 组件（Tool 层已分离，可按需启用）"
     )
-    plugin_version: str = "1.0.10"
+    plugin_version: str = "1.0.11"
 
     configs: list[type] = [OnebotExpandConfig]
     dependencies: list[str] = []
