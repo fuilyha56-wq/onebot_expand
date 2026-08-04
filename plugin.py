@@ -1,11 +1,11 @@
 """onebot_expand 插件入口。
 
 OneBot v11 + NapCat 扩展 API 的完整封装插件。
-通过 onebot_adapter 的 WebSocket 连接调用全部 206 个 OneBot API。
+通过 onebot_adapter 的 WebSocket 连接调用全部 211 个 OneBot API。
 
 架构采用 Service + Tool 分离设计：
     - Service 层（23 个）：始终可用，供其他插件程序化调用，通过 api_client 调协议端
-    - Tool 层（206 个）：供 LLM 直接调用，受总开关 ``enable_all_tools`` 控制
+    - Tool 层（211 个）：供 LLM 直接调用，受总开关 ``enable_all_tools`` 控制
 
 Tool 注册规则：
     - ``enable_all_tools = False``（默认）：不注册任何 Tool，子开关无效。
@@ -45,7 +45,7 @@ class OnebotExpandPlugin(BasePlugin):
         "OneBot v11 + NapCat 扩展 API 完整封装，"
         "提供 23 个 Service 组件（Tool 层已分离，可按需启用）"
     )
-    plugin_version: str = "1.0.11"
+    plugin_version: str = "1.0.12"
 
     configs: list[type] = [OnebotExpandConfig]
     dependencies: list[str] = []

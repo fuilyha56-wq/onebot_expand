@@ -3,7 +3,7 @@
 封装 NapCat 用户信息扩展 API，提供好友管理、资料设置、
 头像设置、个性签名、最近联系人、资料点赞、个性装扮等功能。
 
-API 列表 (10):
+API 列表 (15):
     - delete_friend: 删除好友
     - set_friend_remark: 设置好友备注
     - get_friends_with_category: 获取分组好友列表
@@ -13,6 +13,11 @@ API 列表 (10):
     - set_self_longnick: 设置个性签名
     - get_recent_contact: 获取最近联系人
     - get_profile_like: 获取资料点赞
+    - get_profile_like_me: 获取自身被点赞列表
+    - get_profile_like_count: 获取用户点赞总数
+    - get_qq_avatar: 获取QQ头像URL
+    - set_friend_category: 按分类 ID 设置好友分类（LLBot 扩展）
+    - set_friends_category: 按分类 ID 或名称设置好友分类（SnowLuma 扩展）
     - _get_friend_dress: 获取好友个性装扮（SnowLuma 扩展）
 """
 
@@ -250,6 +255,35 @@ class UserExtService(BaseService):
         }
         return await _call_onebot_api("set_friend_category", params)
 
+    async def set_friends_category(
+        self,
+        uin: int,
+        category_id: int | None = None,
+        category_name: str | None = None,
+    ) -> dict[str, Any]:
+        """按分类 ID 或名称设置好友分类（SnowLuma 扩展）。
+
+        Args:
+            uin: 目标 QQ 号。
+            category_id: 分类 ID。
+            category_name: 分类名称。
+
+        Returns:
+            适配器返回的响应字典。
+
+        Raises:
+            ValueError: 未恰好提供一个分类选择参数时抛出。
+        """
+        if (category_id is None) == (category_name is None):
+            raise ValueError("category_id 与 category_name 必须恰好提供一个")
+
+        params: dict[str, Any] = {"uin": uin}
+        if category_id is not None:
+            params["categoryId"] = category_id
+        if category_name is not None:
+            params["categoryName"] = category_name
+        return await _call_onebot_api("set_friends_category", params)
+
     async def get_friend_dress(
         self,
         user_id: int,
@@ -267,4 +301,3 @@ class UserExtService(BaseService):
         """
         params: dict[str, Any] = {"user_id": user_id}
         return await _call_onebot_api("_get_friend_dress", params)
-

@@ -1,6 +1,6 @@
 # onebot_expand API 索引名单
 
-> 共 **206** 个主名 action + **18** 个别名 · 覆盖 OneBot v11 / NapCat / SnowLuma / LLBot 四方协议端
+> 共 **211** 个主名 action + **18** 个别名 · 覆盖 OneBot v11 / NapCat / SnowLuma / LLBot 四方协议端
 
 **来源标记**：`OB11`=OneBot v11 标准 · `NapCat`=NapCat 扩展 · `go-cqhttp`=go-cqhttp 兼容 · `Expand`=插件扩展 · `LLBot`=LLBot 扩展
 
@@ -35,7 +35,7 @@
 | `_mark_all_as_read` | Expand | — | ✓ | — |
 | `upload_forward_msg` | Expand | — | ✓ | upload_foward_msg |
 
-### 群操作 (group, 10 个)
+### 群操作 (group, 13 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -49,6 +49,9 @@
 | `set_group_name` | OB11 | — | ✓ | — |
 | `set_group_leave` | OB11 | — | ✓ | — |
 | `set_group_special_title` | OB11 | — | ✓ | — |
+| `set_group_member_invite_policy` | NapCat | ✓ | ✗ | — |
+| `set_group_member_permissions` | NapCat | ✓ | ✗ | — |
+| `set_group_new_member_history_visibility` | NapCat | ✓ | ✗ | — |
 
 ### 文件操作 (file, 16 个)
 
@@ -161,7 +164,7 @@
 | `get_doubt_friends_add_request` | Expand | — | ✓ | — |
 | `set_doubt_friends_add_request` | Expand | — | ✓ | — |
 
-### 用户信息扩展 (user_ext, 14 个)
+### 用户信息扩展 (user_ext, 15 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -179,6 +182,7 @@
 | `get_qq_avatar` | LLBot | — | ✓ | — |
 | `set_friend_category` | LLBot | — | ✓ | — |
 | `_get_friend_dress` | Expand | — | ✓ | — |
+| `set_friends_category` | Expand | — | ✓ | — |
 
 > **`_get_friend_dress` 返回结构**（SnowLuma 静态分析，待实测）：
 > ```json
@@ -251,7 +255,7 @@
 | `download_file` | Expand | — | ✓ | — |
 | `request_decrypt_key` | Expand | — | ✓ | — |
 
-### 机型/其他 (misc, 18 个)
+### 机型/其他 (misc, 19 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -265,6 +269,7 @@
 | `create_collection` | Expand | — | ✓ | — |
 | `get_collection_list` | Expand | — | ✓ | — |
 | `send_packet` | Expand | — | ✓ | .send_packet |
+| `send_pb` | Expand | — | ✓ | — |
 | `handle_quick_operation` | go-cqhttp | — | ✓ | .handle_quick_operation |
 | `get_word_slices` | go-cqhttp | ✓ | ✗ | .get_word_slices |
 | `get_config` | LLBot | — | ✓ | — |
@@ -370,9 +375,8 @@
 ## 按来源统计
 
 - **OB11**：32 个 — OneBot v11 标准 API
-- **NapCat**：20 个 — NapCat 扩展 API
+- **NapCat**：23 个 — NapCat 扩展 API
 - **go-cqhttp**：20 个 — go-cqhttp 兼容 API
-- **Expand**：134 个 — 插件扩展 API
-- **LLBot**：20 个 — LLBot 扩展 API
+- **Expand**：136 个 — 插件扩展 API（含 SnowLuma/LLBot 独有扩展）
 
-**合计**：206 个主名 action + 18 个别名 = 224 个可调用名
+**合计**：211 个主名 action + 18 个别名 = 229 个可调用名

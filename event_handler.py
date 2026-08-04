@@ -24,8 +24,6 @@ from src.app.plugin_system.types import EventType
 from src.kernel.event import EventDecision
 from src.kernel.logger import get_logger
 
-from .api_defs import ADAPTER_SIGNATURE
-
 logger = get_logger("onebot_expand.event_handler")
 
 # self_id 缓存有效期（秒）。OneBot 登录号在运行期通常不变，
@@ -104,7 +102,10 @@ class SelfIdInjectHandler(BaseEventHandler):
         """返回未过期的缓存 self_id，否则空串。"""
         import time
 
-        if self._self_id and (time.monotonic() - self._self_id_refreshed_at) < _SELF_ID_TTL:
+        if (
+            self._self_id
+            and (time.monotonic() - self._self_id_refreshed_at) < _SELF_ID_TTL
+        ):
             return self._self_id
         return ""
 

@@ -2,7 +2,7 @@
 
 封装 OneBot v11 群操作相关 API，提供统一的群管理接口。
 
-API 列表 (10):
+API 列表 (13):
     - kick: 踢出群成员
     - ban: 禁言群成员
     - anonymous_ban: 禁言匿名群成员
@@ -13,6 +13,9 @@ API 列表 (10):
     - set_group_name: 设置群名
     - leave: 退出群聊
     - set_special_title: 设置专属头衔
+    - set_member_invite_policy: 设置群成员邀请策略
+    - set_member_permissions: 设置群成员功能权限
+    - set_new_member_history_visibility: 设置新成员历史消息可见性
 """
 
 from __future__ import annotations
@@ -283,3 +286,75 @@ class GroupService(BaseService):
             "duration": duration,
         }
         return await _call_onebot_api("set_group_special_title", params)
+
+    async def set_member_invite_policy(
+        self,
+        group_id: str,
+        policy: str,
+    ) -> dict[str, Any]:
+        """设置群成员邀请策略。
+
+        Args:
+            group_id: 群号。
+            policy: 邀请策略。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        return await _call_onebot_api(
+            "set_group_member_invite_policy",
+            {"group_id": group_id, "policy": policy},
+        )
+
+    async def set_member_permissions(
+        self,
+        group_id: str,
+        allow_member_upload_album: bool | None = None,
+        allow_member_temporary_session: bool | None = None,
+        allow_member_create_group: bool | None = None,
+    ) -> dict[str, Any]:
+        """设置群成员功能权限。
+
+        Args:
+            group_id: 群号。
+            allow_member_upload_album: 是否允许成员上传群相册。
+            allow_member_temporary_session: 是否允许成员发起临时会话。
+            allow_member_create_group: 是否允许成员发起新群聊。
+
+        Returns:
+            适配器返回的响应字典。
+
+        Raises:
+            ValueError: 未提供任何权限项时抛出。
+        """
+        params: dict[str, Any] = {"group_id": group_id}
+        permissions = {
+            "allow_member_upload_album": allow_member_upload_album,
+            "allow_member_temporary_session": allow_member_temporary_session,
+            "allow_member_create_group": allow_member_create_group,
+        }
+        params.update(
+            {key: value for key, value in permissions.items() if value is not None}
+        )
+        if len(params) == 1:
+            raise ValueError("至少需要提供一个群成员功能权限")
+        return await _call_onebot_api("set_group_member_permissions", params)
+
+    async def set_new_member_history_visibility(
+        self,
+        group_id: str,
+        visible: bool,
+    ) -> dict[str, Any]:
+        """设置新成员历史消息可见性。
+
+        Args:
+            group_id: 群号。
+            visible: 新成员是否可见最近聊天记录。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        return await _call_onebot_api(
+            "set_group_new_member_history_visibility",
+            {"group_id": group_id, "visible": visible},
+        )

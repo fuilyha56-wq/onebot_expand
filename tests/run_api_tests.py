@@ -15,11 +15,11 @@
 
 from __future__ import annotations
 
-import json
 import time
 from pathlib import Path
 
 import sys
+
 # 插件根目录（向上两级到 plugins/.. 不一定有 onebot_expand 包）
 # onebot_expand 包就是本目录的父目录
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -99,6 +99,7 @@ MIN_PARAMS: dict[str, dict] = {
     "set_group_add_request": {"flag": "1", "sub_type": "add", "approve": True},
     "delete_friend": {"user_id": 1},
     "set_friend_remark": {"user_id": 1, "remark": ""},
+    "set_friends_category": {"uin": 1, "categoryId": 0},
     "set_qq_profile": {"nickname": "t"},
     "set_qq_avatar": {"file": ""},
     "set_self_longnick": {"long_nick": "t"},
@@ -127,6 +128,7 @@ MIN_PARAMS: dict[str, dict] = {
     "translate_en2zh": {"words": ["t"]},
     "create_collection": {"summary": "t"},
     "send_packet": {"cmd": "t"},
+    "send_pb": {"cmd": "trpc.test", "hex": ""},
     "create_flash_task": {"group_id": 1, "files": [{}]},
     "send_flash_msg": {"group_id": 1, "files": [{}]},
     "get_flash_file_url": {"group_id": 1, "file_id": "1"},
@@ -139,7 +141,12 @@ MIN_PARAMS: dict[str, dict] = {
     "rename_flash_file": {"group_id": 1, "file_id": "1", "new_name": "t"},
     "get_group_album_media_list": {"group_id": 1, "album_id": "1"},
     "upload_image_to_qun_album": {"group_id": 1, "file": ""},
-    "do_group_album_comment": {"group_id": 1, "album_id": "1", "media_id": "1", "content": "t"},
+    "do_group_album_comment": {
+        "group_id": 1,
+        "album_id": "1",
+        "media_id": "1",
+        "content": "t",
+    },
     "set_group_album_media_like": {"group_id": 1, "album_id": "1", "media_id": "1"},
     "cancel_group_album_media_like": {"group_id": 1, "album_id": "1", "media_id": "1"},
     "del_group_album_media": {"group_id": 1, "album_id": "1", "media_id_list": ["1"]},
@@ -162,13 +169,10 @@ MIN_PARAMS: dict[str, dict] = {
     "get_doubt_friends_add_request": {},
     "set_doubt_friends_add_request": {"flag": "1", "approve": True},
     "request_decrypt_key": {"encrypted_file": ""},
-    "set_qq_avatar": {"file": ""},
     "nc_get_user_status": {"user_id": 1},
     "get_cookies": {"domain": ""},
     "set_restart": {"delay": 0, "clean_cache": False},
-    "set_input_status": {"user_id": 1, "content": ""},
     "get_robot_uin_range": {},
-    "set_group_add_option": {"group_id": 1},
     "nc_get_rkey": {},
     "get_rkey": {},
     "get_rkey_server": {},
@@ -220,8 +224,6 @@ MIN_PARAMS: dict[str, dict] = {
     "get_friend_list": {},
     "get_group_list": {},
     "get_group_member_list": {"group_id": 1},
-    "fetch_emoji_like": {"emoji_id": "1"},
-    "set_msg_emoji_like": {"message_id": 1, "emoji_id": "1"},
     "send_like": {"user_id": 1, "times": 1},
     ".ocr_image": {"image": ""},
     ".send_packet": {"cmd": "t"},
@@ -236,7 +238,11 @@ def categorize(resp: dict) -> str:
     if status == "error":
         return "ERROR"
     if status == "failed":
-        if retcode in (1400, 1404) or "参数" in str(resp.get("msg", "")) or "不支持" in str(resp.get("msg", "")):
+        if (
+            retcode in (1400, 1404)
+            or "参数" in str(resp.get("msg", ""))
+            or "不支持" in str(resp.get("msg", ""))
+        ):
             return "PARAM_ERR"
         return "FAILED"
     return "UNKNOWN"
@@ -267,15 +273,20 @@ def main() -> None:
         if resp is None:
             resp = {"status": "error", "retcode": -1, "msg": "no response"}
         cat = categorize(resp)
-        results.append({
-            "action": action,
-            "is_alias": action in aliases,
-            "category": cat,
-            "status": resp.get("status", ""),
-            "retcode": resp.get("retcode", ""),
-            "msg": str(resp.get("msg", resp.get("wording", "")))[:120],
-        })
-        print(f"[{i:>3}/{total}] {action:<35} {cat:<10} {resp.get('retcode', '')}", flush=True)
+        results.append(
+            {
+                "action": action,
+                "is_alias": action in aliases,
+                "category": cat,
+                "status": resp.get("status", ""),
+                "retcode": resp.get("retcode", ""),
+                "msg": str(resp.get("msg", resp.get("wording", "")))[:120],
+            }
+        )
+        print(
+            f"[{i:>3}/{total}] {action:<35} {cat:<10} {resp.get('retcode', '')}",
+            flush=True,
+        )
         time.sleep(0.3)
 
     # 输出报告
@@ -283,15 +294,20 @@ def main() -> None:
     with report_path.open("w", encoding="utf-8") as f:
         f.write("# API 测试报告\n\n")
         f.write(f"测试时间：{time.strftime('%Y-%m-%d %H:%M:%S')}\n")
-        f.write(f"NapCat 登录账号：3693525299 (Navinatte)\n")
-        f.write(f"测试总数：{len(results)}（主名 {len(actions)} + 别名 {len(aliases)}）\n\n")
+        f.write("NapCat 登录账号：3693525299 (Navinatte)\n")
+        f.write(
+            f"测试总数：{len(results)}（主名 {len(actions)} + 别名 {len(aliases)}）\n\n"
+        )
         # 统计
         from collections import Counter
+
         stat = Counter(r["category"] for r in results)
         f.write("## 统计\n\n")
         f.write("| 类别 | 数量 | 说明 |\n|---|---|---|\n")
         f.write(f"| OK | {stat.get('OK', 0)} | 调用成功 |\n")
-        f.write(f"| PARAM_ERR | {stat.get('PARAM_ERR', 0)} | 参数错误（action 被识别） |\n")
+        f.write(
+            f"| PARAM_ERR | {stat.get('PARAM_ERR', 0)} | 参数错误（action 被识别） |\n"
+        )
         f.write(f"| FAILED | {stat.get('FAILED', 0)} | 调用失败 |\n")
         f.write(f"| ERROR | {stat.get('ERROR', 0)} | 连接/适配器异常 |\n")
         f.write(f"| UNKNOWN | {stat.get('UNKNOWN', 0)} | 未知状态 |\n\n")
@@ -302,7 +318,9 @@ def main() -> None:
         for r in results:
             kind = "别名" if r["is_alias"] else "主名"
             msg = r["msg"].replace("|", "\\|")
-            f.write(f"| `{r['action']}` | {kind} | {r['category']} | {r['status']} | {r['retcode']} | {msg} |\n")
+            f.write(
+                f"| `{r['action']}` | {kind} | {r['category']} | {r['status']} | {r['retcode']} | {msg} |\n"
+            )
     print(f"\n报告已写入：{report_path}")
 
 

@@ -1,6 +1,6 @@
 """onebot_expand 插件 Tool 组件包。
 
-导出全部 206 个 Tool 类，按功能域分组：
+导出全部 211 个 Tool 类，按功能域分组：
     - 消息相关 (20): message_tools
     - 群操作 (10): group_tools
     - 文件操作 (16): file_tools
@@ -32,7 +32,7 @@ import functools
 from typing import Any
 
 from ..api_client import _call_onebot_api  # noqa: F401  re-export 供各 Tool 模块使用
-from ..api_defs import resolve_action
+from ..api_defs import resolve_action as _resolve_action
 
 __all__ = [
     # 消息相关 Tool (18)
@@ -67,6 +67,9 @@ __all__ = [
     "SetGroupNameTool",
     "SetGroupLeaveTool",
     "SetGroupSpecialTitleTool",
+    "SetGroupMemberInvitePolicyTool",
+    "SetGroupMemberPermissionsTool",
+    "SetGroupNewMemberHistoryVisibilityTool",
     # 文件操作 Tool (11)
     "UploadGroupFileTool",
     "UploadPrivateFileTool",
@@ -155,6 +158,7 @@ __all__ = [
     "SetQQProfileTool",
     "SetQQAvatarTool",
     "SetSelfLongnickTool",
+    "SetFriendsCategoryTool",
     "GetRecentContactTool",
     "GetProfileLikeTool",
     "GetFriendDressTool",
@@ -201,6 +205,7 @@ __all__ = [
     "CreateCollectionTool",
     "GetCollectionListTool",
     "SendPacketTool",
+    "SendPBTool",
     "HandleQuickOperationTool",
     "GetWordSlicesTool",
     # 闪传 Tool (8)
@@ -286,7 +291,10 @@ from .group_tools import (  # noqa: E402
     SetGroupCardTool,
     SetGroupKickTool,
     SetGroupLeaveTool,
+    SetGroupMemberInvitePolicyTool,
+    SetGroupMemberPermissionsTool,
     SetGroupNameTool,
+    SetGroupNewMemberHistoryVisibilityTool,
     SetGroupSpecialTitleTool,
     SetGroupWholeBanTool,
 )
@@ -321,7 +329,6 @@ from .account_tools import (  # noqa: E402
     GetRobotUinRangeTool,
 )
 from .napcat_tools import (  # noqa: E402
-
     CanSendImageTool,
     CanSendRecordTool,
     CleanCacheTool,
@@ -392,6 +399,7 @@ from .user_ext_tools import (  # noqa: E402
     GetRecentContactTool,
     GetUnidirectionalFriendListTool,
     SetFriendCategoryTool,
+    SetFriendsCategoryTool,
     SetFriendRemarkTool,
     SetQQAvatarTool,
     SetQQProfileTool,
@@ -451,6 +459,7 @@ from .misc_tools import (  # noqa: E402
     LlonebotDebugTool,
     NcGetPacketStatusTool,
     ScanQRCodeTool,
+    SendPBTool,
     SendPacketTool,
     SetConfigTool,
     SetModelShowTool,
@@ -506,7 +515,7 @@ from .ark_tools import (  # noqa: E402
     SharePeerTool,
 )
 
-# 全部 206 个 Tool 类列表
+# 全部 211 个 Tool 类列表
 ALL_TOOLS: list[type] = [
     # 消息相关 (18)
     SendGroupMsgTool,
@@ -529,7 +538,7 @@ ALL_TOOLS: list[type] = [
     MarkPrivateMsgAsReadTool,
     MarkAllAsReadTool,
     UploadForwardMsgTool,
-    # 群操作 (10)
+    # 群操作 (13)
     SetGroupKickTool,
     SetGroupBanTool,
     SetGroupAnonymousBanTool,
@@ -540,6 +549,9 @@ ALL_TOOLS: list[type] = [
     SetGroupNameTool,
     SetGroupLeaveTool,
     SetGroupSpecialTitleTool,
+    SetGroupMemberInvitePolicyTool,
+    SetGroupMemberPermissionsTool,
+    SetGroupNewMemberHistoryVisibilityTool,
     # 文件操作 (11)
     UploadGroupFileTool,
     UploadPrivateFileTool,
@@ -630,6 +642,7 @@ ALL_TOOLS: list[type] = [
     SetSelfLongnickTool,
     GetRecentContactTool,
     GetProfileLikeTool,
+    SetFriendsCategoryTool,
     GetFriendDressTool,
     # 在线状态 (4)
     SetOnlineStatusTool,
@@ -674,6 +687,7 @@ ALL_TOOLS: list[type] = [
     CreateCollectionTool,
     GetCollectionListTool,
     SendPacketTool,
+    SendPBTool,
     HandleQuickOperationTool,
     GetWordSlicesTool,
     # 闪传 (8)
@@ -756,9 +770,6 @@ ALL_TOOLS: list[type] = [
 # 调用的路径不会被总开关拦截。Tool 直接调 ``_call_onebot_api`` 也不经过
 # Service 层的 ``_is_api_enabled``，所以 Tool 路径的独立开关拦截由本包装器
 # 顺带处理。
-
-
-from ..api_defs import resolve_action as _resolve_action
 
 
 def _is_tool_master_switch_on(plugin: Any) -> bool:

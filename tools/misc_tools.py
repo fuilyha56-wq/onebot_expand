@@ -1,6 +1,6 @@
 """机型/其他扩展 API 的 Tool 组件。
 
-包含 12 个机型/其他扩展 Tool，对应 NapCat 机型/其他扩展 API：
+包含 19 个机型/其他扩展 Tool，对应 NapCat、SnowLuma 与 LLBot 扩展 API：
     - _get_model_show: 获取机型展示
     - _set_model_show: 设置机型展示
     - bot_exit: 退出机器人
@@ -11,8 +11,15 @@
     - create_collection: 创建收藏
     - get_collection_list: 获取收藏列表
     - send_packet: 发送原始SSO包
+    - send_pb: 发送原始 Protobuf 数据（LLBot 扩展）
     - handle_quick_operation: go-cqhttp 快速操作
     - get_word_slices: go-cqhttp 分词
+    - get_config: 获取协议端配置（LLBot 扩展）
+    - set_config: 设置协议端配置（LLBot 扩展）
+    - get_event: 获取事件（LLBot 扩展）
+    - llonebot_debug: 调用协议端内部 API（LLBot 扩展）
+    - scan_qrcode: 扫码登录（LLBot 扩展）
+    - get_guild_list: 获取频道列表（NapCat/LLBot 扩展）
 
 注意：tool_name 中的下划线与 action 名一致（如 _get_model_show），
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
@@ -37,9 +44,10 @@ __all__ = [
     "CreateCollectionTool",
     "GetCollectionListTool",
     "SendPacketTool",
+    "SendPBTool",
     "HandleQuickOperationTool",
     "GetWordSlicesTool",
-"GetConfigTool",
+    "GetConfigTool",
     "SetConfigTool",
     "GetEventTool",
     "LlonebotDebugTool",
@@ -295,6 +303,25 @@ class SendPacketTool(BaseTool):
             return True, data_resp
         return False, f"发送SSO包失败: {result.get('msg', '未知错误')}"
 
+
+class SendPBTool(BaseTool):
+    """发送原始 Protobuf 数据的 Tool。"""
+
+    tool_name = "send_pb"
+    tool_description = "发送原始 Protobuf 数据（LLBot 扩展）"
+
+    async def execute(
+        self,
+        cmd: Annotated[str, "命令名"],
+        hex_data: Annotated[str, "Protobuf 十六进制数据"],
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行发送原始 Protobuf 数据。"""
+        result = await _call_onebot_api("send_pb", {"cmd": cmd, "hex": hex_data})
+        if result.get("status") == "ok":
+            return True, result.get("data", {})
+        return False, f"发送 Protobuf 数据失败: {result.get('msg', '未知错误')}"
+
+
 class HandleQuickOperationTool(BaseTool):
     """go-cqhttp 快速操作的 Tool。
 
@@ -363,7 +390,6 @@ class GetConfigTool(BaseTool):
         return False, f"获取协议端配置失败: {result.get('msg', '未知错误')}"
 
 
-
 class SetConfigTool(BaseTool):
     """设置协议端配置的 Tool。
 
@@ -387,7 +413,6 @@ class SetConfigTool(BaseTool):
         return False, f"设置协议端配置失败: {result.get('msg', '未知错误')}"
 
 
-
 class GetEventTool(BaseTool):
     """获取事件的 Tool。
 
@@ -406,7 +431,6 @@ class GetEventTool(BaseTool):
         if result.get("status") == "ok":
             return True, str(result.get("data", ""))
         return False, f"获取事件失败: {result.get('msg', '未知错误')}"
-
 
 
 class LlonebotDebugTool(BaseTool):
@@ -436,7 +460,6 @@ class LlonebotDebugTool(BaseTool):
         return False, f"调试接口失败: {result.get('msg', '未知错误')}"
 
 
-
 class ScanQRCodeTool(BaseTool):
     """扫码登录的 Tool。
 
@@ -460,7 +483,6 @@ class ScanQRCodeTool(BaseTool):
         return False, f"扫码登录失败: {result.get('msg', '未知错误')}"
 
 
-
 class GetGuildListTool(BaseTool):
     """获取频道列表的 Tool。
 
@@ -479,5 +501,3 @@ class GetGuildListTool(BaseTool):
         if result.get("status") == "ok":
             return True, str(result.get("data", ""))
         return False, f"获取频道列表失败: {result.get('msg', '未知错误')}"
-
-

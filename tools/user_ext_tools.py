@@ -1,6 +1,6 @@
 """用户信息扩展 API 的 Tool 组件。
 
-包含 10 个用户信息扩展 Tool，对应 NapCat 用户信息扩展 API：
+包含 15 个用户信息扩展 Tool，对应 NapCat、SnowLuma 与 LLBot 扩展 API：
     - delete_friend: 删除好友
     - set_friend_remark: 设置好友备注
     - get_friends_with_category: 获取分组好友列表
@@ -10,6 +10,11 @@
     - set_self_longnick: 设置个性签名
     - get_recent_contact: 获取最近联系人
     - get_profile_like: 获取资料点赞
+    - get_profile_like_me: 获取自身被点赞列表
+    - get_profile_like_count: 获取用户点赞总数
+    - get_qq_avatar: 获取QQ头像URL
+    - set_friend_category: 按分类 ID 设置好友分类（LLBot 扩展）
+    - set_friends_category: 按分类 ID 或名称设置好友分类（SnowLuma 扩展）
     - _get_friend_dress: 获取好友个性装扮（SnowLuma 扩展）
 
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
@@ -37,6 +42,7 @@ __all__ = [
     "GetProfileLikeCountTool",
     "GetQQAvatarTool",
     "SetFriendCategoryTool",
+    "SetFriendsCategoryTool",
     "GetFriendDressTool",
 ]
 
@@ -286,7 +292,6 @@ class GetProfileLikeMeTool(BaseTool):
         return False, f"获取自身被点赞列表失败: {result.get('msg', '未知错误')}"
 
 
-
 class GetProfileLikeCountTool(BaseTool):
     """获取用户点赞总数的 Tool。
 
@@ -308,7 +313,6 @@ class GetProfileLikeCountTool(BaseTool):
         if result.get("status") == "ok":
             return True, str(result.get("data", ""))
         return False, f"获取用户点赞总数失败: {result.get('msg', '未知错误')}"
-
 
 
 class GetQQAvatarTool(BaseTool):
@@ -336,7 +340,6 @@ class GetQQAvatarTool(BaseTool):
         return False, f"获取QQ头像URL失败: {result.get('msg', '未知错误')}"
 
 
-
 class SetFriendCategoryTool(BaseTool):
     """设置好友分类的 Tool。
 
@@ -362,6 +365,33 @@ class SetFriendCategoryTool(BaseTool):
         return False, f"设置好友分类失败: {result.get('msg', '未知错误')}"
 
 
+class SetFriendsCategoryTool(BaseTool):
+    """按分类 ID 或名称设置好友分类的 Tool。"""
+
+    tool_name = "set_friends_category"
+    tool_description = "按分类 ID 或名称设置好友分类（SnowLuma 扩展）"
+
+    async def execute(
+        self,
+        uin: Annotated[int, "目标QQ号"],
+        category_id: Annotated[int | None, "分类ID"] = None,
+        category_name: Annotated[str | None, "分类名称"] = None,
+    ) -> tuple[bool, str]:
+        """执行设置好友分类。"""
+        if (category_id is None) == (category_name is None):
+            raise ValueError("category_id 与 category_name 必须恰好提供一个")
+
+        params: dict[str, Any] = {"uin": uin}
+        if category_id is not None:
+            params["categoryId"] = category_id
+        if category_name is not None:
+            params["categoryName"] = category_name
+        result = await _call_onebot_api("set_friends_category", params)
+        if result.get("status") == "ok":
+            return True, f"已设置好友 {uin} 的分类"
+        return False, f"设置好友分类失败: {result.get('msg', '未知错误')}"
+
+
 class GetFriendDressTool(BaseTool):
     """获取好友个性装扮的 Tool。
 
@@ -384,5 +414,3 @@ class GetFriendDressTool(BaseTool):
         if result.get("status") == "ok":
             return True, str(result.get("data", ""))
         return False, f"获取好友个性装扮失败: {result.get('msg', '未知错误')}"
-
-

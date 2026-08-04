@@ -3,7 +3,7 @@
 封装 NapCat 机型/其他扩展 API，提供机型展示、Bot 退出、
 packet 状态、内联键盘、小程序卡片、翻译、收藏、SSO 包、快速操作、分词等功能。
 
-API 列表 (12):
+API 列表 (19):
     - _get_model_show: 获取机型展示
     - _set_model_show: 设置机型展示
     - bot_exit: 退出机器人
@@ -14,8 +14,15 @@ API 列表 (12):
     - create_collection: 创建收藏
     - get_collection_list: 获取收藏列表
     - send_packet: 发送原始SSO包
+    - send_pb: 发送原始 Protobuf 数据（LLBot 扩展）
     - handle_quick_operation: go-cqhttp 快速操作
     - get_word_slices: go-cqhttp 分词
+    - get_config: 获取协议端配置（LLBot 扩展）
+    - set_config: 设置协议端配置（LLBot 扩展）
+    - get_event: 获取事件（LLBot 扩展）
+    - llonebot_debug: 调用协议端内部 API（LLBot 扩展）
+    - scan_qrcode: 扫码登录（LLBot 扩展）
+    - get_guild_list: 获取频道列表（NapCat/LLBot 扩展）
 """
 
 from __future__ import annotations
@@ -205,6 +212,19 @@ class MiscService(BaseService):
         if data:
             params["data"] = data
         return await _call_onebot_api("send_packet", params)
+
+    async def send_pb(self, cmd: str, hex_data: str) -> dict[str, Any]:
+        """发送原始 Protobuf 数据（LLBot 扩展）。
+
+        Args:
+            cmd: 命令名。
+            hex_data: Protobuf 十六进制数据。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        return await _call_onebot_api("send_pb", {"cmd": cmd, "hex": hex_data})
+
     async def handle_quick_operation(
         self,
         context: dict[str, Any],
@@ -246,8 +266,7 @@ class MiscService(BaseService):
 
         对应 OneBot API: ``get_config``。
         """
-        params: dict[str, Any] = {
-        }
+        params: dict[str, Any] = {}
         return await _call_onebot_api("get_config", params)
 
     async def SetConfig(
@@ -270,8 +289,7 @@ class MiscService(BaseService):
 
         对应 OneBot API: ``get_event``。
         """
-        params: dict[str, Any] = {
-        }
+        params: dict[str, Any] = {}
         return await _call_onebot_api("get_event", params)
 
     async def LlonebotDebug(
@@ -311,7 +329,5 @@ class MiscService(BaseService):
 
         对应 OneBot API: ``get_guild_list``。
         """
-        params: dict[str, Any] = {
-        }
+        params: dict[str, Any] = {}
         return await _call_onebot_api("get_guild_list", params)
-

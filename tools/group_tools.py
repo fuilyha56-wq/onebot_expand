@@ -1,6 +1,6 @@
 """群操作 API 的 Tool 组件。
 
-包含 10 个群操作 Tool，对应 OneBot v11 标准群操作 API：
+包含 13 个群操作 Tool，对应 OneBot v11 标准与 NapCat 扩展群操作 API：
     - set_group_kick: 踢出群成员
     - set_group_ban: 禁言群成员
     - set_group_anonymous_ban: 禁言匿名群成员
@@ -11,6 +11,9 @@
     - set_group_name: 设置群名
     - set_group_leave: 退出群聊
     - set_group_special_title: 设置专属头衔
+    - set_group_member_invite_policy: 设置群成员邀请策略
+    - set_group_member_permissions: 设置群成员功能权限
+    - set_group_new_member_history_visibility: 设置新成员历史消息可见性
 
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
 """
@@ -34,6 +37,9 @@ __all__ = [
     "SetGroupNameTool",
     "SetGroupLeaveTool",
     "SetGroupSpecialTitleTool",
+    "SetGroupMemberInvitePolicyTool",
+    "SetGroupMemberPermissionsTool",
+    "SetGroupNewMemberHistoryVisibilityTool",
 ]
 
 
@@ -327,3 +333,86 @@ class SetGroupSpecialTitleTool(BaseTool):
             title_desc = f'"{special_title}"' if special_title else "（已清空）"
             return True, f"已设置群 {group_id} 中成员 {user_id} 的头衔为 {title_desc}"
         return False, f"设置专属头衔失败: {result.get('msg', '未知错误')}"
+
+
+class SetGroupMemberInvitePolicyTool(BaseTool):
+    """设置群成员邀请策略的 Tool。"""
+
+    tool_name = "set_group_member_invite_policy"
+    tool_description = "设置群成员邀请好友进群的审核策略"
+
+    async def execute(
+        self,
+        group_id: Annotated[str, "目标群号"],
+        policy: Annotated[
+            str,
+            "disabled/require_approval/no_approval/no_approval_under_100",
+        ],
+    ) -> tuple[bool, str]:
+        """执行设置群成员邀请策略。"""
+        result = await _call_onebot_api(
+            "set_group_member_invite_policy",
+            {"group_id": group_id, "policy": policy},
+        )
+        if result.get("status") == "ok":
+            return True, f"已设置群 {group_id} 的成员邀请策略"
+        return False, f"设置群成员邀请策略失败: {result.get('msg', '未知错误')}"
+
+
+class SetGroupMemberPermissionsTool(BaseTool):
+    """设置群成员功能权限的 Tool。"""
+
+    tool_name = "set_group_member_permissions"
+    tool_description = "设置群成员上传相册、临时会话和创建群聊权限"
+
+    async def execute(
+        self,
+        group_id: Annotated[str, "目标群号"],
+        allow_member_upload_album: Annotated[
+            bool | None, "是否允许成员上传群相册"
+        ] = None,
+        allow_member_temporary_session: Annotated[
+            bool | None, "是否允许成员发起临时会话"
+        ] = None,
+        allow_member_create_group: Annotated[
+            bool | None, "是否允许成员发起新群聊"
+        ] = None,
+    ) -> tuple[bool, str]:
+        """执行设置群成员功能权限。"""
+        params: dict[str, Any] = {"group_id": group_id}
+        permissions = {
+            "allow_member_upload_album": allow_member_upload_album,
+            "allow_member_temporary_session": allow_member_temporary_session,
+            "allow_member_create_group": allow_member_create_group,
+        }
+        params.update(
+            {key: value for key, value in permissions.items() if value is not None}
+        )
+        if len(params) == 1:
+            raise ValueError("至少需要提供一个群成员功能权限")
+
+        result = await _call_onebot_api("set_group_member_permissions", params)
+        if result.get("status") == "ok":
+            return True, f"已设置群 {group_id} 的成员功能权限"
+        return False, f"设置群成员功能权限失败: {result.get('msg', '未知错误')}"
+
+
+class SetGroupNewMemberHistoryVisibilityTool(BaseTool):
+    """设置新成员历史消息可见性的 Tool。"""
+
+    tool_name = "set_group_new_member_history_visibility"
+    tool_description = "设置新入群成员是否可见最近聊天记录"
+
+    async def execute(
+        self,
+        group_id: Annotated[str, "目标群号"],
+        visible: Annotated[bool, "新成员是否可见最近聊天记录"],
+    ) -> tuple[bool, str]:
+        """执行设置新成员历史消息可见性。"""
+        result = await _call_onebot_api(
+            "set_group_new_member_history_visibility",
+            {"group_id": group_id, "visible": visible},
+        )
+        if result.get("status") == "ok":
+            return True, f"已设置群 {group_id} 的新成员历史消息可见性"
+        return False, f"设置新成员历史消息可见性失败: {result.get('msg', '未知错误')}"

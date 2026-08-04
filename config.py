@@ -204,7 +204,7 @@ class OnebotExpandConfig(BaseConfig):
             description="是否启用 upload_forward_msg API（上传合并转发消息，扩展）",
         )
 
-        # --- 群操作类 API (10) ---
+        # --- 群操作类 API (13) ---
         enable_set_group_kick: bool = Field(
             default=False,
             description="是否启用 set_group_kick API（群成员踢出）",
@@ -244,6 +244,18 @@ class OnebotExpandConfig(BaseConfig):
         enable_set_group_special_title: bool = Field(
             default=False,
             description="是否启用 set_group_special_title API（设置专属头衔）",
+        )
+        enable_set_group_member_invite_policy: bool = Field(
+            default=False,
+            description="是否启用 set_group_member_invite_policy API（设置群成员邀请策略，NapCat 扩展）",
+        )
+        enable_set_group_member_permissions: bool = Field(
+            default=False,
+            description="是否启用 set_group_member_permissions API（设置群成员功能权限，NapCat 扩展）",
+        )
+        enable_set_group_new_member_history_visibility: bool = Field(
+            default=False,
+            description="是否启用 set_group_new_member_history_visibility API（设置新成员历史消息可见性，NapCat 扩展）",
         )
 
         # --- 文件类 API (5) ---
@@ -531,7 +543,7 @@ class OnebotExpandConfig(BaseConfig):
             description="是否启用 get_group_signed_list API（获取群今日打卡列表）",
         )
 
-        # --- 请求处理类 API (6) ---
+        # --- 请求处理类 API (5) ---
         enable_set_friend_add_request: bool = Field(
             default=False,
             description="是否启用 set_friend_add_request API（处理好友添加请求，OB11标准）",
@@ -553,7 +565,7 @@ class OnebotExpandConfig(BaseConfig):
             description="是否启用 set_doubt_friends_add_request API（处理可疑好友申请，扩展）",
         )
 
-        # --- 用户信息扩展类 API (9) ---
+        # --- 用户信息扩展类 API (10) ---
         enable_delete_friend: bool = Field(
             default=False,
             description="是否启用 delete_friend API（删除好友）",
@@ -713,7 +725,7 @@ class OnebotExpandConfig(BaseConfig):
             description="是否启用 request_decrypt_key API（请求数据库解密密钥，SnowLuma 扩展）",
         )
 
-        # --- 机型/其他类 API (12) ---
+        # --- 机型/其他类 API (13) ---
         enable__get_model_show: bool = Field(
             default=False,
             description="是否启用 _get_model_show API（获取机型展示）",
@@ -753,6 +765,10 @@ class OnebotExpandConfig(BaseConfig):
         enable_send_packet: bool = Field(
             default=False,
             description="是否启用 send_packet API（发送原始SSO包）",
+        )
+        enable_send_pb: bool = Field(
+            default=False,
+            description="是否启用 send_pb API（发送原始 Protobuf 数据，LLBot 扩展）",
         )
         enable_handle_quick_operation: bool = Field(
             default=False,
@@ -909,7 +925,7 @@ class OnebotExpandConfig(BaseConfig):
             description="是否启用 send_group_ark_share API（发送群Ark分享）",
         )
 
-        # --- LLBot 扩展类 API (20) ---
+        # --- LLBot 扩展类 API (21) ---
         enable_batch_delete_group_member: bool = Field(
             default=False,
             description="是否启用 batch_delete_group_member API（批量踢出群成员，LLBot 扩展）",
@@ -957,6 +973,10 @@ class OnebotExpandConfig(BaseConfig):
         enable_set_friend_category: bool = Field(
             default=False,
             description="是否启用 set_friend_category API（设置好友分类，LLBot 扩展）",
+        )
+        enable_set_friends_category: bool = Field(
+            default=False,
+            description="是否启用 set_friends_category API（按分类 ID 或名称设置好友分类，SnowLuma 扩展）",
         )
         enable_get_recommend_face: bool = Field(
             default=False,

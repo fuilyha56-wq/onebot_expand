@@ -1,6 +1,6 @@
 """OneBot v11 + NapCat 扩展 API 定义模块。
 
-定义全部 206 个 OneBot API 的常量、元数据、分类索引和查询函数。
+定义全部 211 个 OneBot API 的常量、元数据、分类索引和查询函数。
 供 Service 层和 Tool 层引用，确保 API action 名称和参数定义的一致性。
 """
 
@@ -205,6 +205,9 @@ class NapCatAction:
 
     # NapCat 专属
     SET_MSG_EMOJI_LIKE = "set_msg_emoji_like"
+    SET_GROUP_MEMBER_INVITE_POLICY = "set_group_member_invite_policy"
+    SET_GROUP_MEMBER_PERMISSIONS = "set_group_member_permissions"
+    SET_GROUP_NEW_MEMBER_HISTORY_VISIBILITY = "set_group_new_member_history_visibility"
 
     GET_ONLINE_CLIENTS = "get_online_clients"
     GET_COOKIES = "get_cookies"
@@ -305,6 +308,7 @@ class ExpandAction:
     GET_RECENT_CONTACT = "get_recent_contact"
     GET_PROFILE_LIKE = "get_profile_like"
     GET_FRIEND_DRESS = "_get_friend_dress"
+    SET_FRIENDS_CATEGORY = "set_friends_category"
 
     # 在线状态
     SET_ONLINE_STATUS = "set_online_status"
@@ -360,6 +364,7 @@ class ExpandAction:
     CREATE_COLLECTION = "create_collection"
     GET_COLLECTION_LIST = "get_collection_list"
     SEND_PACKET = "send_packet"
+    SEND_PB = "send_pb"
 
     # 闪传
     CREATE_FLASH_TASK = "create_flash_task"
@@ -816,6 +821,44 @@ ALL_APIS: dict[str, APIDef] = {
             "duration": "int",
         },
     ),
+    NapCatAction.SET_GROUP_MEMBER_INVITE_POLICY: APIDef(
+        action="set_group_member_invite_policy",
+        category=APICategory.GROUP,
+        source=APISource.NAPCAT_EXT,
+        description="设置群成员邀请策略（NapCat 扩展）",
+        params={
+            "group_id": "str",
+            "policy": "str",
+        },
+        napcat_only=True,
+        snowluma_compat=False,
+    ),
+    NapCatAction.SET_GROUP_MEMBER_PERMISSIONS: APIDef(
+        action="set_group_member_permissions",
+        category=APICategory.GROUP,
+        source=APISource.NAPCAT_EXT,
+        description="设置群成员功能权限（NapCat 扩展）",
+        params={
+            "group_id": "str",
+            "allow_member_upload_album": "bool",
+            "allow_member_temporary_session": "bool",
+            "allow_member_create_group": "bool",
+        },
+        napcat_only=True,
+        snowluma_compat=False,
+    ),
+    NapCatAction.SET_GROUP_NEW_MEMBER_HISTORY_VISIBILITY: APIDef(
+        action="set_group_new_member_history_visibility",
+        category=APICategory.GROUP,
+        source=APISource.NAPCAT_EXT,
+        description="设置新成员历史消息可见性（NapCat 扩展）",
+        params={
+            "group_id": "str",
+            "visible": "bool",
+        },
+        napcat_only=True,
+        snowluma_compat=False,
+    ),
     # ==================== 文件操作 API (7) ====================
     OneBotAction.UPLOAD_GROUP_FILE: APIDef(
         action="upload_group_file",
@@ -1115,7 +1158,6 @@ ALL_APIS: dict[str, APIDef] = {
             "group_id": "int",
         },
     ),
-
     NapCatAction.GET_ONLINE_CLIENTS: APIDef(
         action="get_online_clients",
         category=APICategory.NAPCAT_EXT,
@@ -1636,6 +1678,19 @@ ALL_APIS: dict[str, APIDef] = {
             "count": "int",
         },
     ),
+    ExpandAction.SET_FRIENDS_CATEGORY: APIDef(
+        action="set_friends_category",
+        category=APICategory.USER_EXT,
+        source=APISource.EXPAND,
+        description="按分类 ID 或名称设置好友分类（SnowLuma 扩展）",
+        params={
+            "uin": "int",
+            "categoryId": "int",
+            "categoryName": "str",
+        },
+        napcat_only=False,
+        snowluma_compat=True,
+    ),
     # ==================== 在线状态 API (4) ====================
     ExpandAction.SET_ONLINE_STATUS: APIDef(
         action="set_online_status",
@@ -2010,6 +2065,18 @@ ALL_APIS: dict[str, APIDef] = {
             "data": "dict",
         },
         aliases=(".send_packet",),
+    ),
+    ExpandAction.SEND_PB: APIDef(
+        action="send_pb",
+        category=APICategory.MISC,
+        source=APISource.EXPAND,
+        description="发送原始 Protobuf 数据（LLBot 扩展）",
+        params={
+            "cmd": "str",
+            "hex": "str",
+        },
+        napcat_only=False,
+        snowluma_compat=True,
     ),
     GoCqhttpCompatAction.HANDLE_QUICK_OPERATION: APIDef(
         action="handle_quick_operation",
@@ -2601,7 +2668,6 @@ ALL_APIS: dict[str, APIDef] = {
 # ============================================================================
 
 MESSAGE_APIS: list[str] = [
-
     OneBotAction.SEND_GROUP_MSG,
     OneBotAction.SEND_PRIVATE_MSG,
     OneBotAction.SEND_MSG,
@@ -2635,6 +2701,9 @@ GROUP_APIS: list[str] = [
     OneBotAction.SET_GROUP_NAME,
     OneBotAction.SET_GROUP_LEAVE,
     OneBotAction.SET_GROUP_SPECIAL_TITLE,
+    NapCatAction.SET_GROUP_MEMBER_INVITE_POLICY,
+    NapCatAction.SET_GROUP_MEMBER_PERMISSIONS,
+    NapCatAction.SET_GROUP_NEW_MEMBER_HISTORY_VISIBILITY,
 ]
 
 FILE_APIS: list[str] = [
@@ -2672,7 +2741,6 @@ ACCOUNT_APIS: list[str] = [
 NAPCAT_EXT_APIS: list[str] = [
     NapCatAction.SET_MSG_EMOJI_LIKE,
     GoCqhttpCompatAction.GET_ESSENCE_MSG_LIST,
-
     NapCatAction.GET_ONLINE_CLIENTS,
     NapCatAction.GET_COOKIES,
     NapCatAction.GET_CSRF_TOKEN,
@@ -2745,6 +2813,7 @@ USER_EXT_APIS: list[str] = [
     ExpandAction.SET_SELF_LONGNICK,
     ExpandAction.GET_RECENT_CONTACT,
     ExpandAction.GET_PROFILE_LIKE,
+    ExpandAction.SET_FRIENDS_CATEGORY,
     ExpandAction.GET_PROFILE_LIKE_ME,
     ExpandAction.GET_PROFILE_LIKE_COUNT,
     ExpandAction.GET_QQ_AVATAR,
@@ -2807,6 +2876,7 @@ MISC_APIS: list[str] = [
     ExpandAction.CREATE_COLLECTION,
     ExpandAction.GET_COLLECTION_LIST,
     ExpandAction.SEND_PACKET,
+    ExpandAction.SEND_PB,
     GoCqhttpCompatAction.HANDLE_QUICK_OPERATION,
     GoCqhttpCompatAction.GET_WORD_SLICES,
     ExpandAction.GET_CONFIG,
@@ -3115,19 +3185,32 @@ def _validate_api_definitions() -> list[str]:
     # 检查 6：分类列表完整性
     all_in_lists: set[str] = set()
     category_lists = [
-        MESSAGE_APIS, GROUP_APIS, FILE_APIS, ACCOUNT_APIS,
-        NAPCAT_EXT_APIS, GROUP_FILE_APIS, GROUP_NOTICE_APIS,
-        GROUP_EXT_APIS, REQUEST_APIS, USER_EXT_APIS, STATUS_APIS,
-        POKE_APIS, EMOJI_EXT_APIS, AI_VOICE_APIS, CRED_APIS,
-        MISC_APIS, FLASH_APIS, GROUP_ALBUM_APIS, GROUP_TODO_APIS,
-        QZONE_APIS, ARK_APIS,
+        MESSAGE_APIS,
+        GROUP_APIS,
+        FILE_APIS,
+        ACCOUNT_APIS,
+        NAPCAT_EXT_APIS,
+        GROUP_FILE_APIS,
+        GROUP_NOTICE_APIS,
+        GROUP_EXT_APIS,
+        REQUEST_APIS,
+        USER_EXT_APIS,
+        STATUS_APIS,
+        POKE_APIS,
+        EMOJI_EXT_APIS,
+        AI_VOICE_APIS,
+        CRED_APIS,
+        MISC_APIS,
+        FLASH_APIS,
+        GROUP_ALBUM_APIS,
+        GROUP_TODO_APIS,
+        QZONE_APIS,
+        ARK_APIS,
     ]
     for api_list in category_lists:
         for action in api_list:
             if action in all_in_lists:
-                issues.append(
-                    f"[WARN] action={action}: 在多个分类列表中重复"
-                )
+                issues.append(f"[WARN] action={action}: 在多个分类列表中重复")
             all_in_lists.add(action)
 
     all_in_dict = set(ALL_APIS.keys())
@@ -3138,9 +3221,7 @@ def _validate_api_definitions() -> list[str]:
             f"[WARN] ALL_APIS 中有 action 未归入任何分类列表: {sorted(missing)}"
         )
     if extra:
-        issues.append(
-            f"[WARN] 分类列表中有 action 不在 ALL_APIS: {sorted(extra)}"
-        )
+        issues.append(f"[WARN] 分类列表中有 action 不在 ALL_APIS: {sorted(extra)}")
 
     return issues
 
@@ -3149,6 +3230,7 @@ def _validate_api_definitions() -> list[str]:
 _validation_issues = _validate_api_definitions()
 if _validation_issues:
     import warnings
+
     for _issue in _validation_issues:
         warnings.warn(_issue, RuntimeWarning, stacklevel=2)
     del _issue
