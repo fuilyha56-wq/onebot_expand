@@ -57,7 +57,7 @@ def test_only_explicitly_enabled_tools_are_registered() -> None:
 def test_snowluma_backend_filters_incompatible_tools() -> None:
     """SnowLuma 后端不应向模型注册协议端不支持的 Tool。"""
     config = OnebotExpandConfig()
-    config.protocol.backend = "snowluma"
+    config.adapter.backend = "snowluma"
     config.api_switches.enable_all_tools = True
     config.api_switches.enable_send_online_file = True
     config.api_switches.enable_upload_file_stream = True

@@ -22,6 +22,7 @@ wheels/
 
 # Virtual Environment
 venv/
+.venv/
 ENV/
 env/
 
@@ -31,6 +32,10 @@ env/
 *.swp
 *.swo
 *~
+
+# Type checkers / linters cache
+.mypy_cache/
+.ruff_cache/
 
 # OS
 .DS_Store
@@ -44,3 +49,7 @@ htmlcov/
 # MoFox-Bot specific
 config/local_*.toml
 *.log
+
+# Local development helpers (not part of plugin runtime)
+_diff_check.py
+SKILL.md

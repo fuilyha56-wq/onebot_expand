@@ -559,7 +559,7 @@ class OnebotExpandServiceBase:
             return False, f"API {primary} 已禁用"
         
         # 步骤 3: 检查协议端兼容性
-        backend = self.config.protocol.backend
+        backend = self.config.adapter.backend
         if backend == "snowluma" and not api_def.snowluma_compat:
             return False, f"SnowLuma 不支持 {primary}"
         if backend == "napcat" and api_def.napcat_only is False:
@@ -581,11 +581,11 @@ class OnebotExpandServiceBase:
         """根据后端选择实际 action 名。
         
         默认返回主名。某些后端可能只识别别名（如旧版 NapCat 只认 nc_get_rkey）。
-        可通过 config.protocol.backend_action_map 配置覆盖。
+        可通过 config.adapter.backend_action_map 配置覆盖。
         """
         # 检查后端特定映射
         backend_overrides = getattr(
-            self.config.protocol, "backend_action_map", {}
+            self.config.adapter, "backend_action_map", {}
         ).get(backend, {})
         if primary in backend_overrides:
             return backend_overrides[primary]

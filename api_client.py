@@ -59,12 +59,12 @@ async def _call_onebot_api(
             "msg": f"未知 action: {action}",
         }
     config = get_config("onebot_expand")
-    protocol = getattr(config, "protocol", None)
+    adapter = getattr(config, "adapter", None)
     snowluma_backend = bool(
-        protocol
+        adapter
         and (
-            str(protocol.backend).strip().lower() == "snowluma"
-            or bool(protocol.snowluma_compat_mode)
+            str(adapter.backend).strip().lower() == "snowluma"
+            or bool(adapter.snowluma_compat_mode)
         )
     )
     api_def = ALL_APIS[primary]

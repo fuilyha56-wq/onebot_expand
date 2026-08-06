@@ -17,6 +17,7 @@ from __future__ import annotations
 from src.app.plugin_system.api.log_api import get_logger
 from src.app.plugin_system.base import BasePlugin, register_plugin
 
+from . import patches as _patches  # noqa: F401  # import 时应用 file_hash 透传补丁
 from .api_defs import ALL_APIS, resolve_action
 from .config import OnebotExpandConfig
 from .event_handler import SelfIdInjectHandler
@@ -45,7 +46,7 @@ class OnebotExpandPlugin(BasePlugin):
         "OneBot v11 + NapCat 扩展 API 完整封装，"
         "提供 23 个 Service 组件（Tool 层已分离，可按需启用）"
     )
-    plugin_version: str = "1.0.12"
+    plugin_version: str = "1.0.13"
 
     configs: list[type] = [OnebotExpandConfig]
     dependencies: list[str] = []
@@ -66,10 +67,10 @@ class OnebotExpandPlugin(BasePlugin):
 
         from .tools import ALL_TOOLS
 
-        protocol = config.protocol
+        adapter = config.adapter
         snowluma_backend = (
-            protocol.backend.strip().lower() == "snowluma"
-            or protocol.snowluma_compat_mode
+            adapter.backend.strip().lower() == "snowluma"
+            or adapter.snowluma_compat_mode
         )
         enabled_tools: list[type] = []
         for tool_cls in ALL_TOOLS:

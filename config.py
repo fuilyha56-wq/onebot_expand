@@ -288,6 +288,63 @@ def _migrate_legacy_api_switches(
     return migrated, True
 
 
+def _migrate_legacy_protocol_section(
+    data: dict[str, Any],
+) -> tuple[dict[str, Any], bool]:
+    """把旧版独立 ``[protocol]`` 节合并进 ``[adapter]`` 节。
+
+    旧版配置中 ``backend`` / ``snowluma_compat_mode`` 位于独立的 ``[protocol]`` 节，
+    合并后这些字段迁移到 ``[adapter]`` 节。仅在 ``[adapter]`` 缺失对应字段时写入，
+    避免覆盖用户已在 ``[adapter]`` 节填写的新值。
+
+    Args:
+        data: 完整配置数据。
+
+    Returns:
+        迁移后的配置数据，以及是否发生迁移。
+    """
+    legacy_protocol = data.get("protocol")
+    if not isinstance(legacy_protocol, dict):
+        return data, False
+
+    protocol_fields = ("backend", "snowluma_compat_mode")
+    if not any(
+        isinstance(legacy_protocol.get(key), (str, bool)) for key in protocol_fields
+    ):
+        return data, False
+
+    migrated = dict(data)
+    adapter_section = migrated.get("adapter")
+    if not isinstance(adapter_section, dict):
+        adapter_section = {}
+    adapter_section = dict(adapter_section)
+
+    for key in protocol_fields:
+        value = legacy_protocol.get(key)
+        if isinstance(value, (str, bool)) and key not in adapter_section:
+            adapter_section[key] = value
+
+    migrated["adapter"] = adapter_section
+    migrated.pop("protocol", None)
+    return migrated, True
+
+
+def _migrate_legacy_config(
+    data: dict[str, Any],
+) -> tuple[dict[str, Any], bool]:
+    """执行全部旧版配置迁移。
+
+    Args:
+        data: 完整配置数据。
+
+    Returns:
+        迁移后的配置数据，以及是否发生任何迁移。
+    """
+    migrated, changed_switches = _migrate_legacy_api_switches(data)
+    migrated, changed_protocol = _migrate_legacy_protocol_section(migrated)
+    return migrated, changed_switches or changed_protocol
+
+
 class OnebotExpandConfig(BaseConfig):
     """onebot_expand 插件配置。
 
@@ -295,11 +352,10 @@ class OnebotExpandConfig(BaseConfig):
 
     配置节:
         - plugin: 插件启用与版本
-        - adapter: 适配器签名、默认超时、协议端
+        - adapter: 适配器签名、默认超时与协议端后端配置
         - api_switches: 每个 API 的独立开关
         - emoji: 表情发送与回应开关
         - file_transfer: 文件传输模式配置
-        - protocol: 协议端后端与兼容模式
     """
 
     name: ClassVar[str] = "config"
@@ -322,7 +378,7 @@ class OnebotExpandConfig(BaseConfig):
     # ==================== adapter 节 ====================
     @config_section("adapter")
     class AdapterSection(SectionBase):
-        """适配器与协议端配置。"""
+        """适配器定位、调用与协议端后端配置。"""
 
         adapter_signature: str = Field(
             default="onebot_adapter:adapter:onebot_adapter",
@@ -333,9 +389,13 @@ class OnebotExpandConfig(BaseConfig):
             description="API 调用默认超时时间（秒），超时后返回超时错误",
             ge=1.0,
         )
-        protocol: str = Field(
+        backend: str = Field(
             default="napcat",
             description="协议端类型: napcat 或 snowluma",
+        )
+        snowluma_compat_mode: bool = Field(
+            default=False,
+            description='强制启用 SnowLuma 兼容过滤；backend="snowluma" 时会自动启用',
         )
 
     # ==================== api_switches 节 ====================
@@ -1312,31 +1372,16 @@ class OnebotExpandConfig(BaseConfig):
             ge=1,
         )
 
-    # ==================== protocol 节 ====================
-    @config_section("protocol")
-    class ProtocolSection(SectionBase):
-        """协议端后端配置。"""
-
-        backend: str = Field(
-            default="napcat",
-            description="协议端类型: napcat 或 snowluma",
-        )
-        snowluma_compat_mode: bool = Field(
-            default=False,
-            description='强制启用 SnowLuma 兼容过滤；backend="snowluma" 时会自动启用',
-        )
-
     # ==================== 字段声明 ====================
     plugin: PluginSection = Field(default_factory=PluginSection)
     adapter: AdapterSection = Field(default_factory=AdapterSection)
     api_switches: ApiSwitchesSection = Field(default_factory=ApiSwitchesSection)
     emoji: EmojiSection = Field(default_factory=EmojiSection)
     file_transfer: FileTransferSection = Field(default_factory=FileTransferSection)
-    protocol: ProtocolSection = Field(default_factory=ProtocolSection)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
-        """从字典加载配置并兼容旧版平铺工具开关。
+        """从字典加载配置并兼容旧版平铺工具开关与旧版 protocol 节。
 
         Args:
             data: 原始配置数据。
@@ -1344,7 +1389,7 @@ class OnebotExpandConfig(BaseConfig):
         Returns:
             完成兼容迁移的配置实例。
         """
-        migrated, _ = _migrate_legacy_api_switches(data)
+        migrated, _ = _migrate_legacy_config(data)
         return super().from_dict(migrated)
 
     @classmethod
@@ -1367,7 +1412,7 @@ class OnebotExpandConfig(BaseConfig):
         if config_path.exists():
             with config_path.open("rb") as file:
                 raw_data = tomllib.load(file)
-            migrated, changed = _migrate_legacy_api_switches(raw_data)
+            migrated, changed = _migrate_legacy_config(raw_data)
             if changed:
                 if not auto_update:
                     return cls.from_dict(migrated)

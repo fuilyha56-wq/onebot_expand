@@ -29,7 +29,7 @@ async def test_api_client_blocks_snowluma_incompatible_action(
 ) -> None:
     """SnowLuma 后端应在本地拒绝 NapCat 专属 action。"""
     config = OnebotExpandConfig()
-    config.protocol.backend = "snowluma"
+    config.adapter.backend = "snowluma"
     calls: list[tuple[str, str, dict[str, Any], float]] = []
 
     async def fake_send(
@@ -68,7 +68,7 @@ async def test_api_client_rejects_snowluma_record_conversion(
 ) -> None:
     """SnowLuma 不应把被忽略的 out_format 冒充为已执行的转码。"""
     config = OnebotExpandConfig()
-    config.protocol.backend = "snowluma"
+    config.adapter.backend = "snowluma"
     calls: list[tuple[str, str, dict[str, Any], float]] = []
 
     async def fake_send(
@@ -91,7 +91,7 @@ async def test_api_client_rejects_snowluma_record_conversion(
         "download_file_record_stream",
         {"file_id": "record-id"},
     )
-    config.protocol.backend = "napcat"
+    config.adapter.backend = "napcat"
     converted = await api_client._call_onebot_api(
         "download_file_record_stream",
         {"file_id": "record-id", "out_format": "mp3"},
