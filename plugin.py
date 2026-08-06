@@ -17,7 +17,7 @@ from __future__ import annotations
 from src.app.plugin_system.api.log_api import get_logger
 from src.app.plugin_system.base import BasePlugin, register_plugin
 
-from .api_defs import resolve_action
+from .api_defs import ALL_APIS, resolve_action
 from .config import OnebotExpandConfig
 from .event_handler import SelfIdInjectHandler
 from .services import ALL_SERVICES
@@ -66,12 +66,20 @@ class OnebotExpandPlugin(BasePlugin):
 
         from .tools import ALL_TOOLS
 
+        protocol = config.protocol
+        snowluma_backend = (
+            protocol.backend.strip().lower() == "snowluma"
+            or protocol.snowluma_compat_mode
+        )
         enabled_tools: list[type] = []
         for tool_cls in ALL_TOOLS:
             tool_name = str(getattr(tool_cls, "tool_name", "") or "")
             if not tool_name:
                 continue
             primary_action = resolve_action(tool_name) or tool_name
+            api_def = ALL_APIS.get(primary_action)
+            if snowluma_backend and api_def and not api_def.snowluma_compat:
+                continue
             if bool(getattr(switches, f"enable_{primary_action}", False)):
                 enabled_tools.append(tool_cls)
         return enabled_tools

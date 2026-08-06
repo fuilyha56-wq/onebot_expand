@@ -38,7 +38,7 @@ __all__ = [
     "RenameGroupFileFolderTool",
     "TransGroupFileTool",
     "GetPrivateFileUrlTool",
-"SetGroupFileForeverTool",
+    "SetGroupFileForeverTool",
 ]
 
 
@@ -176,7 +176,7 @@ class CreateGroupFileFolderTool(BaseTool):
             params["parent_id"] = parent_id
         result = await _call_onebot_api("create_group_file_folder", params)
         if result.get("status") == "ok":
-            return True, f"已在群 {group_id} 中创建文件夹 \"{name}\""
+            return True, f'已在群 {group_id} 中创建文件夹 "{name}"'
         return False, f"创建群文件夹失败: {result.get('msg', '未知错误')}"
 
 
@@ -245,14 +245,14 @@ class MoveGroupFileTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         file_id: Annotated[str, "群文件ID"],
-        current_parent_directory: Annotated[str, "当前所在目录ID"],
+        parent_directory: Annotated[str, "当前所在目录ID"],
         target_directory: Annotated[str, "目标目录ID"],
     ) -> tuple[bool, str]:
         """执行移动群文件。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "file_id": file_id,
-            "current_parent_directory": current_parent_directory,
+            "parent_directory": parent_directory,
             "target_directory": target_directory,
         }
         result = await _call_onebot_api("move_group_file", params)
@@ -287,7 +287,7 @@ class RenameGroupFileTool(BaseTool):
         }
         result = await _call_onebot_api("rename_group_file", params)
         if result.get("status") == "ok":
-            return True, f"已重命名群 {group_id} 中的文件为 \"{new_name}\""
+            return True, f'已重命名群 {group_id} 中的文件为 "{new_name}"'
         return False, f"重命名群文件失败: {result.get('msg', '未知错误')}"
 
 
@@ -315,7 +315,7 @@ class RenameGroupFileFolderTool(BaseTool):
         }
         result = await _call_onebot_api("rename_group_file_folder", params)
         if result.get("status") == "ok":
-            return True, f"已重命名群 {group_id} 中的文件夹为 \"{new_folder_name}\""
+            return True, f'已重命名群 {group_id} 中的文件夹为 "{new_folder_name}"'
         return False, f"重命名群文件夹失败: {result.get('msg', '未知错误')}"
 
 
@@ -346,24 +346,26 @@ class TransGroupFileTool(BaseTool):
 
 
 class GetPrivateFileUrlTool(BaseTool):
-    """获取私聊文件下载链接的 Tool（扩展）。
+    """获取私聊文件下载链接的 Tool（SnowLuma 扩展）。
 
-    对应扩展 API: ``get_private_file_url``。
-    根据用户 ID、文件 ID 和文件哈希获取私聊文件的下载链接。
+    对应 SnowLuma API: ``get_private_file_url``。
+    文件 ID 与文件哈希均直接取收到的文件消息占位符。
     """
 
     tool_name = "get_private_file_url"
-    tool_description = "获取私聊文件下载链接"
+    tool_description = (
+        "获取普通私聊文件的下载链接（SnowLuma）。"
+        "file_id 和 file_hash 必须原样取自收到的 "
+        "[文件:名称 id=... hash=...] 占位符，不要自行拼接或编造。"
+    )
 
     async def execute(
         self,
-        user_id: Annotated[int, "目标用户QQ号"],
-        file_id: Annotated[str, "文件ID"],
-        file_hash: Annotated[str, "文件哈希"],
+        file_id: Annotated[str, "文件消息占位符中的 id= 值"],
+        file_hash: Annotated[str, "文件消息占位符中的 hash= 值"],
     ) -> tuple[bool, str | dict[str, Any]]:
         """执行获取私聊文件下载链接。"""
         params: dict[str, Any] = {
-            "user_id": user_id,
             "file_id": file_id,
             "file_hash": file_hash,
         }
@@ -397,5 +399,3 @@ class SetGroupFileForeverTool(BaseTool):
         if result.get("status") == "ok":
             return True, str(result.get("data", ""))
         return False, f"设置群文件永久保存失败: {result.get('msg', '未知错误')}"
-
-

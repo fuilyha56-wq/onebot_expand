@@ -183,7 +183,6 @@ class FileService(BaseService):
     async def get_file(
         self,
         file_id: str,
-        url: bool = False,
     ) -> dict[str, Any]:
         """获取文件信息（NapCat 扩展）。
 
@@ -191,14 +190,12 @@ class FileService(BaseService):
 
         Args:
             file_id: 文件 ID。
-            url: 是否返回下载 URL，默认为 False。
 
         Returns:
             适配器返回的响应字典，包含文件信息。
         """
         params: dict[str, Any] = {
             "file_id": file_id,
-            "url": url,
         }
         return await _call_onebot_api("get_file", params)
 
@@ -419,7 +416,10 @@ class FileService(BaseService):
         Returns:
             适配器返回的响应字典。
         """
-        params: dict[str, Any] = {"stream_id": stream_id, "file_retention": file_retention}
+        params: dict[str, Any] = {
+            "stream_id": stream_id,
+            "file_retention": file_retention,
+        }
         if chunk_data is not None:
             params["chunk_data"] = chunk_data
         if chunk_index is not None:
@@ -475,16 +475,17 @@ class FileService(BaseService):
         chunk_size: int | None = None,
         out_format: str | None = None,
     ) -> dict[str, Any]:
-        """流式下载语音文件并转换格式。
+        """流式下载语音文件。
 
         对应扩展 API: ``download_file_record_stream``。
-        NapCat 与 SnowLuma 均支持。
+        NapCat 支持通过 ``out_format`` 转码；SnowLuma 仅返回原始格式。
 
         Args:
             file: 文件路径或 URL。
             file_id: 文件 ID。
             chunk_size: 分块大小（字节）。
-            out_format: 输出格式（mp3/amr/wma/m4a/spx/ogg/wav/flac）。
+            out_format: NapCat 输出格式（mp3/amr/wma/m4a/spx/ogg/wav/flac）；
+                SnowLuma 必须为 ``None``。
 
         Returns:
             适配器返回的响应字典。

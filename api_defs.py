@@ -889,7 +889,6 @@ ALL_APIS: dict[str, APIDef] = {
         description="获取文件信息（NapCat 扩展）",
         params={
             "file_id": "str",
-            "url": "bool",
         },
     ),
     OneBotAction.GET_IMAGE: APIDef(
@@ -1027,7 +1026,9 @@ ALL_APIS: dict[str, APIDef] = {
         action="download_file_record_stream",
         category=APICategory.FILE,
         source=APISource.EXPAND,
-        description="流式下载语音文件并转换格式（NapCat 与 SnowLuma 均支持）",
+        description=(
+            "流式下载语音文件（NapCat 支持 out_format 转码；SnowLuma 仅下载原始格式）"
+        ),
         params={
             "file": "str",
             "file_id": "str",
@@ -1351,7 +1352,7 @@ ALL_APIS: dict[str, APIDef] = {
         params={
             "group_id": "int",
             "file_id": "str",
-            "current_parent_directory": "str",
+            "parent_directory": "str",
             "target_directory": "str",
         },
     ),
@@ -1394,12 +1395,13 @@ ALL_APIS: dict[str, APIDef] = {
         action="get_private_file_url",
         category=APICategory.GROUP_FILE,
         source=APISource.EXPAND,
-        description="获取私聊文件下载链接（扩展）",
+        description="获取私聊文件下载链接（SnowLuma 扩展）",
         params={
             "user_id": "int",
             "file_id": "str",
             "file_hash": "str",
         },
+        snowluma_compat=True,
     ),
     # ==================== 群公告 API (3) ====================
     ExpandAction.SEND_GROUP_NOTICE: APIDef(
@@ -2510,6 +2512,7 @@ ALL_APIS: dict[str, APIDef] = {
             "fileset_id": "str",
             "share_link": "str",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.UPLOAD_FLASH_FILE: APIDef(
         action="upload_flash_file",
@@ -2520,6 +2523,7 @@ ALL_APIS: dict[str, APIDef] = {
             "title": "str",
             "paths": "list[str]",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.RESHARE_FLASH_FILE: APIDef(
         action="reshare_flash_file",
@@ -2530,6 +2534,7 @@ ALL_APIS: dict[str, APIDef] = {
             "fileset_id": "str",
             "share_link": "str",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.SET_GROUP_FILE_FOREVER: APIDef(
         action="set_group_file_forever",
@@ -2540,6 +2545,7 @@ ALL_APIS: dict[str, APIDef] = {
             "group_id": "int",
             "file_id": "str",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.GET_PROFILE_LIKE_ME: APIDef(
         action="get_profile_like_me",

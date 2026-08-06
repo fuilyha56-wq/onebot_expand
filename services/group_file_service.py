@@ -201,7 +201,7 @@ class GroupFileService(BaseService):
         self,
         group_id: int,
         file_id: str,
-        current_parent_directory: str,
+        parent_directory: str,
         target_directory: str,
     ) -> dict[str, Any]:
         """移动群文件。
@@ -211,7 +211,7 @@ class GroupFileService(BaseService):
         Args:
             group_id: 群号。
             file_id: 群文件 ID。
-            current_parent_directory: 当前所在目录 ID。
+            parent_directory: 当前所在目录 ID。
             target_directory: 目标目录 ID。
 
         Returns:
@@ -220,7 +220,7 @@ class GroupFileService(BaseService):
         params: dict[str, Any] = {
             "group_id": group_id,
             "file_id": file_id,
-            "current_parent_directory": current_parent_directory,
+            "parent_directory": parent_directory,
             "target_directory": target_directory,
         }
         return await _call_onebot_api("move_group_file", params)
@@ -302,24 +302,21 @@ class GroupFileService(BaseService):
 
     async def get_private_file_url(
         self,
-        user_id: int,
         file_id: str,
         file_hash: str,
     ) -> dict[str, Any]:
         """获取私聊文件下载链接。
 
-        对应扩展 API: ``get_private_file_url``。
+        对应 SnowLuma 扩展 API: ``get_private_file_url``。
 
         Args:
-            user_id: 目标用户 QQ 号。
-            file_id: 文件 ID。
-            file_hash: 文件哈希。
+            file_id: 文件消息的文件 ID。
+            file_hash: 文件消息的文件哈希。
 
         Returns:
             适配器返回的响应字典，包含私聊文件下载链接。
         """
         params: dict[str, Any] = {
-            "user_id": user_id,
             "file_id": file_id,
             "file_hash": file_hash,
         }
@@ -339,4 +336,3 @@ class GroupFileService(BaseService):
             "file_id": file_id,
         }
         return await _call_onebot_api("set_group_file_forever", params)
-

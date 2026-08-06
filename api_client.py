@@ -17,10 +17,13 @@ from __future__ import annotations
 from typing import Any
 
 from src.app.plugin_system.api.adapter_api import send_adapter_command
+from src.app.plugin_system.api.config_api import get_config
 
 from .api_defs import (
     ADAPTER_SIGNATURE,
+    ALL_APIS,
     DEFAULT_TIMEOUT,
+    ExpandAction,
     resolve_action,
 )
 from .message_utils import normalize_message_ids
@@ -54,6 +57,41 @@ async def _call_onebot_api(
             "status": "error",
             "retcode": -1,
             "msg": f"未知 action: {action}",
+        }
+    config = get_config("onebot_expand")
+    protocol = getattr(config, "protocol", None)
+    snowluma_backend = bool(
+        protocol
+        and (
+            str(protocol.backend).strip().lower() == "snowluma"
+            or bool(protocol.snowluma_compat_mode)
+        )
+    )
+    api_def = ALL_APIS[primary]
+    if snowluma_backend and not api_def.snowluma_compat:
+        message = f"当前 SnowLuma 后端不支持 action: {primary}"
+        return {
+            "status": "failed",
+            "retcode": 1404,
+            "data": None,
+            "msg": message,
+            "wording": message,
+        }
+    if (
+        snowluma_backend
+        and primary == ExpandAction.DOWNLOAD_FILE_RECORD_STREAM
+        and params.get("out_format")
+    ):
+        message = (
+            "SnowLuma 的 download_file_record_stream 不支持 out_format 转码；"
+            "请省略该参数以下载原始语音文件"
+        )
+        return {
+            "status": "failed",
+            "retcode": 1400,
+            "data": None,
+            "msg": message,
+            "wording": message,
         }
     return await send_adapter_command(
         adapter_sign=ADAPTER_SIGNATURE,

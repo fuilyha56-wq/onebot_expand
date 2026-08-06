@@ -17,9 +17,15 @@
 
 from __future__ import annotations
 
-from typing import ClassVar
+from pathlib import Path
+from typing import Any, ClassVar, Self, cast
+import tomllib
+
+from pydantic import create_model
 
 from src.app.plugin_system.base import BaseConfig, Field, SectionBase, config_section
+
+from .api_defs import ALL_APIS, APICategory
 
 __all__ = ["OnebotExpandConfig"]
 
@@ -49,6 +55,237 @@ def _normalize_config_key(key: str) -> str:
     if primary is None:
         return key
     return f"enable_{primary}"
+
+
+_API_CATEGORY_TITLES: dict[APICategory, str] = {
+    APICategory.MESSAGE: "消息工具",
+    APICategory.GROUP: "群管理工具",
+    APICategory.FILE: "文件工具",
+    APICategory.ACCOUNT: "账号信息工具",
+    APICategory.NAPCAT_EXT: "NapCat 扩展工具",
+    APICategory.GROUP_FILE: "群文件工具",
+    APICategory.GROUP_NOTICE: "群公告工具",
+    APICategory.GROUP_EXT: "群管理扩展工具",
+    APICategory.REQUEST: "请求处理工具",
+    APICategory.USER_EXT: "用户信息工具",
+    APICategory.STATUS: "在线状态工具",
+    APICategory.POKE: "戳一戳工具",
+    APICategory.EMOJI_EXT: "表情与收藏工具",
+    APICategory.AI_VOICE: "AI 语音工具",
+    APICategory.CRED: "凭证与安全工具",
+    APICategory.MISC: "其他工具",
+    APICategory.FLASH: "闪传工具",
+    APICategory.GROUP_ALBUM: "群相册工具",
+    APICategory.GROUP_TODO: "群待办工具",
+    APICategory.QZONE: "QQ 空间工具",
+    APICategory.ARK: "Ark 分享工具",
+}
+
+_API_SWITCH_LABEL_OVERRIDES = {
+    "send_msg": "发送通用消息",
+    "send_group_msg": "发送群消息",
+    "send_private_msg": "发送私聊消息",
+}
+
+_API_SWITCH_FIELD_TO_GROUP = {
+    "enable_all_tools": "registration",
+    **{
+        f"enable_{action}": api_def.category.value
+        for action, api_def in ALL_APIS.items()
+    },
+}
+
+
+class _GroupedApiSwitchesBase(SectionBase):
+    """按类别组织工具开关，并兼容原有平铺属性访问。"""
+
+    _field_to_group: ClassVar[dict[str, str]] = _API_SWITCH_FIELD_TO_GROUP
+
+    def __getattr__(self, name: str) -> Any:
+        """读取旧式平铺开关属性。
+
+        Args:
+            name: 属性名称。
+
+        Returns:
+            对应分类子节中的字段值。
+        """
+        group_name = type(self)._field_to_group.get(name)
+        if group_name is not None:
+            group = object.__getattribute__(self, group_name)
+            return getattr(group, name)
+        return super().__getattr__(name)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        """写入旧式平铺开关属性。
+
+        Args:
+            name: 属性名称。
+            value: 新字段值。
+        """
+        group_name = type(self)._field_to_group.get(name)
+        if group_name is not None and name not in type(self).model_fields:
+            group = object.__getattribute__(self, group_name)
+            setattr(group, name, value)
+            return
+        super().__setattr__(name, value)
+
+
+def _build_grouped_api_switches_section(
+    flat_model: type[SectionBase],
+) -> type[_GroupedApiSwitchesBase]:
+    """从平铺开关模型生成按 API 类别分组的配置节。
+
+    Args:
+        flat_model: 包含全部工具开关字段的平铺模型。
+
+    Returns:
+        可由通用 WebUI 解析器直接渲染的分组配置节模型。
+
+    Raises:
+        RuntimeError: 平铺开关与 API 注册表不一致。
+    """
+    expected_fields = set(_API_SWITCH_FIELD_TO_GROUP)
+    actual_fields = set(flat_model.model_fields)
+    if actual_fields != expected_fields:
+        missing_fields = sorted(expected_fields - actual_fields)
+        extra_fields = sorted(actual_fields - expected_fields)
+        raise RuntimeError(
+            "onebot_expand 工具开关与 API 注册表不一致: "
+            f"缺少={missing_fields}, 多余={extra_fields}"
+        )
+
+    section_models: dict[str, type[SectionBase]] = {}
+    registration_field = flat_model.model_fields["enable_all_tools"]
+    registration_model = cast(
+        type[SectionBase],
+        create_model(
+            "RegistrationSwitchesSection",
+            __base__=SectionBase,
+            __module__=__name__,
+            enable_all_tools=(
+                registration_field.annotation,
+                Field(
+                    default=False,
+                    description=registration_field.description or "",
+                    label="启用工具注册",
+                    input_type="switch",
+                ),
+            ),
+        ),
+    )
+    section_models["registration"] = config_section(
+        "registration",
+        title="工具注册",
+        description="开启总开关后，只有对应分类中启用的工具会被注册。",
+        tag="plugin",
+    )(registration_model)
+
+    for category in APICategory:
+        field_definitions: dict[str, tuple[Any, Any]] = {}
+        for action, api_def in ALL_APIS.items():
+            if api_def.category is not category:
+                continue
+            field_name = f"enable_{action}"
+            source_field = flat_model.model_fields[field_name]
+            field_definitions[field_name] = (
+                source_field.annotation,
+                Field(
+                    default=False,
+                    description=source_field.description or "",
+                    label=_API_SWITCH_LABEL_OVERRIDES.get(action, api_def.description),
+                    input_type="switch",
+                ),
+            )
+
+        model_name = "".join(part.title() for part in category.value.split("_"))
+        category_model = cast(
+            type[SectionBase],
+            create_model(
+                f"{model_name}SwitchesSection",
+                __base__=SectionBase,
+                __module__=__name__,
+                **field_definitions,
+            ),
+        )
+        section_models[category.value] = config_section(
+            category.value,
+            title=_API_CATEGORY_TITLES[category],
+            description="开启需要注册的工具；保存后按 WebUI 设置决定是否热重载。",
+            tag="plugin",
+        )(category_model)
+
+    grouped_fields: dict[str, tuple[Any, Any]] = {
+        group_name: (
+            section_model,
+            Field(
+                default_factory=section_model,
+                description=getattr(section_model, "__config_section_description__", "")
+                or "",
+            ),
+        )
+        for group_name, section_model in section_models.items()
+    }
+    grouped_model = cast(
+        type[_GroupedApiSwitchesBase],
+        create_model(
+            "ApiSwitchesSection",
+            __base__=_GroupedApiSwitchesBase,
+            __module__=__name__,
+            **grouped_fields,
+        ),
+    )
+    return config_section(
+        "api_switches",
+        title="工具开关",
+        description="按功能分类控制可供 LLM 调用的 OneBot 工具。",
+        tag="plugin",
+    )(grouped_model)
+
+
+def _migrate_legacy_api_switches(
+    data: dict[str, Any],
+) -> tuple[dict[str, Any], bool]:
+    """把旧版平铺 api_switches 转换为分类子节。
+
+    Args:
+        data: 完整配置数据。
+
+    Returns:
+        迁移后的配置数据，以及是否发生迁移。
+    """
+    raw_switches = data.get("api_switches")
+    if not isinstance(raw_switches, dict):
+        return data, False
+
+    flat_keys = [
+        key
+        for key in raw_switches
+        if isinstance(key, str) and key.startswith("enable_")
+    ]
+    if not flat_keys:
+        return data, False
+
+    grouped_switches: dict[str, Any] = {
+        key: dict(value) if isinstance(value, dict) else value
+        for key, value in raw_switches.items()
+        if key not in flat_keys
+    }
+    for key in flat_keys:
+        normalized_key = _normalize_config_key(key)
+        group_name = _API_SWITCH_FIELD_TO_GROUP.get(normalized_key)
+        if group_name is None:
+            grouped_switches[key] = raw_switches[key]
+            continue
+        group_data = grouped_switches.setdefault(group_name, {})
+        if not isinstance(group_data, dict):
+            group_data = {}
+            grouped_switches[group_name] = group_data
+        group_data[normalized_key] = raw_switches[key]
+
+    migrated = dict(data)
+    migrated["api_switches"] = grouped_switches
+    return migrated, True
 
 
 class OnebotExpandConfig(BaseConfig):
@@ -102,9 +339,8 @@ class OnebotExpandConfig(BaseConfig):
         )
 
     # ==================== api_switches 节 ====================
-    @config_section("api_switches")
-    class ApiSwitchesSection(SectionBase):
-        """API 级独立开关配置。
+    class _FlatApiSwitchesSection(SectionBase):
+        """API 级独立开关的字段权威定义。
 
         每个 API 拥有独立的布尔开关，格式为 ``enable_<api_name>``，默认全部 False。
         工具注册受总开关 ``enable_all_tools`` 和独立开关双重控制（见下）。
@@ -1011,6 +1247,10 @@ class OnebotExpandConfig(BaseConfig):
             description="是否启用 get_guild_list API（获取频道列表，NapCat/LLBot 扩展）",
         )
 
+    ApiSwitchesSection: ClassVar[type[_GroupedApiSwitchesBase]] = (
+        _build_grouped_api_switches_section(_FlatApiSwitchesSection)
+    )
+
     # ==================== emoji 节 ====================
     @config_section("emoji")
     class EmojiSection(SectionBase):
@@ -1083,7 +1323,7 @@ class OnebotExpandConfig(BaseConfig):
         )
         snowluma_compat_mode: bool = Field(
             default=False,
-            description="SnowLumia 兼容模式，启用后对 NapCat 专属 API 进行本地拦截并返回不支持提示",
+            description='强制启用 SnowLuma 兼容过滤；backend="snowluma" 时会自动启用',
         )
 
     # ==================== 字段声明 ====================
@@ -1093,3 +1333,55 @@ class OnebotExpandConfig(BaseConfig):
     emoji: EmojiSection = Field(default_factory=EmojiSection)
     file_transfer: FileTransferSection = Field(default_factory=FileTransferSection)
     protocol: ProtocolSection = Field(default_factory=ProtocolSection)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        """从字典加载配置并兼容旧版平铺工具开关。
+
+        Args:
+            data: 原始配置数据。
+
+        Returns:
+            完成兼容迁移的配置实例。
+        """
+        migrated, _ = _migrate_legacy_api_switches(data)
+        return super().from_dict(migrated)
+
+    @classmethod
+    def load(
+        cls,
+        path: str | Path,
+        *,
+        auto_update: bool = False,
+    ) -> Self:
+        """加载配置，并在自动更新时持久化旧开关分组迁移。
+
+        Args:
+            path: TOML 配置文件路径。
+            auto_update: 是否按当前配置模型更新文件签名。
+
+        Returns:
+            加载完成的配置实例。
+        """
+        config_path = Path(path)
+        if config_path.exists():
+            with config_path.open("rb") as file:
+                raw_data = tomllib.load(file)
+            migrated, changed = _migrate_legacy_api_switches(raw_data)
+            if changed:
+                if not auto_update:
+                    return cls.from_dict(migrated)
+
+                from src.kernel.config.core import (
+                    _merge_with_model_defaults,
+                    _render_toml_with_signature,
+                )
+
+                merged = _merge_with_model_defaults(cls, migrated)
+                config_path.write_text(
+                    _render_toml_with_signature(cls, merged),
+                    encoding="utf-8",
+                )
+                return cls.from_dict(merged)
+
+        return super().load(config_path, auto_update=auto_update)

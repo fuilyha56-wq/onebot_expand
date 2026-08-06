@@ -10,7 +10,9 @@ from onebot_expand.plugin import OnebotExpandPlugin
 from onebot_expand.services import ALL_SERVICES
 from onebot_expand.tools import (
     SendGroupMsgTool,
+    SendOnlineFileTool,
     SendPrivateMsgTool,
+    UploadFileStreamTool,
     _is_tool_independently_enabled,
     _is_tool_master_switch_on,
 )
@@ -50,6 +52,21 @@ def test_only_explicitly_enabled_tools_are_registered() -> None:
 
     enabled_tools = plugin._get_enabled_tools()
     assert enabled_tools == [SendGroupMsgTool, SendPrivateMsgTool]
+
+
+def test_snowluma_backend_filters_incompatible_tools() -> None:
+    """SnowLuma 后端不应向模型注册协议端不支持的 Tool。"""
+    config = OnebotExpandConfig()
+    config.protocol.backend = "snowluma"
+    config.api_switches.enable_all_tools = True
+    config.api_switches.enable_send_online_file = True
+    config.api_switches.enable_upload_file_stream = True
+    plugin = OnebotExpandPlugin(config=config)
+
+    enabled_tools = plugin._get_enabled_tools()
+
+    assert UploadFileStreamTool in enabled_tools
+    assert SendOnlineFileTool not in enabled_tools
 
 
 def test_wrapper_defaults_missing_switch_to_disabled() -> None:
