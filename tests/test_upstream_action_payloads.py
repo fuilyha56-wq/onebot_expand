@@ -16,6 +16,14 @@ from onebot_expand.services import (
     misc_service,
     user_ext_service,
 )
+from onebot_expand.tools import (
+    emoji_ext_tools,
+    file_tools,
+    group_file_tools,
+    group_tools,
+    misc_tools,
+    user_ext_tools,
+)
 
 
 @pytest.mark.asyncio
@@ -47,16 +55,6 @@ async def test_new_snowluma_action_payloads(
         ("fetch_super_face_id", {"face_id": 14, "refresh": False}),
         ("get_group_todo_list", {"group_id": 10001}),
     ]
-
-
-from onebot_expand.tools import (
-    emoji_ext_tools,
-    file_tools,
-    group_file_tools,
-    group_tools,
-    misc_tools,
-    user_ext_tools,
-)
 
 
 @pytest.mark.asyncio
