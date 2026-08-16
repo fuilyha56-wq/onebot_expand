@@ -830,39 +830,39 @@ ALL_APIS: dict[str, APIDef] = {
         action="set_group_member_invite_policy",
         category=APICategory.GROUP,
         source=APISource.NAPCAT_EXT,
-        description="设置群成员邀请策略（NapCat 扩展）",
+        description="设置群成员邀请策略（NapCat / SnowLuma 扩展）",
         params={
             "group_id": "str",
             "policy": "str",
         },
-        napcat_only=True,
-        snowluma_compat=False,
+        napcat_only=False,
+        snowluma_compat=True,
     ),
     NapCatAction.SET_GROUP_MEMBER_PERMISSIONS: APIDef(
         action="set_group_member_permissions",
         category=APICategory.GROUP,
         source=APISource.NAPCAT_EXT,
-        description="设置群成员功能权限（NapCat 扩展）",
+        description="设置群成员功能权限（NapCat / SnowLuma 扩展）",
         params={
             "group_id": "str",
             "allow_member_upload_album": "bool",
             "allow_member_temporary_session": "bool",
             "allow_member_create_group": "bool",
         },
-        napcat_only=True,
-        snowluma_compat=False,
+        napcat_only=False,
+        snowluma_compat=True,
     ),
     NapCatAction.SET_GROUP_NEW_MEMBER_HISTORY_VISIBILITY: APIDef(
         action="set_group_new_member_history_visibility",
         category=APICategory.GROUP,
         source=APISource.NAPCAT_EXT,
-        description="设置新成员历史消息可见性（NapCat 扩展）",
+        description="设置新成员历史消息可见性（NapCat / SnowLuma 扩展）",
         params={
             "group_id": "str",
             "visible": "bool",
         },
-        napcat_only=True,
-        snowluma_compat=False,
+        napcat_only=False,
+        snowluma_compat=True,
     ),
     # ==================== 文件操作 API (7) ====================
     OneBotAction.UPLOAD_GROUP_FILE: APIDef(
@@ -1793,12 +1793,12 @@ ALL_APIS: dict[str, APIDef] = {
         action="fetch_custom_face_detail",
         category=APICategory.EMOJI_EXT,
         source=APISource.EXPAND,
-        description="获取收藏表情详情列表（NapCat 扩展）",
+        description="获取收藏表情详情列表（NapCat / SnowLuma 扩展）",
         params={
             "count": "int",
         },
-        napcat_only=True,
-        snowluma_compat=False,
+        napcat_only=False,
+        snowluma_compat=True,
     ),
     ExpandAction.SET_CUSTOM_FACE_DESC: APIDef(
         action="set_custom_face_desc",
@@ -1897,7 +1897,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="fetch_super_face_id",
         category=APICategory.EMOJI_EXT,
         source=APISource.EXPAND,
-        description="获取超级表情 ID（SnowLuma 扩展）",
+        description="判断系统表情是否使用超级表情格式（SnowLuma 扩展）",
         params={"face_id": "int", "refresh": "bool"},
     ),
     # ==================== AI语音 API (3) ====================
@@ -2105,13 +2105,13 @@ ALL_APIS: dict[str, APIDef] = {
         action="send_pb",
         category=APICategory.MISC,
         source=APISource.EXPAND,
-        description="发送原始 Protobuf 数据（LLOneBot 扩展）",
+        description="发送原始 Protobuf 数据（LLOneBot 扩展，SnowLuma 不支持）",
         params={
             "cmd": "str",
             "hex": "str",
         },
         napcat_only=False,
-        snowluma_compat=True,
+        snowluma_compat=False,
     ),
     GoCqhttpCompatAction.HANDLE_QUICK_OPERATION: APIDef(
         action="handle_quick_operation",
@@ -2128,7 +2128,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="get_word_slices",
         category=APICategory.MISC,
         source=APISource.GOCQHTTP_COMPAT,
-        description="go-cqhttp 分词（NapCat 支持，SnowLuma 未实现）",
+        description="go-cqhttp 分词（NapCat 支持，SnowLuma 仅有未实现的点号占位 action）",
         params={
             "content": "str",
         },
@@ -2511,6 +2511,7 @@ ALL_APIS: dict[str, APIDef] = {
             "group_id": "int",
             "user_ids": "list[int]",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.SET_GROUP_MSG_MASK: APIDef(
         action="set_group_msg_mask",
@@ -2521,6 +2522,7 @@ ALL_APIS: dict[str, APIDef] = {
             "group_id": "int",
             "mask": "int",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.CREATE_GROUP_ALBUM: APIDef(
         action="create_group_album",
@@ -2532,6 +2534,7 @@ ALL_APIS: dict[str, APIDef] = {
             "name": "str",
             "desc": "str",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.DELETE_GROUP_ALBUM: APIDef(
         action="delete_group_album",
@@ -2542,6 +2545,7 @@ ALL_APIS: dict[str, APIDef] = {
             "group_id": "int",
             "album_id": "str",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.GET_FLASH_FILE_DOWNLOAD_URLS: APIDef(
         action="get_flash_file_download_urls",
@@ -2596,6 +2600,7 @@ ALL_APIS: dict[str, APIDef] = {
             "start": "int",
             "count": "int",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.GET_PROFILE_LIKE_COUNT: APIDef(
         action="get_profile_like_count",
@@ -2605,6 +2610,7 @@ ALL_APIS: dict[str, APIDef] = {
         params={
             "user_id": "int",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.GET_QQ_AVATAR: APIDef(
         action="get_qq_avatar",
@@ -2615,6 +2621,7 @@ ALL_APIS: dict[str, APIDef] = {
             "user_id": "int",
             "group_id": "int",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.SET_FRIEND_CATEGORY: APIDef(
         action="set_friend_category",
@@ -2625,6 +2632,7 @@ ALL_APIS: dict[str, APIDef] = {
             "user_id": "int",
             "category_id": "int",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.GET_FRIEND_DRESS: APIDef(
         action="_get_friend_dress",
@@ -2645,6 +2653,7 @@ ALL_APIS: dict[str, APIDef] = {
         params={
             "word": "str",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.UNSET_MSG_EMOJI_LIKE: APIDef(
         action="unset_msg_emoji_like",
@@ -2655,6 +2664,7 @@ ALL_APIS: dict[str, APIDef] = {
             "message_id": "int | str",
             "emoji_id": "int",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.GET_CONFIG: APIDef(
         action="get_config",
@@ -2662,6 +2672,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.EXPAND,
         description="获取协议端配置（LLOneBot 扩展）",
         params={},
+        snowluma_compat=False,
     ),
     ExpandAction.SET_CONFIG: APIDef(
         action="set_config",
@@ -2671,6 +2682,7 @@ ALL_APIS: dict[str, APIDef] = {
         params={
             "config": "dict",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.GET_EVENT: APIDef(
         action="get_event",
@@ -2678,6 +2690,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.EXPAND,
         description="获取事件（LLOneBot 扩展）",
         params={},
+        snowluma_compat=False,
     ),
     ExpandAction.LLONEBOT_DEBUG: APIDef(
         action="llonebot_debug",
@@ -2689,6 +2702,7 @@ ALL_APIS: dict[str, APIDef] = {
             "method": "str",
             "args": "list",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.SCAN_QRCODE: APIDef(
         action="scan_qrcode",
@@ -2698,6 +2712,7 @@ ALL_APIS: dict[str, APIDef] = {
         params={
             "qrcode": "str",
         },
+        snowluma_compat=False,
     ),
     ExpandAction.GET_GUILD_LIST: APIDef(
         action="get_guild_list",
@@ -2705,6 +2720,7 @@ ALL_APIS: dict[str, APIDef] = {
         source=APISource.EXPAND,
         description="获取频道列表（NapCat/LLOneBot 扩展）",
         params={},
+        snowluma_compat=False,
     ),
 }
 

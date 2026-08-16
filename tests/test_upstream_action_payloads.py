@@ -89,7 +89,7 @@ async def test_fetch_face_entity_tool_preserves_null_response(
 async def test_api_client_blocks_snowluma_incompatible_action(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """SnowLuma 后端应在本地拒绝 NapCat 专属 action。"""
+    """SnowLuma 后端应在本地拒绝协议端不兼容的 action。"""
     config = OnebotExpandConfig()
     config.adapter.backend = "snowluma"
     calls: list[tuple[str, str, dict[str, Any], float]] = []
@@ -110,10 +110,16 @@ async def test_api_client_blocks_snowluma_incompatible_action(
         "send_online_file",
         {"user_id": 10001, "file_path": "file.txt"},
     )
+    blocked_send_pb = await api_client._call_onebot_api(
+        "send_pb",
+        {"cmd": "trpc.test", "hex": "0a00"},
+    )
     await api_client._call_onebot_api("get_group_root_files", {"group_id": 10001})
 
     assert blocked["status"] == "failed"
     assert blocked["retcode"] == 1404
+    assert blocked_send_pb["status"] == "failed"
+    assert blocked_send_pb["retcode"] == 1404
     assert calls == [
         (
             "onebot_adapter:adapter:onebot_adapter",

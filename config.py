@@ -543,15 +543,15 @@ class OnebotExpandConfig(BaseConfig):
         )
         enable_set_group_member_invite_policy: bool = Field(
             default=False,
-            description="是否启用 set_group_member_invite_policy API（设置群成员邀请策略，NapCat 扩展）",
+            description="是否启用 set_group_member_invite_policy API（设置群成员邀请策略，NapCat / SnowLuma 扩展）",
         )
         enable_set_group_member_permissions: bool = Field(
             default=False,
-            description="是否启用 set_group_member_permissions API（设置群成员功能权限，NapCat 扩展）",
+            description="是否启用 set_group_member_permissions API（设置群成员功能权限，NapCat / SnowLuma 扩展）",
         )
         enable_set_group_new_member_history_visibility: bool = Field(
             default=False,
-            description="是否启用 set_group_new_member_history_visibility API（设置新成员历史消息可见性，NapCat 扩展）",
+            description="是否启用 set_group_new_member_history_visibility API（设置新成员历史消息可见性，NapCat / SnowLuma 扩展）",
         )
 
         # --- 文件类 API (5) ---
@@ -938,7 +938,7 @@ class OnebotExpandConfig(BaseConfig):
         )
         enable_fetch_custom_face_detail: bool = Field(
             default=False,
-            description="是否启用 fetch_custom_face_detail API（获取收藏表情详情列表，NapCat 扩展）",
+            description="是否启用 fetch_custom_face_detail API（获取收藏表情详情列表，NapCat / SnowLuma 扩展）",
         )
         enable_add_custom_face: bool = Field(
             default=False,
@@ -982,7 +982,7 @@ class OnebotExpandConfig(BaseConfig):
         )
         enable_fetch_super_face_id: bool = Field(
             default=False,
-            description="是否启用 fetch_super_face_id API（获取超级表情 ID，SnowLuma 扩展）",
+            description="是否启用 fetch_super_face_id API（判断是否为超级表情，SnowLuma 扩展）",
         )
         enable_set_group_reaction: bool = Field(
             default=False,
@@ -1080,7 +1080,7 @@ class OnebotExpandConfig(BaseConfig):
         )
         enable_send_pb: bool = Field(
             default=False,
-            description="是否启用 send_pb API（发送原始 Protobuf 数据，LLOneBot 扩展）",
+            description="是否启用 send_pb API（发送原始 Protobuf 数据，LLOneBot 扩展，SnowLuma 不支持）",
         )
         enable_handle_quick_operation: bool = Field(
             default=False,

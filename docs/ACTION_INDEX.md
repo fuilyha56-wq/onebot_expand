@@ -49,9 +49,9 @@
 | `set_group_name` | OB11 | — | ✓ | — |
 | `set_group_leave` | OB11 | — | ✓ | — |
 | `set_group_special_title` | OB11 | — | ✓ | — |
-| `set_group_member_invite_policy` | NapCat | ✓ | ✗ | — |
-| `set_group_member_permissions` | NapCat | ✓ | ✗ | — |
-| `set_group_new_member_history_visibility` | NapCat | ✓ | ✗ | — |
+| `set_group_member_invite_policy` | NapCat | — | ✓ | — |
+| `set_group_member_permissions` | NapCat | — | ✓ | — |
+| `set_group_new_member_history_visibility` | NapCat | — | ✓ | — |
 
 ### 文件操作 (file, 16 个)
 
@@ -151,8 +151,8 @@
 | `get_group_info_ex` | Expand | — | ✓ | — |
 | `set_group_sign` | Expand | — | ✓ | send_group_sign |
 | `get_group_signed_list` | Expand | — | ✓ | — |
-| `batch_delete_group_member` | LLOneBot | — | ✓ | — |
-| `set_group_msg_mask` | LLOneBot | — | ✓ | — |
+| `batch_delete_group_member` | LLOneBot | — | ✗ | — |
+| `set_group_msg_mask` | LLOneBot | — | ✗ | — |
 
 ### 请求处理 (request, 5 个)
 
@@ -177,10 +177,10 @@
 | `set_self_longnick` | Expand | — | ✓ | — |
 | `get_recent_contact` | Expand | — | ✓ | — |
 | `get_profile_like` | Expand | — | ✓ | — |
-| `get_profile_like_me` | LLOneBot | — | ✓ | — |
-| `get_profile_like_count` | LLOneBot | — | ✓ | — |
-| `get_qq_avatar` | LLOneBot | — | ✓ | — |
-| `set_friend_category` | LLOneBot | — | ✓ | — |
+| `get_profile_like_me` | LLOneBot | — | ✗ | — |
+| `get_profile_like_count` | LLOneBot | — | ✗ | — |
+| `get_qq_avatar` | LLOneBot | — | ✗ | — |
+| `set_friend_category` | LLOneBot | — | ✗ | — |
 | `_get_friend_dress` | Expand | — | ✓ | — |
 | `set_friends_category` | Expand | — | ✓ | — |
 
@@ -222,7 +222,7 @@
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
 | `fetch_custom_face` | Expand | — | ✓ | — |
-| `fetch_custom_face_detail` | Expand | ✓ | ✗ | — |
+| `fetch_custom_face_detail` | Expand | — | ✓ | — |
 | `add_custom_face` | Expand | — | ✓ | — |
 | `delete_custom_face` | Expand | — | ✓ | — |
 | `set_custom_face_desc` | Expand | ✓ | ✗ | — |
@@ -231,8 +231,8 @@
 | `fetch_emoji_like` | Expand | — | ✓ | — |
 | `get_emoji_likes` | Expand | — | ✓ | — |
 | `set_group_reaction` | Expand | — | ✓ | — |
-| `get_recommend_face` | LLOneBot | — | ✓ | — |
-| `unset_msg_emoji_like` | LLOneBot | — | ✓ | — |
+| `get_recommend_face` | LLOneBot | — | ✗ | — |
+| `unset_msg_emoji_like` | LLOneBot | — | ✗ | — |
 | `fetch_sys_faces` | Expand | — | ✓ | — |
 | `fetch_face_entity` | Expand | — | ✓ | — |
 | `search_sys_faces` | Expand | — | ✓ | — |
@@ -273,15 +273,15 @@
 | `create_collection` | Expand | — | ✓ | — |
 | `get_collection_list` | Expand | — | ✓ | — |
 | `send_packet` | Expand | — | ✓ | .send_packet |
-| `send_pb` | Expand | — | ✓ | — |
+| `send_pb` | Expand | — | ✗ | — |
 | `handle_quick_operation` | go-cqhttp | — | ✓ | .handle_quick_operation |
 | `get_word_slices` | go-cqhttp | ✓ | ✗ | .get_word_slices |
-| `get_config` | LLOneBot | — | ✓ | — |
-| `set_config` | LLOneBot | — | ✓ | — |
-| `get_event` | LLOneBot | — | ✓ | — |
-| `llonebot_debug` | LLOneBot | — | ✓ | — |
-| `scan_qrcode` | LLOneBot | — | ✓ | — |
-| `get_guild_list` | LLOneBot | — | ✓ | — |
+| `get_config` | LLOneBot | — | ✗ | — |
+| `set_config` | LLOneBot | — | ✗ | — |
+| `get_event` | LLOneBot | — | ✗ | — |
+| `llonebot_debug` | LLOneBot | — | ✗ | — |
+| `scan_qrcode` | LLOneBot | — | ✗ | — |
+| `get_guild_list` | LLOneBot | — | ✗ | — |
 
 ### 闪传 (flash, 14 个)
 
@@ -313,8 +313,8 @@
 | `set_group_album_media_like` | Expand | — | ✓ | — |
 | `cancel_group_album_media_like` | Expand | — | ✓ | — |
 | `del_group_album_media` | Expand | — | ✓ | — |
-| `create_group_album` | LLOneBot | — | ✓ | — |
-| `delete_group_album` | LLOneBot | — | ✓ | — |
+| `create_group_album` | LLOneBot | — | ✗ | — |
+| `delete_group_album` | LLOneBot | — | ✗ | — |
 
 ### 群待办 (group_todo, 4 个)
 

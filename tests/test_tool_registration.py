@@ -9,9 +9,12 @@ from onebot_expand.event_handler import SelfIdInjectHandler
 from onebot_expand.plugin import OnebotExpandPlugin
 from onebot_expand.services import ALL_SERVICES
 from onebot_expand.tools import (
+    GetConfigTool,
     SendGroupMsgTool,
     SendOnlineFileTool,
+    SendPBTool,
     SendPrivateMsgTool,
+    SetGroupMemberInvitePolicyTool,
     UploadFileStreamTool,
     _is_tool_independently_enabled,
     _is_tool_master_switch_on,
@@ -61,12 +64,18 @@ def test_snowluma_backend_filters_incompatible_tools() -> None:
     config.api_switches.enable_all_tools = True
     config.api_switches.enable_send_online_file = True
     config.api_switches.enable_upload_file_stream = True
+    config.api_switches.enable_set_group_member_invite_policy = True
+    config.api_switches.enable_send_pb = True
+    config.api_switches.enable_get_config = True
     plugin = OnebotExpandPlugin(config=config)
 
     enabled_tools = plugin._get_enabled_tools()
 
     assert UploadFileStreamTool in enabled_tools
+    assert SetGroupMemberInvitePolicyTool in enabled_tools
     assert SendOnlineFileTool not in enabled_tools
+    assert SendPBTool not in enabled_tools
+    assert GetConfigTool not in enabled_tools
 
 
 def test_wrapper_defaults_missing_switch_to_disabled() -> None:

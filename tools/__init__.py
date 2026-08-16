@@ -228,7 +228,7 @@ __all__ = [
     "SetGroupAlbumMediaLikeTool",
     "CancelGroupAlbumMediaLikeTool",
     "DelGroupAlbumMediaTool",
-    # 群待办 Tool (3)
+    # 群待办 Tool (4)
     "SetGroupTodoTool",
     "CompleteGroupTodoTool",
     "CancelGroupTodoTool",
@@ -715,7 +715,7 @@ ALL_TOOLS: list[type] = [
     SetGroupAlbumMediaLikeTool,
     CancelGroupAlbumMediaLikeTool,
     DelGroupAlbumMediaTool,
-    # 群待办 (3)
+    # 群待办 (4)
     SetGroupTodoTool,
     CompleteGroupTodoTool,
     CancelGroupTodoTool,
@@ -758,6 +758,7 @@ ALL_TOOLS: list[type] = [
     FetchFaceEntityTool,
     SearchSysFacesTool,
     FetchSuperFaceIdTool,
+    # group_todo_tools 新增
     GetGroupTodoListTool,
     # misc_tools 新增
     GetConfigTool,

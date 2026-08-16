@@ -5,7 +5,7 @@
 
 API 列表 (16):
     - fetch_custom_face: 获取收藏表情
-    - fetch_custom_face_detail: 获取收藏表情详情列表（NapCat 扩展）
+    - fetch_custom_face_detail: 获取收藏表情详情列表（NapCat / SnowLuma 扩展）
     - add_custom_face: 添加收藏表情
     - delete_custom_face: 删除收藏表情
     - set_custom_face_desc: 修改收藏表情描述（NapCat 扩展）
@@ -14,10 +14,12 @@ API 列表 (16):
     - fetch_emoji_like: 获取表情回应分页
     - get_emoji_likes: 获取表情回应用户
     - set_group_reaction: 群聊消息表情回应（SnowLuma 扩展）
+    - get_recommend_face: 获取推荐表情（LLOneBot 扩展）
+    - unset_msg_emoji_like: 取消消息表情回应（LLOneBot 扩展）
     - fetch_sys_faces: 获取系统表情列表（SnowLuma 扩展）
     - fetch_face_entity: 获取系统表情实体（SnowLuma 扩展）
     - search_sys_faces: 搜索系统表情（SnowLuma 扩展）
-    - fetch_super_face_id: 获取超级表情 ID（SnowLuma 扩展）
+    - fetch_super_face_id: 判断系统表情是否为超级表情（SnowLuma 扩展）
 """
 
 from __future__ import annotations
@@ -76,15 +78,15 @@ class EmojiExtService(BaseService):
     async def fetch_super_face_id(
         self, face_id: int, refresh: bool = False
     ) -> dict[str, Any]:
-        """获取超级表情 ID（SnowLuma 扩展）。"""
+        """判断系统表情是否使用超级表情格式（SnowLuma 扩展）。"""
         return await _call_onebot_api(
             "fetch_super_face_id", {"face_id": face_id, "refresh": refresh}
         )
 
     async def fetch_custom_face_detail(self, count: int = 48) -> dict[str, Any]:
-        """获取收藏表情详情列表（NapCat 扩展）。
+        """获取收藏表情详情列表（NapCat / SnowLuma 扩展）。
 
-        对应 NapCat 扩展 API: ``fetch_custom_face_detail``。
+        对应 NapCat / SnowLuma 扩展 API: ``fetch_custom_face_detail``。
         返回 resId/md5/emojiId 等完整字段，删除/改描述前置。
 
         Args:

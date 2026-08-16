@@ -53,6 +53,52 @@ def test_api_registry_has_expected_upstream_actions() -> None:
         assert ALL_APIS[action].params == params
 
 
+def test_super_face_action_describes_boolean_result() -> None:
+    """超级表情 action 应准确描述其布尔判断结果。"""
+    assert ALL_APIS["fetch_super_face_id"].description == (
+        "判断系统表情是否使用超级表情格式（SnowLuma 扩展）"
+    )
+
+
+def test_current_snowluma_actions_are_marked_compatible() -> None:
+    """SnowLuma 当前已注册的 action 不应被本地兼容层拦截。"""
+    actions = {
+        "fetch_custom_face_detail",
+        "set_group_member_invite_policy",
+        "set_group_member_permissions",
+        "set_group_new_member_history_visibility",
+    }
+
+    assert all(ALL_APIS[action].snowluma_compat for action in actions)
+    assert all(not ALL_APIS[action].napcat_only for action in actions)
+    assert not ALL_APIS["get_word_slices"].snowluma_compat
+    assert not ALL_APIS["send_pb"].snowluma_compat
+
+
+def test_unregistered_snowluma_actions_are_marked_incompatible() -> None:
+    """SnowLuma 未注册的 action 不应依赖默认值被误判为兼容。"""
+    actions = {
+        "batch_delete_group_member",
+        "create_group_album",
+        "delete_group_album",
+        "get_config",
+        "get_event",
+        "get_guild_list",
+        "get_profile_like_count",
+        "get_profile_like_me",
+        "get_qq_avatar",
+        "get_recommend_face",
+        "llonebot_debug",
+        "scan_qrcode",
+        "set_config",
+        "set_friend_category",
+        "set_group_msg_mask",
+        "unset_msg_emoji_like",
+    }
+
+    assert all(not ALL_APIS[action].snowluma_compat for action in actions)
+
+
 def test_record_stream_registry_describes_backend_conversion_limit() -> None:
     """语音流注册描述必须明确 SnowLuma 不执行 out_format 转码。"""
     description = ALL_APIS["download_file_record_stream"].description

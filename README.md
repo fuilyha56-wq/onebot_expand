@@ -112,9 +112,13 @@
 每个 API 对应一个开关 `enable_<action>`，**默认全部 `false`**。示例：
 
 ```toml
-[api_switches]
+[api_switches.registration]
 enable_all_tools = true          # Tool 总开关（默认 false，需显式开启）
+
+[api_switches.message]
 enable_send_group_msg = true     # 群聊消息发送（默认 false）
+
+[api_switches.qzone]
 enable_get_qzone_msg_list = true # QQ空间说说列表（默认 false）
 # ... 共 216 个独立开关
 ```

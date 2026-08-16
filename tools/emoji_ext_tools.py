@@ -2,7 +2,7 @@
 
 包含 16 个表情/收藏扩展 Tool，对应 NapCat/SnowLuma 表情/收藏扩展 API：
     - fetch_custom_face: 获取收藏表情
-    - fetch_custom_face_detail: 获取收藏表情详情列表（NapCat 扩展）
+    - fetch_custom_face_detail: 获取收藏表情详情列表（NapCat / SnowLuma 扩展）
     - add_custom_face: 添加收藏表情
     - delete_custom_face: 删除收藏表情
     - set_custom_face_desc: 修改收藏表情描述（NapCat 扩展）
@@ -11,10 +11,12 @@
     - fetch_emoji_like: 获取表情回应分页
     - get_emoji_likes: 获取表情回应用户
     - set_group_reaction: 群聊消息表情回应（SnowLuma 扩展）
+    - get_recommend_face: 获取推荐表情（LLOneBot 扩展）
+    - unset_msg_emoji_like: 取消消息表情回应（LLOneBot 扩展）
     - fetch_sys_faces: 获取系统表情列表（SnowLuma 扩展）
     - fetch_face_entity: 获取系统表情实体（SnowLuma 扩展）
     - search_sys_faces: 搜索系统表情（SnowLuma 扩展）
-    - fetch_super_face_id: 获取超级表情 ID（SnowLuma 扩展）
+    - fetch_super_face_id: 判断系统表情是否为超级表情（SnowLuma 扩展）
 
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
 """
@@ -123,10 +125,10 @@ class SearchSysFacesTool(BaseTool):
 
 
 class FetchSuperFaceIdTool(BaseTool):
-    """获取超级表情 ID 的 Tool（SnowLuma 扩展）。"""
+    """判断系统表情是否为超级表情的 Tool（SnowLuma 扩展）。"""
 
     name = "fetch_super_face_id"
-    description = "获取超级表情ID（SnowLuma扩展）"
+    description = "判断系统表情是否使用超级表情格式（SnowLuma扩展）"
 
     async def execute(
         self,
@@ -138,18 +140,18 @@ class FetchSuperFaceIdTool(BaseTool):
         )
         if result.get("status") == "ok":
             return True, result.get("data", {})
-        return False, f"获取超级表情ID失败: {result.get('msg', '未知错误')}"
+        return False, f"判断超级表情格式失败: {result.get('msg', '未知错误')}"
 
 
 class FetchCustomFaceDetailTool(BaseTool):
-    """获取收藏表情详情列表的 Tool（NapCat 扩展）。
+    """获取收藏表情详情列表的 Tool（NapCat / SnowLuma 扩展）。
 
-    对应 NapCat API: ``fetch_custom_face_detail``。
+    对应 NapCat / SnowLuma API: ``fetch_custom_face_detail``。
     返回收藏表情的完整信息（resId/md5/emojiId 等），删除/改描述前置。
     """
 
     name = "fetch_custom_face_detail"
-    description = "获取收藏表情详情列表（NapCat扩展）"
+    description = "获取收藏表情详情列表（NapCat/SnowLuma扩展）"
 
     async def execute(
         self,

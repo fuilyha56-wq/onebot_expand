@@ -35,10 +35,10 @@ class GetGroupTodoListTool(BaseTool):
     async def execute(
         self,
         group_id: Annotated[int, "目标群号"],
-    ) -> tuple[bool, str | dict[str, Any]]:
+    ) -> tuple[bool, str | list[dict[str, Any]]]:
         result = await _call_onebot_api("get_group_todo_list", {"group_id": group_id})
         if result.get("status") == "ok":
-            return True, result.get("data", {})
+            return True, result.get("data", [])
         return False, f"获取群待办列表失败: {result.get('msg', '未知错误')}"
 
 

@@ -208,7 +208,7 @@ MIN_PARAMS: dict[str, dict] = {
     "get_unidirectional_friend_list": {},
     "get_friends_with_category": {},
     "fetch_custom_face": {"count": 1},
-    "fetch_custom_face_detail": {"face_id": "1"},
+    "fetch_custom_face_detail": {"count": 1},
     "get_essence_msg_list": {"group_id": 1},
     "get_group_album_list": {"group_id": 1},
     "get_qun_album_list": {"group_id": 1},
