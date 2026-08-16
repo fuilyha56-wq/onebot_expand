@@ -2,10 +2,11 @@
 
 封装 NapCat 群待办 API，提供群待办设置、完成、取消等功能。
 
-API 列表 (3):
+API 列表 (4):
     - set_group_todo: 设置群待办
     - complete_group_todo: 完成群待办
     - cancel_group_todo: 取消群待办
+    - get_group_todo_list: 获取群待办列表（SnowLuma 扩展）
 """
 
 from __future__ import annotations
@@ -30,6 +31,10 @@ class GroupTodoService(BaseService):
     name: str = "group_todo_service"
     description: str = "群待办服务"
     version: str = "1.0.0"
+
+    async def get_group_todo_list(self, group_id: int) -> dict[str, Any]:
+        """获取群待办列表（SnowLuma 扩展）。"""
+        return await _call_onebot_api("get_group_todo_list", {"group_id": group_id})
 
     async def set_group_todo(
         self,

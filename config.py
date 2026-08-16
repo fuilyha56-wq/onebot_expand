@@ -931,7 +931,7 @@ class OnebotExpandConfig(BaseConfig):
             description="是否启用 group_poke API（群戳一戳）",
         )
 
-        # --- 表情/收藏扩展类 API (10) ---
+        # --- 表情/收藏扩展类 API (16) ---
         enable_fetch_custom_face: bool = Field(
             default=False,
             description="是否启用 fetch_custom_face API（获取收藏表情）",
@@ -967,6 +967,22 @@ class OnebotExpandConfig(BaseConfig):
         enable_get_emoji_likes: bool = Field(
             default=False,
             description="是否启用 get_emoji_likes API（获取表情回应用户）",
+        )
+        enable_fetch_sys_faces: bool = Field(
+            default=False,
+            description="是否启用 fetch_sys_faces API（获取系统表情列表，SnowLuma 扩展）",
+        )
+        enable_fetch_face_entity: bool = Field(
+            default=False,
+            description="是否启用 fetch_face_entity API（获取系统表情实体，SnowLuma 扩展）",
+        )
+        enable_search_sys_faces: bool = Field(
+            default=False,
+            description="是否启用 search_sys_faces API（搜索系统表情，SnowLuma 扩展）",
+        )
+        enable_fetch_super_face_id: bool = Field(
+            default=False,
+            description="是否启用 fetch_super_face_id API（获取超级表情 ID，SnowLuma 扩展）",
         )
         enable_set_group_reaction: bool = Field(
             default=False,
@@ -1064,7 +1080,7 @@ class OnebotExpandConfig(BaseConfig):
         )
         enable_send_pb: bool = Field(
             default=False,
-            description="是否启用 send_pb API（发送原始 Protobuf 数据，LLBot 扩展）",
+            description="是否启用 send_pb API（发送原始 Protobuf 数据，LLOneBot 扩展）",
         )
         enable_handle_quick_operation: bool = Field(
             default=False,
@@ -1151,7 +1167,7 @@ class OnebotExpandConfig(BaseConfig):
             description="是否启用 del_group_album_media API（删除群相册媒体）",
         )
 
-        # --- 群待办类 API (3) ---
+        # --- 群待办类 API (4) ---
         enable_set_group_todo: bool = Field(
             default=False,
             description="是否启用 set_group_todo API（设置群待办）",
@@ -1163,6 +1179,10 @@ class OnebotExpandConfig(BaseConfig):
         enable_cancel_group_todo: bool = Field(
             default=False,
             description="是否启用 cancel_group_todo API（取消群待办）",
+        )
+        enable_get_group_todo_list: bool = Field(
+            default=False,
+            description="是否启用 get_group_todo_list API（获取群待办列表，SnowLuma 扩展）",
         )
 
         # --- QQ空间类 API (7) ---
@@ -1221,54 +1241,54 @@ class OnebotExpandConfig(BaseConfig):
             description="是否启用 send_group_ark_share API（发送群Ark分享）",
         )
 
-        # --- LLBot 扩展类 API (21) ---
+        # --- LLOneBot 扩展类 API (21) ---
         enable_batch_delete_group_member: bool = Field(
             default=False,
-            description="是否启用 batch_delete_group_member API（批量踢出群成员，LLBot 扩展）",
+            description="是否启用 batch_delete_group_member API（批量踢出群成员，LLOneBot 扩展）",
         )
         enable_set_group_msg_mask: bool = Field(
             default=False,
-            description="是否启用 set_group_msg_mask API（设置群消息屏蔽，LLBot 扩展）",
+            description="是否启用 set_group_msg_mask API（设置群消息屏蔽，LLOneBot 扩展）",
         )
         enable_create_group_album: bool = Field(
             default=False,
-            description="是否启用 create_group_album API（创建群相册，LLBot 扩展）",
+            description="是否启用 create_group_album API（创建群相册，LLOneBot 扩展）",
         )
         enable_delete_group_album: bool = Field(
             default=False,
-            description="是否启用 delete_group_album API（删除群相册，LLBot 扩展）",
+            description="是否启用 delete_group_album API（删除群相册，LLOneBot 扩展）",
         )
         enable_get_flash_file_download_urls: bool = Field(
             default=False,
-            description="是否启用 get_flash_file_download_urls API（获取闪传文件集下载URL，LLBot 扩展）",
+            description="是否启用 get_flash_file_download_urls API（获取闪传文件集下载URL，LLOneBot 扩展）",
         )
         enable_upload_flash_file: bool = Field(
             default=False,
-            description="是否启用 upload_flash_file API（上传闪传文件，LLBot 扩展）",
+            description="是否启用 upload_flash_file API（上传闪传文件，LLOneBot 扩展）",
         )
         enable_reshare_flash_file: bool = Field(
             default=False,
-            description="是否启用 reshare_flash_file API（重新分享闪传文件，LLBot 扩展）",
+            description="是否启用 reshare_flash_file API（重新分享闪传文件，LLOneBot 扩展）",
         )
         enable_set_group_file_forever: bool = Field(
             default=False,
-            description="是否启用 set_group_file_forever API（设置群文件永久保存，LLBot 扩展）",
+            description="是否启用 set_group_file_forever API（设置群文件永久保存，LLOneBot 扩展）",
         )
         enable_get_profile_like_me: bool = Field(
             default=False,
-            description="是否启用 get_profile_like_me API（获取自身被点赞列表，LLBot 扩展）",
+            description="是否启用 get_profile_like_me API（获取自身被点赞列表，LLOneBot 扩展）",
         )
         enable_get_profile_like_count: bool = Field(
             default=False,
-            description="是否启用 get_profile_like_count API（获取用户点赞总数，LLBot 扩展）",
+            description="是否启用 get_profile_like_count API（获取用户点赞总数，LLOneBot 扩展）",
         )
         enable_get_qq_avatar: bool = Field(
             default=False,
-            description="是否启用 get_qq_avatar API（获取QQ头像URL，LLBot 扩展）",
+            description="是否启用 get_qq_avatar API（获取QQ头像URL，LLOneBot 扩展）",
         )
         enable_set_friend_category: bool = Field(
             default=False,
-            description="是否启用 set_friend_category API（设置好友分类，LLBot 扩展）",
+            description="是否启用 set_friend_category API（设置好友分类，LLOneBot 扩展）",
         )
         enable_set_friends_category: bool = Field(
             default=False,
@@ -1276,35 +1296,35 @@ class OnebotExpandConfig(BaseConfig):
         )
         enable_get_recommend_face: bool = Field(
             default=False,
-            description="是否启用 get_recommend_face API（获取推荐表情，LLBot 扩展）",
+            description="是否启用 get_recommend_face API（获取推荐表情，LLOneBot 扩展）",
         )
         enable_unset_msg_emoji_like: bool = Field(
             default=False,
-            description="是否启用 unset_msg_emoji_like API（取消消息表情回应，LLBot 扩展）",
+            description="是否启用 unset_msg_emoji_like API（取消消息表情回应，LLOneBot 扩展）",
         )
         enable_get_config: bool = Field(
             default=False,
-            description="是否启用 get_config API（获取协议端配置，LLBot 扩展）",
+            description="是否启用 get_config API（获取协议端配置，LLOneBot 扩展）",
         )
         enable_set_config: bool = Field(
             default=False,
-            description="是否启用 set_config API（设置协议端配置，LLBot 扩展）",
+            description="是否启用 set_config API（设置协议端配置，LLOneBot 扩展）",
         )
         enable_get_event: bool = Field(
             default=False,
-            description="是否启用 get_event API（获取事件，LLBot 扩展）",
+            description="是否启用 get_event API（获取事件，LLOneBot 扩展）",
         )
         enable_llonebot_debug: bool = Field(
             default=False,
-            description="是否启用 llonebot_debug API（调试接口，调用内部API，LLBot 扩展）",
+            description="是否启用 llonebot_debug API（调试接口，调用内部API，LLOneBot 扩展）",
         )
         enable_scan_qrcode: bool = Field(
             default=False,
-            description="是否启用 scan_qrcode API（扫码登录，LLBot 扩展）",
+            description="是否启用 scan_qrcode API（扫码登录，LLOneBot 扩展）",
         )
         enable_get_guild_list: bool = Field(
             default=False,
-            description="是否启用 get_guild_list API（获取频道列表，NapCat/LLBot 扩展）",
+            description="是否启用 get_guild_list API（获取频道列表，NapCat/LLOneBot 扩展）",
         )
 
     ApiSwitchesSection: ClassVar[type[_GroupedApiSwitchesBase]] = (

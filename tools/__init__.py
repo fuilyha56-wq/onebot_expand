@@ -1,6 +1,6 @@
 """onebot_expand 插件 Tool 组件包。
 
-导出全部 211 个 Tool 类，按功能域分组：
+导出全部 216 个 Tool 类，按功能域分组：
     - 消息相关 (20): message_tools
     - 群操作 (10): group_tools
     - 文件操作 (16): file_tools
@@ -13,13 +13,13 @@
     - 用户信息扩展 (14): user_ext_tools
     - 在线状态 (4): status_tools
     - 戳一拍 (2): poke_tools
-    - 表情/收藏扩展 (12): emoji_ext_tools
+    - 表情/收藏扩展 (16): emoji_ext_tools
     - AI语音 (3): ai_voice_tools
     - 凭证/安全/下载 (8): cred_tools
     - 机型/其他 (18): misc_tools
     - 闪传 (14): flash_tools
     - 群相册 (9): group_album_tools
-    - 群待办 (3): group_todo_tools
+    - 群待办 (4): group_todo_tools
     - QQ空间 (9): qzone_tools
     - Ark分享 (4): ark_tools
 
@@ -421,12 +421,16 @@ from .emoji_ext_tools import (  # noqa: E402
     FetchCustomFaceDetailTool,
     FetchCustomFaceTool,
     FetchEmojiLikeTool,
+    FetchFaceEntityTool,
+    FetchSuperFaceIdTool,
+    FetchSysFacesTool,
     GetEmojiLikesTool,
     GetRecommendFaceTool,
     ModifyCustomFaceTool,
     MoveCustomFaceToFrontTool,
     SetCustomFaceDescTool,
     SetGroupReactionTool,
+    SearchSysFacesTool,
     UnsetMsgEmojiLikeTool,
 )
 from .ai_voice_tools import (  # noqa: E402
@@ -495,6 +499,7 @@ from .group_album_tools import (  # noqa: E402
 from .group_todo_tools import (  # noqa: E402
     CancelGroupTodoTool,
     CompleteGroupTodoTool,
+    GetGroupTodoListTool,
     SetGroupTodoTool,
 )
 from .qzone_tools import (  # noqa: E402
@@ -515,7 +520,7 @@ from .ark_tools import (  # noqa: E402
     SharePeerTool,
 )
 
-# 全部 211 个 Tool 类列表
+# 全部 216 个 Tool 类列表
 ALL_TOOLS: list[type] = [
     # 消息相关 (18)
     SendGroupMsgTool,
@@ -749,6 +754,11 @@ ALL_TOOLS: list[type] = [
     # emoji_ext_tools 新增
     GetRecommendFaceTool,
     UnsetMsgEmojiLikeTool,
+    FetchSysFacesTool,
+    FetchFaceEntityTool,
+    SearchSysFacesTool,
+    FetchSuperFaceIdTool,
+    GetGroupTodoListTool,
     # misc_tools 新增
     GetConfigTool,
     SetConfigTool,
@@ -810,7 +820,7 @@ def _wrap_tool_execute(tool_cls: type) -> None:
         plugin = getattr(self, "plugin", None)
         if not _is_tool_master_switch_on(plugin):
             return False, "工具已被总开关禁用（enable_all_tools=False）"
-        tool_name = getattr(tool_cls, "tool_name", "")
+        tool_name = getattr(tool_cls, "name", "")
         if tool_name and not _is_tool_independently_enabled(plugin, tool_name):
             return False, f"工具 {tool_name} 已被独立开关禁用"
         return await original(self, *args, **kwargs)

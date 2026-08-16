@@ -16,7 +16,7 @@ API 列表 (15):
     - get_profile_like_me: 获取自身被点赞列表
     - get_profile_like_count: 获取用户点赞总数
     - get_qq_avatar: 获取QQ头像URL
-    - set_friend_category: 按分类 ID 设置好友分类（LLBot 扩展）
+    - set_friend_category: 按分类 ID 设置好友分类（LLOneBot 扩展）
     - set_friends_category: 按分类 ID 或名称设置好友分类（SnowLuma 扩展）
     - _get_friend_dress: 获取好友个性装扮（SnowLuma 扩展）
 """

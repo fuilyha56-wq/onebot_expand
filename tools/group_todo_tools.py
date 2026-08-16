@@ -1,9 +1,10 @@
 """群待办 API 的 Tool 组件。
 
-包含 3 个群待办 Tool，对应 NapCat 群待办 API：
+包含 4 个群待办 Tool，对应 NapCat/SnowLuma 群待办 API：
     - set_group_todo: 设置群待办
     - complete_group_todo: 完成群待办
     - cancel_group_todo: 取消群待办
+    - get_group_todo_list: 获取群待办列表（SnowLuma 扩展）
 
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
 """
@@ -21,7 +22,24 @@ __all__ = [
     "SetGroupTodoTool",
     "CompleteGroupTodoTool",
     "CancelGroupTodoTool",
+    "GetGroupTodoListTool",
 ]
+
+
+class GetGroupTodoListTool(BaseTool):
+    """获取群待办列表的 Tool（SnowLuma 扩展）。"""
+
+    name = "get_group_todo_list"
+    description = "获取指定群的待办列表（SnowLuma扩展）"
+
+    async def execute(
+        self,
+        group_id: Annotated[int, "目标群号"],
+    ) -> tuple[bool, str | dict[str, Any]]:
+        result = await _call_onebot_api("get_group_todo_list", {"group_id": group_id})
+        if result.get("status") == "ok":
+            return True, result.get("data", {})
+        return False, f"获取群待办列表失败: {result.get('msg', '未知错误')}"
 
 
 class SetGroupTodoTool(BaseTool):
@@ -31,8 +49,8 @@ class SetGroupTodoTool(BaseTool):
     在指定群中设置待办事项。
     """
 
-    tool_name = "set_group_todo"
-    tool_description = "在指定群中设置待办事项"
+    name = "set_group_todo"
+    description = "在指定群中设置待办事项"
 
     async def execute(
         self,
@@ -57,8 +75,8 @@ class CompleteGroupTodoTool(BaseTool):
     完成指定群中的待办事项。
     """
 
-    tool_name = "complete_group_todo"
-    tool_description = "完成指定群中的待办事项"
+    name = "complete_group_todo"
+    description = "完成指定群中的待办事项"
 
     async def execute(
         self,
@@ -83,8 +101,8 @@ class CancelGroupTodoTool(BaseTool):
     取消指定群中的待办事项。
     """
 
-    tool_name = "cancel_group_todo"
-    tool_description = "取消指定群中的待办事项"
+    name = "cancel_group_todo"
+    description = "取消指定群中的待办事项"
 
     async def execute(
         self,

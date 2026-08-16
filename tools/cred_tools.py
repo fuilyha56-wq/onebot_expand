@@ -39,8 +39,8 @@ class GetClientkeyTool(BaseTool):
     获取当前 Bot 的 clientkey。
     """
 
-    tool_name = "get_clientkey"
-    tool_description = "获取当前Bot的clientkey"
+    name = "get_clientkey"
+    description = "获取当前Bot的clientkey"
 
     async def execute(
         self,
@@ -61,8 +61,8 @@ class GetCredentialsTool(BaseTool):
     获取指定域名的凭证信息。
     """
 
-    tool_name = "get_credentials"
-    tool_description = "获取指定域名的凭证信息"
+    name = "get_credentials"
+    description = "获取指定域名的凭证信息"
 
     async def execute(
         self,
@@ -84,8 +84,8 @@ class GetRkeyTool(BaseTool):
     获取当前 Bot 的 rkey。
     """
 
-    tool_name = "get_rkey"
-    tool_description = "获取当前Bot的rkey"
+    name = "get_rkey"
+    description = "获取当前Bot的rkey"
 
     async def execute(
         self,
@@ -106,8 +106,8 @@ class GetRkeyServerTool(BaseTool):
     返回 rkey 服务器信息（含过期时间和服务器名），比 get_rkey 多返回元数据。
     """
 
-    tool_name = "get_rkey_server"
-    tool_description = "获取rkey服务器信息（含过期时间和服务器名）"
+    name = "get_rkey_server"
+    description = "获取rkey服务器信息（含过期时间和服务器名）"
 
     async def execute(
         self,
@@ -128,8 +128,8 @@ class CheckUrlSafelyTool(BaseTool):
     检查指定 URL 的安全性。
     """
 
-    tool_name = "check_url_safely"
-    tool_description = "检查指定URL的安全性"
+    name = "check_url_safely"
+    description = "检查指定URL的安全性"
 
     async def execute(
         self,
@@ -154,8 +154,8 @@ class OcrImageTool(BaseTool):
     对指定图片进行 OCR 识别。
     """
 
-    tool_name = "ocr_image"
-    tool_description = "对指定图片进行OCR文字识别"
+    name = "ocr_image"
+    description = "对指定图片进行OCR文字识别"
 
     async def execute(
         self,
@@ -177,8 +177,8 @@ class DownloadFileTool(BaseTool):
     下载指定 URL 的文件。
     """
 
-    tool_name = "download_file"
-    tool_description = "下载指定URL的文件"
+    name = "download_file"
+    description = "下载指定URL的文件"
 
     async def execute(
         self,
@@ -204,8 +204,8 @@ class RequestDecryptKeyTool(BaseTool):
     对应扩展 API: ``request_decrypt_key``。
     """
 
-    tool_name = "request_decrypt_key"
-    tool_description = "请求数据库解密密钥（SnowLuma 扩展，传入 db_path）"
+    name = "request_decrypt_key"
+    description = "请求数据库解密密钥（SnowLuma 扩展，传入 db_path）"
 
     async def execute(
         self,

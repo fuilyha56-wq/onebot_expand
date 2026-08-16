@@ -1,6 +1,6 @@
 """表情/收藏扩展 API 的 Tool 组件。
 
-包含 11 个表情/收藏扩展 Tool，对应 NapCat/SnowLuma 表情/收藏扩展 API：
+包含 16 个表情/收藏扩展 Tool，对应 NapCat/SnowLuma 表情/收藏扩展 API：
     - fetch_custom_face: 获取收藏表情
     - fetch_custom_face_detail: 获取收藏表情详情列表（NapCat 扩展）
     - add_custom_face: 添加收藏表情
@@ -11,6 +11,10 @@
     - fetch_emoji_like: 获取表情回应分页
     - get_emoji_likes: 获取表情回应用户
     - set_group_reaction: 群聊消息表情回应（SnowLuma 扩展）
+    - fetch_sys_faces: 获取系统表情列表（SnowLuma 扩展）
+    - fetch_face_entity: 获取系统表情实体（SnowLuma 扩展）
+    - search_sys_faces: 搜索系统表情（SnowLuma 扩展）
+    - fetch_super_face_id: 获取超级表情 ID（SnowLuma 扩展）
 
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
 """
@@ -35,8 +39,12 @@ __all__ = [
     "FetchEmojiLikeTool",
     "GetEmojiLikesTool",
     "SetGroupReactionTool",
-"GetRecommendFaceTool",
+    "GetRecommendFaceTool",
     "UnsetMsgEmojiLikeTool",
+    "FetchSysFacesTool",
+    "FetchFaceEntityTool",
+    "SearchSysFacesTool",
+    "FetchSuperFaceIdTool",
 ]
 
 
@@ -47,8 +55,8 @@ class FetchCustomFaceTool(BaseTool):
     获取当前 Bot 的收藏表情列表。
     """
 
-    tool_name = "fetch_custom_face"
-    tool_description = "获取当前Bot的收藏表情列表"
+    name = "fetch_custom_face"
+    description = "获取当前Bot的收藏表情列表"
 
     async def execute(
         self,
@@ -63,6 +71,76 @@ class FetchCustomFaceTool(BaseTool):
         return False, f"获取收藏表情失败: {result.get('msg', '未知错误')}"
 
 
+class FetchSysFacesTool(BaseTool):
+    """获取系统表情列表的 Tool（SnowLuma 扩展）。"""
+
+    name = "fetch_sys_faces"
+    description = "获取系统表情列表（SnowLuma扩展）"
+
+    async def execute(
+        self,
+        refresh: Annotated[bool, "是否刷新缓存"] = False,
+    ) -> tuple[bool, str | dict[str, Any]]:
+        result = await _call_onebot_api("fetch_sys_faces", {"refresh": refresh})
+        if result.get("status") == "ok":
+            return True, result.get("data", {})
+        return False, f"获取系统表情列表失败: {result.get('msg', '未知错误')}"
+
+
+class FetchFaceEntityTool(BaseTool):
+    """获取系统表情实体的 Tool（SnowLuma 扩展）。"""
+
+    name = "fetch_face_entity"
+    description = "获取指定系统表情实体（SnowLuma扩展）"
+
+    async def execute(
+        self,
+        face_id: Annotated[int, "系统表情ID"],
+        refresh: Annotated[bool, "是否刷新缓存"] = False,
+    ) -> tuple[bool, str | dict[str, Any]]:
+        result = await _call_onebot_api(
+            "fetch_face_entity", {"face_id": face_id, "refresh": refresh}
+        )
+        if result.get("status") == "ok":
+            return True, result.get("data", {})
+        return False, f"获取系统表情实体失败: {result.get('msg', '未知错误')}"
+
+
+class SearchSysFacesTool(BaseTool):
+    """搜索系统表情的 Tool（SnowLuma 扩展）。"""
+
+    name = "search_sys_faces"
+    description = "按关键词搜索系统表情（SnowLuma扩展）"
+
+    async def execute(
+        self,
+        query: Annotated[str, "搜索关键词"],
+    ) -> tuple[bool, str | dict[str, Any]]:
+        result = await _call_onebot_api("search_sys_faces", {"query": query})
+        if result.get("status") == "ok":
+            return True, result.get("data", {})
+        return False, f"搜索系统表情失败: {result.get('msg', '未知错误')}"
+
+
+class FetchSuperFaceIdTool(BaseTool):
+    """获取超级表情 ID 的 Tool（SnowLuma 扩展）。"""
+
+    name = "fetch_super_face_id"
+    description = "获取超级表情ID（SnowLuma扩展）"
+
+    async def execute(
+        self,
+        face_id: Annotated[int, "系统表情ID"],
+        refresh: Annotated[bool, "是否刷新缓存"] = False,
+    ) -> tuple[bool, str | dict[str, Any]]:
+        result = await _call_onebot_api(
+            "fetch_super_face_id", {"face_id": face_id, "refresh": refresh}
+        )
+        if result.get("status") == "ok":
+            return True, result.get("data", {})
+        return False, f"获取超级表情ID失败: {result.get('msg', '未知错误')}"
+
+
 class FetchCustomFaceDetailTool(BaseTool):
     """获取收藏表情详情列表的 Tool（NapCat 扩展）。
 
@@ -70,8 +148,8 @@ class FetchCustomFaceDetailTool(BaseTool):
     返回收藏表情的完整信息（resId/md5/emojiId 等），删除/改描述前置。
     """
 
-    tool_name = "fetch_custom_face_detail"
-    tool_description = "获取收藏表情详情列表（NapCat扩展）"
+    name = "fetch_custom_face_detail"
+    description = "获取收藏表情详情列表（NapCat扩展）"
 
     async def execute(
         self,
@@ -93,8 +171,8 @@ class AddCustomFaceTool(BaseTool):
     添加表情到收藏列表。
     """
 
-    tool_name = "add_custom_face"
-    tool_description = "添加表情到收藏列表"
+    name = "add_custom_face"
+    description = "添加表情到收藏列表"
 
     async def execute(
         self,
@@ -115,8 +193,8 @@ class DeleteCustomFaceTool(BaseTool):
     从收藏列表中删除指定表情。
     """
 
-    tool_name = "delete_custom_face"
-    tool_description = "从收藏列表中删除指定表情"
+    name = "delete_custom_face"
+    description = "从收藏列表中删除指定表情"
 
     async def execute(
         self,
@@ -137,8 +215,8 @@ class SetCustomFaceDescTool(BaseTool):
     修改收藏表情的描述文字。
     """
 
-    tool_name = "set_custom_face_desc"
-    tool_description = "修改收藏表情描述（NapCat扩展）"
+    name = "set_custom_face_desc"
+    description = "修改收藏表情描述（NapCat扩展）"
 
     async def execute(
         self,
@@ -167,8 +245,8 @@ class ModifyCustomFaceTool(BaseTool):
     修改收藏表情的备注。
     """
 
-    tool_name = "modify_custom_face"
-    tool_description = "修改收藏表情备注（SnowLuma扩展）"
+    name = "modify_custom_face"
+    description = "修改收藏表情备注（SnowLuma扩展）"
 
     async def execute(
         self,
@@ -193,8 +271,8 @@ class MoveCustomFaceToFrontTool(BaseTool):
     将指定收藏表情移到列表最前。
     """
 
-    tool_name = "move_custom_face_to_front"
-    tool_description = "将指定收藏表情移到列表最前（SnowLuma扩展）"
+    name = "move_custom_face_to_front"
+    description = "将指定收藏表情移到列表最前（SnowLuma扩展）"
 
     async def execute(
         self,
@@ -215,8 +293,8 @@ class FetchEmojiLikeTool(BaseTool):
     获取指定消息的表情回应分页数据。
     """
 
-    tool_name = "fetch_emoji_like"
-    tool_description = "获取指定消息的表情回应分页数据"
+    name = "fetch_emoji_like"
+    description = "获取指定消息的表情回应分页数据"
 
     async def execute(
         self,
@@ -244,8 +322,8 @@ class GetEmojiLikesTool(BaseTool):
     获取指定消息上某表情的回应用户列表。
     """
 
-    tool_name = "get_emoji_likes"
-    tool_description = "获取指定消息上某表情的回应用户列表"
+    name = "get_emoji_likes"
+    description = "获取指定消息上某表情的回应用户列表"
 
     async def execute(
         self,
@@ -271,8 +349,8 @@ class SetGroupReactionTool(BaseTool):
     对群消息进行表情回应（与 set_msg_emoji_like 不同，此为 SnowLuma 实现）。
     """
 
-    tool_name = "set_group_reaction"
-    tool_description = "对群消息进行表情回应（SnowLuma扩展）"
+    name = "set_group_reaction"
+    description = "对群消息进行表情回应（SnowLuma扩展）"
 
     async def execute(
         self,
@@ -301,8 +379,8 @@ class GetRecommendFaceTool(BaseTool):
     对应 API: ``get_recommend_face``。
     """
 
-    tool_name = "get_recommend_face"
-    tool_description = "获取推荐表情"
+    name = "get_recommend_face"
+    description = "获取推荐表情"
 
     async def execute(
         self,
@@ -325,8 +403,8 @@ class UnsetMsgEmojiLikeTool(BaseTool):
     对应 API: ``unset_msg_emoji_like``。
     """
 
-    tool_name = "unset_msg_emoji_like"
-    tool_description = "取消消息表情回应"
+    name = "unset_msg_emoji_like"
+    description = "取消消息表情回应"
 
     async def execute(
         self,
@@ -342,5 +420,3 @@ class UnsetMsgEmojiLikeTool(BaseTool):
         if result.get("status") == "ok":
             return True, str(result.get("data", ""))
         return False, f"取消消息表情回应失败: {result.get('msg', '未知错误')}"
-
-

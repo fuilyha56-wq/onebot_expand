@@ -34,8 +34,8 @@ class SetFriendAddRequestTool(BaseTool):
     通过请求的 flag 和是否同意来处理好友添加请求。
     """
 
-    tool_name = "set_friend_add_request"
-    tool_description = "处理好友添加请求，可同意或拒绝"
+    name = "set_friend_add_request"
+    description = "处理好友添加请求，可同意或拒绝"
 
     async def execute(
         self,
@@ -65,8 +65,8 @@ class SetGroupAddRequestTool(BaseTool):
     通过请求的 flag、子类型和是否同意来处理加群请求。
     """
 
-    tool_name = "set_group_add_request"
-    tool_description = "处理加群请求，可同意或拒绝"
+    name = "set_group_add_request"
+    description = "处理加群请求，可同意或拒绝"
 
     async def execute(
         self,
@@ -98,8 +98,8 @@ class GetGroupSystemMsgTool(BaseTool):
     获取群系统消息列表，包括加群请求、被邀请入群等。
     """
 
-    tool_name = "get_group_system_msg"
-    tool_description = "获取群系统消息列表（go-cqhttp兼容）"
+    name = "get_group_system_msg"
+    description = "获取群系统消息列表（go-cqhttp兼容）"
 
     async def execute(
         self,
@@ -120,8 +120,8 @@ class GetDoubtFriendsAddRequestTool(BaseTool):
     获取可疑的好友添加请求列表。
     """
 
-    tool_name = "get_doubt_friends_add_request"
-    tool_description = "获取可疑好友申请列表（扩展）"
+    name = "get_doubt_friends_add_request"
+    description = "获取可疑好友申请列表（扩展）"
 
     async def execute(
         self,
@@ -143,8 +143,8 @@ class SetDoubtFriendsAddRequestTool(BaseTool):
     通过请求的 flag 和是否同意来处理可疑好友申请。
     """
 
-    tool_name = "set_doubt_friends_add_request"
-    tool_description = "处理可疑好友申请，可同意或拒绝（扩展）"
+    name = "set_doubt_friends_add_request"
+    description = "处理可疑好友申请，可同意或拒绝（扩展）"
 
     async def execute(
         self,

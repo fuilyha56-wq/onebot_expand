@@ -8,19 +8,81 @@ import pytest
 from onebot_expand import api_client
 from onebot_expand.config import OnebotExpandConfig
 from onebot_expand.services import (
+    emoji_ext_service,
     file_service,
     group_file_service,
     group_service,
+    group_todo_service,
     misc_service,
     user_ext_service,
 )
+
+
+@pytest.mark.asyncio
+async def test_new_snowluma_action_payloads(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """新增 SnowLuma 动作应传递与上游 schema 一致的参数。"""
+    calls: list[tuple[str, dict[str, Any]]] = []
+
+    async def fake_call(action: str, params: dict[str, Any]) -> dict[str, Any]:
+        calls.append((action, params))
+        return {"status": "ok", "data": {}}
+
+    monkeypatch.setattr(emoji_ext_service, "_call_onebot_api", fake_call)
+    monkeypatch.setattr(group_todo_service, "_call_onebot_api", fake_call)
+
+    emoji = emoji_ext_service.EmojiExtService(plugin=None)
+    todo = group_todo_service.GroupTodoService(plugin=None)
+    await emoji.fetch_sys_faces()
+    await emoji.fetch_face_entity(14, refresh=True)
+    await emoji.search_sys_faces("开心")
+    await emoji.fetch_super_face_id(14)
+    await todo.get_group_todo_list(10001)
+
+    assert calls == [
+        ("fetch_sys_faces", {"refresh": False}),
+        ("fetch_face_entity", {"face_id": 14, "refresh": True}),
+        ("search_sys_faces", {"query": "开心"}),
+        ("fetch_super_face_id", {"face_id": 14, "refresh": False}),
+        ("get_group_todo_list", {"group_id": 10001}),
+    ]
+
+
 from onebot_expand.tools import (
+    emoji_ext_tools,
     file_tools,
     group_file_tools,
     group_tools,
     misc_tools,
     user_ext_tools,
 )
+
+
+@pytest.mark.asyncio
+async def test_fetch_face_entity_tool_preserves_null_response(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """表情编号不存在时 Tool 应保留 SnowLuma 返回的 null。"""
+
+    async def fake_call(_action: str, _params: dict[str, Any]) -> dict[str, Any]:
+        return {"status": "ok", "data": None}
+
+    monkeypatch.setattr(emoji_ext_tools, "_call_onebot_api", fake_call)
+    plugin = SimpleNamespace(
+        config=SimpleNamespace(
+            api_switches=SimpleNamespace(
+                enable_all_tools=True,
+                enable_fetch_face_entity=True,
+            )
+        )
+    )
+    tool = emoji_ext_tools.FetchFaceEntityTool(plugin=plugin)
+
+    success, data = await tool.execute(999999)
+
+    assert success is True
+    assert data is None
 
 
 @pytest.mark.asyncio

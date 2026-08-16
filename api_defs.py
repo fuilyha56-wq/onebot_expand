@@ -1,6 +1,6 @@
 """OneBot v11 + NapCat 扩展 API 定义模块。
 
-定义全部 211 个 OneBot API 的常量、元数据、分类索引和查询函数。
+定义全部 216 个 OneBot API 的常量、元数据、分类索引和查询函数。
 供 Service 层和 Tool 层引用，确保 API action 名称和参数定义的一致性。
 """
 
@@ -331,6 +331,10 @@ class ExpandAction:
     FETCH_EMOJI_LIKE = "fetch_emoji_like"
     GET_EMOJI_LIKES = "get_emoji_likes"
     SET_GROUP_REACTION = "set_group_reaction"
+    FETCH_SYS_FACES = "fetch_sys_faces"
+    FETCH_FACE_ENTITY = "fetch_face_entity"
+    SEARCH_SYS_FACES = "search_sys_faces"
+    FETCH_SUPER_FACE_ID = "fetch_super_face_id"
 
     # AI语音
     GET_AI_CHARACTERS = "get_ai_characters"
@@ -392,6 +396,7 @@ class ExpandAction:
     SET_GROUP_TODO = "set_group_todo"
     COMPLETE_GROUP_TODO = "complete_group_todo"
     CANCEL_GROUP_TODO = "cancel_group_todo"
+    GET_GROUP_TODO_LIST = "get_group_todo_list"
 
     # QQ空间
     GET_QZONE_MSG_LIST = "get_qzone_msg_list"
@@ -413,7 +418,7 @@ class ExpandAction:
     SHARE_GROUP_EX = "share_group_ex"
     SEND_GROUP_ARK_SHARE = "send_group_ark_share"
 
-    # LLBot 扩展
+    # LLOneBot 扩展
     BATCH_DELETE_GROUP_MEMBER = "batch_delete_group_member"
     SET_GROUP_MSG_MASK = "set_group_msg_mask"
     CREATE_GROUP_ALBUM = "create_group_album"
@@ -1756,7 +1761,7 @@ ALL_APIS: dict[str, APIDef] = {
             "user_id": "int",
         },
     ),
-    # ==================== 表情/收藏扩展 API (5) ====================
+    # ==================== 表情/收藏扩展 API (16) ====================
     ExpandAction.FETCH_CUSTOM_FACE: APIDef(
         action="fetch_custom_face",
         category=APICategory.EMOJI_EXT,
@@ -1866,6 +1871,34 @@ ALL_APIS: dict[str, APIDef] = {
         },
         napcat_only=False,
         snowluma_compat=True,
+    ),
+    ExpandAction.FETCH_SYS_FACES: APIDef(
+        action="fetch_sys_faces",
+        category=APICategory.EMOJI_EXT,
+        source=APISource.EXPAND,
+        description="获取系统表情列表（SnowLuma 扩展）",
+        params={"refresh": "bool"},
+    ),
+    ExpandAction.FETCH_FACE_ENTITY: APIDef(
+        action="fetch_face_entity",
+        category=APICategory.EMOJI_EXT,
+        source=APISource.EXPAND,
+        description="获取系统表情实体（SnowLuma 扩展）",
+        params={"face_id": "int", "refresh": "bool"},
+    ),
+    ExpandAction.SEARCH_SYS_FACES: APIDef(
+        action="search_sys_faces",
+        category=APICategory.EMOJI_EXT,
+        source=APISource.EXPAND,
+        description="搜索系统表情（SnowLuma 扩展）",
+        params={"query": "str"},
+    ),
+    ExpandAction.FETCH_SUPER_FACE_ID: APIDef(
+        action="fetch_super_face_id",
+        category=APICategory.EMOJI_EXT,
+        source=APISource.EXPAND,
+        description="获取超级表情 ID（SnowLuma 扩展）",
+        params={"face_id": "int", "refresh": "bool"},
     ),
     # ==================== AI语音 API (3) ====================
     ExpandAction.GET_AI_CHARACTERS: APIDef(
@@ -2072,7 +2105,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="send_pb",
         category=APICategory.MISC,
         source=APISource.EXPAND,
-        description="发送原始 Protobuf 数据（LLBot 扩展）",
+        description="发送原始 Protobuf 数据（LLOneBot 扩展）",
         params={
             "cmd": "str",
             "hex": "str",
@@ -2292,7 +2325,7 @@ ALL_APIS: dict[str, APIDef] = {
             "lloc": "str",
         },
     ),
-    # ==================== 群待办 API (3) ====================
+    # ==================== 群待办 API (4) ====================
     ExpandAction.SET_GROUP_TODO: APIDef(
         action="set_group_todo",
         category=APICategory.GROUP_TODO,
@@ -2322,6 +2355,13 @@ ALL_APIS: dict[str, APIDef] = {
             "group_id": "int",
             "message_id": "int | str",
         },
+    ),
+    ExpandAction.GET_GROUP_TODO_LIST: APIDef(
+        action="get_group_todo_list",
+        category=APICategory.GROUP_TODO,
+        source=APISource.EXPAND,
+        description="获取群待办列表（SnowLuma 扩展）",
+        params={"group_id": "int"},
     ),
     # ==================== QQ空间 API (7) ====================
     ExpandAction.GET_QZONE_MSG_LIST: APIDef(
@@ -2461,12 +2501,12 @@ ALL_APIS: dict[str, APIDef] = {
             "group_id": "int",
         },
     ),
-    # ==================== LLBot 扩展 API (20) ====================
+    # ==================== LLOneBot 扩展 API (20) ====================
     ExpandAction.BATCH_DELETE_GROUP_MEMBER: APIDef(
         action="batch_delete_group_member",
         category=APICategory.GROUP_EXT,
         source=APISource.EXPAND,
-        description="批量踢出群成员（LLBot 扩展）",
+        description="批量踢出群成员（LLOneBot 扩展）",
         params={
             "group_id": "int",
             "user_ids": "list[int]",
@@ -2476,7 +2516,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="set_group_msg_mask",
         category=APICategory.GROUP_EXT,
         source=APISource.EXPAND,
-        description="设置群消息屏蔽（LLBot 扩展）",
+        description="设置群消息屏蔽（LLOneBot 扩展）",
         params={
             "group_id": "int",
             "mask": "int",
@@ -2486,7 +2526,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="create_group_album",
         category=APICategory.GROUP_ALBUM,
         source=APISource.EXPAND,
-        description="创建群相册（LLBot 扩展）",
+        description="创建群相册（LLOneBot 扩展）",
         params={
             "group_id": "int",
             "name": "str",
@@ -2497,7 +2537,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="delete_group_album",
         category=APICategory.GROUP_ALBUM,
         source=APISource.EXPAND,
-        description="删除群相册（LLBot 扩展）",
+        description="删除群相册（LLOneBot 扩展）",
         params={
             "group_id": "int",
             "album_id": "str",
@@ -2507,7 +2547,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="get_flash_file_download_urls",
         category=APICategory.FLASH,
         source=APISource.EXPAND,
-        description="获取闪传文件集所有文件的下载URL（LLBot 扩展）",
+        description="获取闪传文件集所有文件的下载URL（LLOneBot 扩展）",
         params={
             "fileset_id": "str",
             "share_link": "str",
@@ -2518,7 +2558,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="upload_flash_file",
         category=APICategory.FLASH,
         source=APISource.EXPAND,
-        description="上传闪传文件（LLBot 扩展）",
+        description="上传闪传文件（LLOneBot 扩展）",
         params={
             "title": "str",
             "paths": "list[str]",
@@ -2529,7 +2569,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="reshare_flash_file",
         category=APICategory.FLASH,
         source=APISource.EXPAND,
-        description="重新分享闪传文件，获取新的分享链接（LLBot 扩展）",
+        description="重新分享闪传文件，获取新的分享链接（LLOneBot 扩展）",
         params={
             "fileset_id": "str",
             "share_link": "str",
@@ -2540,7 +2580,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="set_group_file_forever",
         category=APICategory.GROUP_FILE,
         source=APISource.EXPAND,
-        description="设置群文件永久保存（LLBot 扩展）",
+        description="设置群文件永久保存（LLOneBot 扩展）",
         params={
             "group_id": "int",
             "file_id": "str",
@@ -2551,7 +2591,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="get_profile_like_me",
         category=APICategory.USER_EXT,
         source=APISource.EXPAND,
-        description="获取自身被点赞列表（LLBot 扩展）",
+        description="获取自身被点赞列表（LLOneBot 扩展）",
         params={
             "start": "int",
             "count": "int",
@@ -2561,7 +2601,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="get_profile_like_count",
         category=APICategory.USER_EXT,
         source=APISource.EXPAND,
-        description="获取用户点赞总数（LLBot 扩展）",
+        description="获取用户点赞总数（LLOneBot 扩展）",
         params={
             "user_id": "int",
         },
@@ -2570,7 +2610,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="get_qq_avatar",
         category=APICategory.USER_EXT,
         source=APISource.EXPAND,
-        description="获取QQ头像URL（LLBot 扩展）",
+        description="获取QQ头像URL（LLOneBot 扩展）",
         params={
             "user_id": "int",
             "group_id": "int",
@@ -2580,7 +2620,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="set_friend_category",
         category=APICategory.USER_EXT,
         source=APISource.EXPAND,
-        description="设置好友分类（LLBot 扩展）",
+        description="设置好友分类（LLOneBot 扩展）",
         params={
             "user_id": "int",
             "category_id": "int",
@@ -2601,7 +2641,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="get_recommend_face",
         category=APICategory.EMOJI_EXT,
         source=APISource.EXPAND,
-        description="获取推荐表情（LLBot 扩展）",
+        description="获取推荐表情（LLOneBot 扩展）",
         params={
             "word": "str",
         },
@@ -2610,7 +2650,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="unset_msg_emoji_like",
         category=APICategory.EMOJI_EXT,
         source=APISource.EXPAND,
-        description="取消消息表情回应（LLBot 扩展）",
+        description="取消消息表情回应（LLOneBot 扩展）",
         params={
             "message_id": "int | str",
             "emoji_id": "int",
@@ -2620,14 +2660,14 @@ ALL_APIS: dict[str, APIDef] = {
         action="get_config",
         category=APICategory.MISC,
         source=APISource.EXPAND,
-        description="获取协议端配置（LLBot 扩展）",
+        description="获取协议端配置（LLOneBot 扩展）",
         params={},
     ),
     ExpandAction.SET_CONFIG: APIDef(
         action="set_config",
         category=APICategory.MISC,
         source=APISource.EXPAND,
-        description="设置协议端配置（LLBot 扩展）",
+        description="设置协议端配置（LLOneBot 扩展）",
         params={
             "config": "dict",
         },
@@ -2636,14 +2676,14 @@ ALL_APIS: dict[str, APIDef] = {
         action="get_event",
         category=APICategory.MISC,
         source=APISource.EXPAND,
-        description="获取事件（LLBot 扩展）",
+        description="获取事件（LLOneBot 扩展）",
         params={},
     ),
     ExpandAction.LLONEBOT_DEBUG: APIDef(
         action="llonebot_debug",
         category=APICategory.MISC,
         source=APISource.EXPAND,
-        description="调试接口，调用内部API（LLBot 扩展）",
+        description="调试接口，调用内部API（LLOneBot 扩展）",
         params={
             "api_class": "str",
             "method": "str",
@@ -2654,7 +2694,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="scan_qrcode",
         category=APICategory.MISC,
         source=APISource.EXPAND,
-        description="扫码登录（LLBot 扩展）",
+        description="扫码登录（LLOneBot 扩展）",
         params={
             "qrcode": "str",
         },
@@ -2663,7 +2703,7 @@ ALL_APIS: dict[str, APIDef] = {
         action="get_guild_list",
         category=APICategory.MISC,
         source=APISource.EXPAND,
-        description="获取频道列表（NapCat/LLBot 扩展）",
+        description="获取频道列表（NapCat/LLOneBot 扩展）",
         params={},
     ),
 }
@@ -2852,6 +2892,10 @@ EMOJI_EXT_APIS: list[str] = [
     ExpandAction.SET_GROUP_REACTION,
     ExpandAction.GET_RECOMMEND_FACE,
     ExpandAction.UNSET_MSG_EMOJI_LIKE,
+    ExpandAction.FETCH_SYS_FACES,
+    ExpandAction.FETCH_FACE_ENTITY,
+    ExpandAction.SEARCH_SYS_FACES,
+    ExpandAction.FETCH_SUPER_FACE_ID,
 ]
 
 AI_VOICE_APIS: list[str] = [
@@ -2926,6 +2970,7 @@ GROUP_TODO_APIS: list[str] = [
     ExpandAction.SET_GROUP_TODO,
     ExpandAction.COMPLETE_GROUP_TODO,
     ExpandAction.CANCEL_GROUP_TODO,
+    ExpandAction.GET_GROUP_TODO_LIST,
 ]
 
 QZONE_APIS: list[str] = [

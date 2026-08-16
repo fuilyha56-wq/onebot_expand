@@ -49,8 +49,8 @@ class CreateFlashTaskTool(BaseTool):
     创建一个闪传文件传输任务。
     """
 
-    tool_name = "create_flash_task"
-    tool_description = "创建一个闪传文件传输任务"
+    name = "create_flash_task"
+    description = "创建一个闪传文件传输任务"
 
     async def execute(
         self,
@@ -75,8 +75,8 @@ class SendFlashMsgTool(BaseTool):
     发送闪传文件消息到指定用户或群。
     """
 
-    tool_name = "send_flash_msg"
-    tool_description = "发送闪传文件消息到指定用户或群"
+    name = "send_flash_msg"
+    description = "发送闪传文件消息到指定用户或群"
 
     async def execute(
         self,
@@ -103,8 +103,8 @@ class GetFlashFileListTool(BaseTool):
     获取指定文件集的文件列表。
     """
 
-    tool_name = "get_flash_file_list"
-    tool_description = "获取指定文件集的文件列表"
+    name = "get_flash_file_list"
+    description = "获取指定文件集的文件列表"
 
     async def execute(
         self,
@@ -126,8 +126,8 @@ class GetFlashFileUrlTool(BaseTool):
     获取指定文件集中文件的下载 URL。
     """
 
-    tool_name = "get_flash_file_url"
-    tool_description = "获取指定文件集中文件的下载URL"
+    name = "get_flash_file_url"
+    description = "获取指定文件集中文件的下载URL"
 
     async def execute(
         self,
@@ -152,8 +152,8 @@ class GetShareLinkTool(BaseTool):
     获取指定文件集的分享链接。
     """
 
-    tool_name = "get_share_link"
-    tool_description = "获取指定文件集的分享链接"
+    name = "get_share_link"
+    description = "获取指定文件集的分享链接"
 
     async def execute(
         self,
@@ -175,8 +175,8 @@ class DownloadFilesetTool(BaseTool):
     下载指定文件集的全部文件。
     """
 
-    tool_name = "download_fileset"
-    tool_description = "下载指定文件集的全部文件"
+    name = "download_fileset"
+    description = "下载指定文件集的全部文件"
 
     async def execute(
         self,
@@ -198,8 +198,8 @@ class GetFilesetInfoTool(BaseTool):
     获取指定文件集的详细信息。
     """
 
-    tool_name = "get_fileset_info"
-    tool_description = "获取指定文件集的详细信息"
+    name = "get_fileset_info"
+    description = "获取指定文件集的详细信息"
 
     async def execute(
         self,
@@ -221,8 +221,8 @@ class GetFilesetIdTool(BaseTool):
     根据分享码解析出文件集 ID。
     """
 
-    tool_name = "get_fileset_id"
-    tool_description = "根据分享码解析出文件集ID"
+    name = "get_fileset_id"
+    description = "根据分享码解析出文件集ID"
 
     async def execute(
         self,
@@ -244,8 +244,8 @@ class ListFilesetsTool(BaseTool):
     列出当前账号的所有闪传文件集。
     """
 
-    tool_name = "list_filesets"
-    tool_description = "列出当前账号所有闪传文件集（SnowLuma扩展）"
+    name = "list_filesets"
+    description = "列出当前账号所有闪传文件集（SnowLuma扩展）"
 
     async def execute(
         self,
@@ -266,8 +266,8 @@ class DeleteFlashFileTool(BaseTool):
     根据文件集 ID 删除闪传文件。
     """
 
-    tool_name = "delete_flash_file"
-    tool_description = "根据文件集ID删除闪传文件（SnowLuma扩展）"
+    name = "delete_flash_file"
+    description = "根据文件集ID删除闪传文件（SnowLuma扩展）"
 
     async def execute(
         self,
@@ -288,8 +288,8 @@ class RenameFlashFileTool(BaseTool):
     根据文件集 ID 重命名闪传文件。
     """
 
-    tool_name = "rename_flash_file"
-    tool_description = "根据文件集ID重命名闪传文件（SnowLuma扩展）"
+    name = "rename_flash_file"
+    description = "根据文件集ID重命名闪传文件（SnowLuma扩展）"
 
     async def execute(
         self,
@@ -313,8 +313,8 @@ class GetFlashFileDownloadUrlsTool(BaseTool):
     对应 API: ``get_flash_file_download_urls``。
     """
 
-    tool_name = "get_flash_file_download_urls"
-    tool_description = "获取闪传文件集下载URL"
+    name = "get_flash_file_download_urls"
+    description = "获取闪传文件集下载URL"
 
     async def execute(
         self,
@@ -339,8 +339,8 @@ class UploadFlashFileTool(BaseTool):
     对应 API: ``upload_flash_file``。
     """
 
-    tool_name = "upload_flash_file"
-    tool_description = "上传闪传文件"
+    name = "upload_flash_file"
+    description = "上传闪传文件"
 
     async def execute(
         self,
@@ -365,8 +365,8 @@ class ReshareFlashFileTool(BaseTool):
     对应 API: ``reshare_flash_file``。
     """
 
-    tool_name = "reshare_flash_file"
-    tool_description = "重新分享闪传文件"
+    name = "reshare_flash_file"
+    description = "重新分享闪传文件"
 
     async def execute(
         self,

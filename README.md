@@ -1,16 +1,16 @@
 # OneBot Expand
 
-> OneBot v11 + NapCat 扩展 API 完整封装插件，通过 `onebot_adapter` 调用 NapCat / SnowLuma / LLBot 等协议端的全部扩展能力。
+> OneBot v11 + NapCat 扩展 API 完整封装插件，通过 `onebot_adapter` 调用 NapCat / SnowLuma / LLOneBot 等协议端的全部扩展能力。
 
 > 老实说，我并不清楚这是否违背了我的中心，在最开始只是想提供一点方便的api供后续的插件调用。不过……在这次执行中，我提供了一套简易的message id和对应的适配，让llm更方便的构建消息类型和使用工具。
 
 | 指标 | 值 |
 |---|---|
-| 版本 | 1.0.13 |
-| Tool 组件 | **211** 个（默认关闭，可按需启用） |
+| 版本 | 1.0.14 |
+| Tool 组件 | **216** 个（默认关闭，可按需启用） |
 | Service 组件 | **23** 个（始终可用） |
 | 依赖插件 | `onebot_adapter` |
-| 协议端兼容 | NapCat · SnowLuma · LLBot（按 API 单独标记兼容性） |
+| 协议端兼容 | NapCat · SnowLuma · LLOneBot（按 API 单独标记兼容性） |
 
 ## 依赖
 
@@ -32,13 +32,13 @@
 | 用户信息扩展 | 15 | UserExtService | 好友备注/分类/单向好友/资料/头像/点赞/个性装扮 |
 | 在线状态 | 4 | StatusService | 在线状态/DIY状态/输入状态 |
 | 戳一拍 | 2 | PokeService | 好友/群戳一拍 |
-| 表情/收藏扩展 | 12 | EmojiExtService | 收藏表情CRUD/详情/备注/移动/回应/推荐表情 |
+| 表情/收藏扩展 | 16 | EmojiExtService | 收藏表情CRUD、系统表情查询、回应、推荐表情 |
 | AI语音 | 3 | AiVoiceService | AI角色/语音生成 |
 | 凭证/安全/下载 | 8 | CredService | clientkey/credentials/rkey/URL安全/OCR/下载/解密 |
 | 机型/其他 | 19 | MiscService | 机型/退出/包状态/内联键盘/小程序/翻译/收藏/SSO/Protobuf/快速操作/分词/配置/事件/调试/扫码/频道 |
 | 闪传 | 14 | FlashService | 闪传任务/消息/文件列表/URL/分享/下载/文件集CRUD/上传/重分享 |
 | 群相册 | 9 | GroupAlbumService | 群相册列表/上传/评论/点赞/删除/创建 |
-| 群待办 | 3 | GroupTodoService | 群待办设置/完成/取消 |
+| 群待办 | 4 | GroupTodoService | 群待办查询/设置/完成/取消 |
 | QQ空间 | 9 | QzoneService | 说说列表/动态/发表/删除/点赞/评论/拉黑/权限 |
 | Ark分享 | 4 | ArkService | 用户/群Ark卡片分享 |
 
@@ -50,15 +50,15 @@
 
 - **api_client 层**：`_call_onebot_api` 统一调用入口，Service 与 Tool 共用，不依赖任何一层
 - **Service 层**（23 个）：始终可用，供其他插件程序化调用，通过 `api_client` 调协议端
-- **Tool 层**（211 个）：供 LLM 直接调用，默认全部关闭，可按需启用
+- **Tool 层**（216 个）：供 LLM 直接调用，默认全部关闭，可按需启用
 
 **当前状态**：Service 与事件处理器始终注册；Tool 仅在总开关和对应独立开关同时开启时动态注册。
 
 ### 调用链
 
 ```text
-其他插件 → Service.method → api_client._call_onebot_api → onebot_adapter → NapCat/SnowLuma/LLBot
-（Tool 恢复后）LLM → Tool.execute → api_client._call_onebot_api → onebot_adapter → NapCat/SnowLuma/LLBot
+其他插件 → Service.method → api_client._call_onebot_api → onebot_adapter → NapCat/SnowLuma/LLOneBot
+（Tool 恢复后）LLM → Tool.execute → api_client._call_onebot_api → onebot_adapter → NapCat/SnowLuma/LLOneBot
 ```
 
 ### 关键机制
@@ -116,7 +116,7 @@
 enable_all_tools = true          # Tool 总开关（默认 false，需显式开启）
 enable_send_group_msg = true     # 群聊消息发送（默认 false）
 enable_get_qzone_msg_list = true # QQ空间说说列表（默认 false）
-# ... 共 211 个独立开关
+# ... 共 216 个独立开关
 ```
 
 ✅ **Service 路径不受这些开关影响**——Service 方法始终可调用，供其他插件程序化使用。
@@ -125,7 +125,7 @@ enable_get_qzone_msg_list = true # QQ空间说说列表（默认 false）
 
 完整 API 名单见 [ACTION_INDEX.md](./docs/ACTION_INDEX.md)，按分类组织，含：
 
-- 主名 action 列表（211 个）
+- 主名 action 列表（216 个）
 - 别名映射表（18 个别名）
 - 每个 API 的来源标记、适配器兼容性
 - 按分类统计
@@ -143,11 +143,11 @@ enable_get_qzone_msg_list = true # QQ空间说说列表（默认 false）
 onebot_expand/
 ├── plugin.py              # 插件入口
 ├── config.py              # 配置定义
-├── api_defs.py            # API 元数据定义（211 个 APIDef）
+├── api_defs.py            # API 元数据定义（216 个 APIDef）
 ├── manifest.json          # 组件清单
 ├── path_mapper.py         # 文件路径映射
 ├── emoji_tables.py        # QQ 表情映射表
-├── tools/                 # 211 个 Tool 类
+├── tools/                 # 216 个 Tool 类
 │   ├── __init__.py        # Tool 注册 + 总开关包装器
 │   ├── message_tools.py
 │   ├── group_tools.py

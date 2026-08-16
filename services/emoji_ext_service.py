@@ -3,7 +3,7 @@
 封装 NapCat 表情/收藏扩展 API，提供收藏表情管理、
 表情回应查询等功能。
 
-API 列表 (10):
+API 列表 (16):
     - fetch_custom_face: 获取收藏表情
     - fetch_custom_face_detail: 获取收藏表情详情列表（NapCat 扩展）
     - add_custom_face: 添加收藏表情
@@ -14,6 +14,10 @@ API 列表 (10):
     - fetch_emoji_like: 获取表情回应分页
     - get_emoji_likes: 获取表情回应用户
     - set_group_reaction: 群聊消息表情回应（SnowLuma 扩展）
+    - fetch_sys_faces: 获取系统表情列表（SnowLuma 扩展）
+    - fetch_face_entity: 获取系统表情实体（SnowLuma 扩展）
+    - search_sys_faces: 搜索系统表情（SnowLuma 扩展）
+    - fetch_super_face_id: 获取超级表情 ID（SnowLuma 扩展）
 """
 
 from __future__ import annotations
@@ -52,6 +56,30 @@ class EmojiExtService(BaseService):
         """
         params: dict[str, Any] = {"count": count}
         return await _call_onebot_api("fetch_custom_face", params)
+
+    async def fetch_sys_faces(self, refresh: bool = False) -> dict[str, Any]:
+        """获取系统表情列表（SnowLuma 扩展）。"""
+        return await _call_onebot_api("fetch_sys_faces", {"refresh": refresh})
+
+    async def fetch_face_entity(
+        self, face_id: int, refresh: bool = False
+    ) -> dict[str, Any]:
+        """获取指定系统表情实体（SnowLuma 扩展）。"""
+        return await _call_onebot_api(
+            "fetch_face_entity", {"face_id": face_id, "refresh": refresh}
+        )
+
+    async def search_sys_faces(self, query: str) -> dict[str, Any]:
+        """按关键词搜索系统表情（SnowLuma 扩展）。"""
+        return await _call_onebot_api("search_sys_faces", {"query": query})
+
+    async def fetch_super_face_id(
+        self, face_id: int, refresh: bool = False
+    ) -> dict[str, Any]:
+        """获取超级表情 ID（SnowLuma 扩展）。"""
+        return await _call_onebot_api(
+            "fetch_super_face_id", {"face_id": face_id, "refresh": refresh}
+        )
 
     async def fetch_custom_face_detail(self, count: int = 48) -> dict[str, Any]:
         """获取收藏表情详情列表（NapCat 扩展）。
@@ -264,4 +292,3 @@ class EmojiExtService(BaseService):
             "emoji_id": emoji_id,
         }
         return await _call_onebot_api("unset_msg_emoji_like", params)
-

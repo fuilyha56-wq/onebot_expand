@@ -48,7 +48,7 @@ EXPECTED_ACTIONS = {
 
 def test_api_registry_has_expected_upstream_actions() -> None:
     """上游新增 action 应以精确参数契约注册。"""
-    assert len(ALL_APIS) == 211
+    assert len(ALL_APIS) == 216
     for action, params in EXPECTED_ACTIONS.items():
         assert ALL_APIS[action].params == params
 
@@ -63,7 +63,7 @@ def test_record_stream_registry_describes_backend_conversion_limit() -> None:
 
 def test_api_tools_switches_and_aliases_are_one_to_one() -> None:
     """主 action、Tool 与独立开关应严格一一对应且别名不冲突。"""
-    tool_names = [tool.tool_name for tool in ALL_TOOLS]
+    tool_names = [tool.name for tool in ALL_TOOLS]
     aliases = [alias for api in ALL_APIS.values() for alias in api.aliases]
     switch_fields = {
         field_name.removeprefix("enable_")
@@ -72,7 +72,7 @@ def test_api_tools_switches_and_aliases_are_one_to_one() -> None:
         if field_name != "enable_all_tools"
     }
 
-    assert len(ALL_TOOLS) == len(ALL_APIS) == len(tool_names) == 211
+    assert len(ALL_TOOLS) == len(ALL_APIS) == len(tool_names) == 216
     assert len(set(tool_names)) == len(tool_names)
     assert set(tool_names) == set(ALL_APIS)
     assert switch_fields == set(ALL_APIS)

@@ -40,8 +40,8 @@ class GetQzoneMsgListTool(BaseTool):
     获取当前 Bot 的 QQ 空间说说列表。
     """
 
-    tool_name = "get_qzone_msg_list"
-    tool_description = "获取当前Bot的QQ空间说说列表"
+    name = "get_qzone_msg_list"
+    description = "获取当前Bot的QQ空间说说列表"
 
     async def execute(
         self,
@@ -67,8 +67,8 @@ class GetQzoneFeedsTool(BaseTool):
     获取 QQ 空间好友动态列表。
     """
 
-    tool_name = "get_qzone_feeds"
-    tool_description = "获取QQ空间好友动态列表"
+    name = "get_qzone_feeds"
+    description = "获取QQ空间好友动态列表"
 
     async def execute(
         self,
@@ -94,8 +94,8 @@ class SendQzoneMsgTool(BaseTool):
     在 QQ 空间发表说说，支持纯文字或带图，可设置查看权限。
     """
 
-    tool_name = "send_qzone_msg"
-    tool_description = "在QQ空间发表说说（支持纯文字或带图，可设置查看权限）"
+    name = "send_qzone_msg"
+    description = "在QQ空间发表说说（支持纯文字或带图，可设置查看权限）"
 
     async def execute(
         self,
@@ -123,8 +123,8 @@ class DeleteQzoneMsgTool(BaseTool):
     删除 QQ 空间中指定的说说。
     """
 
-    tool_name = "delete_qzone_msg"
-    tool_description = "删除QQ空间中指定的说说"
+    name = "delete_qzone_msg"
+    description = "删除QQ空间中指定的说说"
 
     async def execute(
         self,
@@ -145,8 +145,8 @@ class LikeQzoneTool(BaseTool):
     对 QQ 空间说说点赞。
     """
 
-    tool_name = "like_qzone"
-    tool_description = "对QQ空间说说点赞"
+    name = "like_qzone"
+    description = "对QQ空间说说点赞"
 
     async def execute(
         self,
@@ -170,8 +170,8 @@ class UnlikeQzoneTool(BaseTool):
     取消对 QQ 空间说说的点赞。
     """
 
-    tool_name = "unlike_qzone"
-    tool_description = "取消对QQ空间说说的点赞"
+    name = "unlike_qzone"
+    description = "取消对QQ空间说说的点赞"
 
     async def execute(
         self,
@@ -195,8 +195,8 @@ class CommentQzoneTool(BaseTool):
     对 QQ 空间说说发表评论，支持纯文字或带图。
     """
 
-    tool_name = "comment_qzone"
-    tool_description = "对QQ空间说说发表评论（支持纯文字或带图）"
+    name = "comment_qzone"
+    description = "对QQ空间说说发表评论（支持纯文字或带图）"
 
     async def execute(
         self,
@@ -225,8 +225,8 @@ class SetQzoneBanTool(BaseTool):
     对应扩展 API: ``set_qzone_ban``。
     """
 
-    tool_name = "set_qzone_ban"
-    tool_description = "QQ空间拉黑或解除拉黑某人（SnowLuma 扩展）"
+    name = "set_qzone_ban"
+    description = "QQ空间拉黑或解除拉黑某人（SnowLuma 扩展）"
 
     async def execute(
         self,
@@ -250,8 +250,8 @@ class SetQzoneMsgRightTool(BaseTool):
     对应扩展 API: ``set_qzone_msg_right``。
     """
 
-    tool_name = "set_qzone_msg_right"
-    tool_description = "修改一条已发说说的查看权限（SnowLuma 扩展）"
+    name = "set_qzone_msg_right"
+    description = "修改一条已发说说的查看权限（SnowLuma 扩展）"
 
     async def execute(
         self,
