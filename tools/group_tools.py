@@ -50,8 +50,8 @@ class SetGroupKickTool(BaseTool):
     将指定群成员移出群聊，可选是否拒绝再次加群请求。
     """
 
-    name = "set_group_kick"
-    description = "踢出指定群成员"
+    tool_name = "set_group_kick"
+    tool_description = "踢出指定群成员"
 
     async def execute(
         self,
@@ -78,8 +78,8 @@ class SetGroupBanTool(BaseTool):
     对指定群成员设置禁言时长，duration 为 0 表示解除禁言。
     """
 
-    name = "set_group_ban"
-    description = "禁言指定群成员，duration为0表示解除禁言"
+    tool_name = "set_group_ban"
+    tool_description = "禁言指定群成员，duration为0表示解除禁言"
 
     async def execute(
         self,
@@ -109,8 +109,8 @@ class SetGroupAnonymousBanTool(BaseTool):
     需提供 anonymous（匿名对象）或 anonymous_flag（匿名 flag）之一。
     """
 
-    name = "set_group_anonymous_ban"
-    description = "禁言匿名群成员，需提供匿名对象或匿名flag"
+    tool_name = "set_group_anonymous_ban"
+    tool_description = "禁言匿名群成员，需提供匿名对象或匿名flag"
 
     async def execute(
         self,
@@ -146,8 +146,8 @@ class SetGroupWholeBanTool(BaseTool):
     开启或关闭群的全员禁言状态。
     """
 
-    name = "set_group_whole_ban"
-    description = "开启或关闭群的全员禁言"
+    tool_name = "set_group_whole_ban"
+    tool_description = "开启或关闭群的全员禁言"
 
     async def execute(
         self,
@@ -173,8 +173,8 @@ class SetGroupAdminTool(BaseTool):
     设置或取消指定群成员的管理员身份。
     """
 
-    name = "set_group_admin"
-    description = "设置或取消群成员的管理员身份"
+    tool_name = "set_group_admin"
+    tool_description = "设置或取消群成员的管理员身份"
 
     async def execute(
         self,
@@ -202,8 +202,8 @@ class SetGroupAnonymousTool(BaseTool):
     开启或关闭群的匿名聊天功能。
     """
 
-    name = "set_group_anonymous"
-    description = "开启或关闭群的匿名聊天功能"
+    tool_name = "set_group_anonymous"
+    tool_description = "开启或关闭群的匿名聊天功能"
 
     async def execute(
         self,
@@ -229,8 +229,8 @@ class SetGroupCardTool(BaseTool):
     修改指定群成员的群名片（群昵称）。
     """
 
-    name = "set_group_card"
-    description = "设置群成员的群名片（群昵称）"
+    tool_name = "set_group_card"
+    tool_description = "设置群成员的群名片（群昵称）"
 
     async def execute(
         self,
@@ -258,8 +258,8 @@ class SetGroupNameTool(BaseTool):
     修改指定群的群名称。
     """
 
-    name = "set_group_name"
-    description = "修改群名称"
+    tool_name = "set_group_name"
+    tool_description = "修改群名称"
 
     async def execute(
         self,
@@ -284,8 +284,8 @@ class SetGroupLeaveTool(BaseTool):
     退出指定群聊，可选是否解散群（仅群主可解散）。
     """
 
-    name = "set_group_leave"
-    description = "退出群聊，可选是否解散群（仅群主可解散）"
+    tool_name = "set_group_leave"
+    tool_description = "退出群聊，可选是否解散群（仅群主可解散）"
 
     async def execute(
         self,
@@ -311,8 +311,8 @@ class SetGroupSpecialTitleTool(BaseTool):
     修改指定群成员的专属头衔。
     """
 
-    name = "set_group_special_title"
-    description = "设置群成员的专属头衔"
+    tool_name = "set_group_special_title"
+    tool_description = "设置群成员的专属头衔"
 
     async def execute(
         self,
@@ -338,8 +338,8 @@ class SetGroupSpecialTitleTool(BaseTool):
 class SetGroupMemberInvitePolicyTool(BaseTool):
     """设置群成员邀请策略的 Tool。"""
 
-    name = "set_group_member_invite_policy"
-    description = "设置群成员邀请好友进群的审核策略"
+    tool_name = "set_group_member_invite_policy"
+    tool_description = "设置群成员邀请好友进群的审核策略"
 
     async def execute(
         self,
@@ -362,8 +362,8 @@ class SetGroupMemberInvitePolicyTool(BaseTool):
 class SetGroupMemberPermissionsTool(BaseTool):
     """设置群成员功能权限的 Tool。"""
 
-    name = "set_group_member_permissions"
-    description = "设置群成员上传相册、临时会话和创建群聊权限"
+    tool_name = "set_group_member_permissions"
+    tool_description = "设置群成员上传相册、临时会话和创建群聊权限"
 
     async def execute(
         self,
@@ -400,8 +400,8 @@ class SetGroupMemberPermissionsTool(BaseTool):
 class SetGroupNewMemberHistoryVisibilityTool(BaseTool):
     """设置新成员历史消息可见性的 Tool。"""
 
-    name = "set_group_new_member_history_visibility"
-    description = "设置新入群成员是否可见最近聊天记录"
+    tool_name = "set_group_new_member_history_visibility"
+    tool_description = "设置新入群成员是否可见最近聊天记录"
 
     async def execute(
         self,
