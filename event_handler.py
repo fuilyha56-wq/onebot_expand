@@ -1,8 +1,8 @@
-"""OneBot 入站消息元数据注入处理器。
+"""OneBot 入站消息预处理器。
 
 订阅 ``BEFORE_MESSAGE_RECEIVED`` 事件，在消息信封进入核心转换器之前，
 将机器人自身 ID（``self_id``）写入 ``envelope.message_info.extra``，
-供兼容桥（如 MofoxForAstrPulgins）推断 ``@机器人`` 唤醒状态。
+并丢弃机器人被单独或全体禁言期间到达的群消息。
 
 设计要点：
     - 仅处理来自 ``onebot_adapter`` 的信封，其他适配器原样放行。
@@ -11,12 +11,15 @@
       刷新，当前消息立即放行。这避免了在 WebSocket 接收循环的同一协程
       里发起同步 API 请求导致的死锁（接收循环等待 handler 完成，handler
       又在等待通过同一 WebSocket 返回的 API 响应）。
-    - 不修改消息内容，不拦截消息，始终返回 ``EventDecision.SUCCESS``。
+        - 禁言状态来自 OneBot 入站事件，不在 WebSocket 接收循环中调用 API。
+        - 仅明确识别为群消息且命中禁言状态时返回 ``EventDecision.STOP``。
+            私聊、其他 notice、未知字段和其他适配器消息均放行。
 """
 
 from __future__ import annotations
 
 import asyncio
+import time
 from typing import Any
 
 from src.app.plugin_system.base import BaseEventHandler
@@ -32,17 +35,18 @@ _SELF_ID_TTL: float = 300.0
 
 
 class SelfIdInjectHandler(BaseEventHandler):
-    """向入站信封注入机器人 ``self_id`` 的事件处理器。
+    """向入站信封注入元数据并过滤机器人禁言期间的消息。
 
     在 ``BEFORE_MESSAGE_RECEIVED`` 阶段读取 ``adapter_signature``，
     若来自 OneBot 适配器，则将 ``self_id`` 写入
-    ``envelope["message_info"]["extra"]["self_id"]``，供下游兼容桥使用。
+    ``envelope["message_info"]["extra"]["self_id"]``，并根据 OneBot
+    ``group_ban`` / ``group_whole_ban`` 事件维护禁言状态。
     """
 
     name: str = "self_id_inject_handler"
     description: str = "向 OneBot 入站消息注入 self_id，供兼容桥推断 @机器人 唤醒"
     weight: int = 50
-    intercept_message: bool = False
+    intercept_message: bool = True
     init_subscribe: list[EventType | str] = [EventType.BEFORE_MESSAGE_RECEIVED]
 
     def __init__(self, plugin: Any) -> None:
@@ -56,6 +60,8 @@ class SelfIdInjectHandler(BaseEventHandler):
         self._self_id_refreshed_at: float = 0.0
         self._refresh_lock: asyncio.Lock = asyncio.Lock()
         self._refreshing: bool = False
+        self._muted_until: dict[str, float] = {}
+        self._whole_muted_groups: set[str] = set()
 
     async def execute(
         self, event_name: str, params: dict[str, Any]
@@ -70,7 +76,8 @@ class SelfIdInjectHandler(BaseEventHandler):
             params: 事件参数，含 ``envelope`` 与 ``adapter_signature``
 
         Returns:
-            始终返回 ``EventDecision.SUCCESS`` 与（可能已修改的）params
+            禁言期间返回 ``EventDecision.STOP``，其他情况返回
+            ``EventDecision.SUCCESS`` 与（可能已修改的）params
         """
         adapter_signature = str(params.get("adapter_signature") or "")
         if not adapter_signature.startswith("onebot_adapter:"):
@@ -83,6 +90,10 @@ class SelfIdInjectHandler(BaseEventHandler):
         message_info = envelope.get("message_info")
         if not isinstance(message_info, dict):
             return EventDecision.SUCCESS, params
+
+        self._update_mute_state(envelope, message_info)
+        if self._is_message_muted(envelope, message_info):
+            return EventDecision.STOP, params
 
         self_id = self._cached_self_id()
         if not self_id:
@@ -100,14 +111,104 @@ class SelfIdInjectHandler(BaseEventHandler):
 
     def _cached_self_id(self) -> str:
         """返回未过期的缓存 self_id，否则空串。"""
-        import time
-
         if (
             self._self_id
             and (time.monotonic() - self._self_id_refreshed_at) < _SELF_ID_TTL
         ):
             return self._self_id
         return ""
+
+    def _update_mute_state(
+        self, envelope: dict[str, Any], message_info: dict[str, Any]
+    ) -> None:
+        """从 OneBot 禁言通知记录当前群的禁言状态。"""
+        event = self._extract_onebot_event(envelope, message_info)
+        if str(event.get("post_type") or "") != "notice":
+            return
+        notice_type = str(event.get("notice_type") or "")
+        group_id = self._as_key(event.get("group_id"))
+        if not group_id:
+            return
+
+        if notice_type in {"group_whole_ban", "group_whole_ban_status"}:
+            if self._as_bool(event.get("enable")):
+                self._whole_muted_groups.add(group_id)
+            else:
+                self._whole_muted_groups.discard(group_id)
+            return
+
+        if notice_type != "group_ban":
+            return
+
+        user_id = self._as_key(event.get("user_id"))
+        self_id = self._as_key(event.get("self_id")) or self._self_id
+        if not user_id or not self_id or user_id != self_id:
+            return
+
+        duration = max(0.0, self._as_float(event.get("duration")))
+        if str(event.get("sub_type") or "") == "lift_ban" or duration == 0:
+            self._muted_until.pop(group_id, None)
+            return
+        self._muted_until[group_id] = time.monotonic() + duration
+
+    def _is_message_muted(
+        self, envelope: dict[str, Any], message_info: dict[str, Any]
+    ) -> bool:
+        """判断普通群消息是否仍处于机器人禁言窗口内。"""
+        message_type = str(message_info.get("message_type") or "")
+        if message_type not in {"group", "message"}:
+            return False
+        group_info = message_info.get("group_info")
+        group_id = self._as_key(message_info.get("group_id"))
+        if not group_id and isinstance(group_info, dict):
+            group_id = self._as_key(group_info.get("group_id"))
+        if not group_id:
+            group_id = self._as_key(envelope.get("group_id"))
+        if not group_id:
+            return False
+        if group_id in self._whole_muted_groups:
+            return True
+        muted_until = self._muted_until.get(group_id, 0.0)
+        if muted_until > time.monotonic():
+            return True
+        self._muted_until.pop(group_id, None)
+        return False
+
+    @staticmethod
+    def _extract_onebot_event(
+        envelope: dict[str, Any], message_info: dict[str, Any]
+    ) -> dict[str, Any]:
+        """兼容 adapter 直挂、extra 和 raw_event 三种事件承载位置。"""
+        candidates = (
+            envelope.get("raw_event"),
+            message_info.get("raw_event"),
+            message_info.get("extra"),
+            message_info,
+        )
+        for candidate in candidates:
+            if isinstance(candidate, dict) and candidate.get("post_type"):
+                return candidate
+        return {}
+
+    @staticmethod
+    def _as_key(value: Any) -> str:
+        return str(value) if value is not None and str(value) else ""
+
+    @staticmethod
+    def _as_float(value: Any) -> float:
+        try:
+            return float(value or 0)
+        except (TypeError, ValueError):
+            return 0.0
+
+    @staticmethod
+    def _as_bool(value: Any) -> bool:
+        """解析 OneBot 可能以布尔值、数字或字符串传递的开关。"""
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return value != 0
+        return str(value or "").strip().lower() in {"1", "true", "yes", "on", "enable"}
 
     @staticmethod
     def _write_self_id(message_info: dict[str, Any], self_id: str) -> None:

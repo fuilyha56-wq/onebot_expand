@@ -3,9 +3,9 @@
 import json
 from pathlib import Path
 
-from onebot_expand.api_defs import ALL_APIS, APICategory, resolve_action
-from onebot_expand.config import OnebotExpandConfig
-from onebot_expand.tools import ALL_TOOLS
+from ..api_defs import ALL_APIS, APICategory, resolve_action
+from ..config import OnebotExpandConfig
+from ..tools import ALL_TOOLS
 
 EXPECTED_ACTIONS = {
     "download_file_record_stream": {

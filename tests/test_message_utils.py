@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import pytest
 
-from onebot_expand.message_utils import (
+from ..message_utils import (
     build_text_message,
     normalize_message_id,
     normalize_message_ids,
 )
-from onebot_expand.tools.message_tools import _normalize_forward_messages
+from ..tools.message_tools import _normalize_forward_messages
 
 
 def test_normalize_message_id_accepts_core_message_table_values() -> None:

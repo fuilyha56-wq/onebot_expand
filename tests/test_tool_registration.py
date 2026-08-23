@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from onebot_expand.config import OnebotExpandConfig
-from onebot_expand.event_handler import SelfIdInjectHandler
-from onebot_expand.plugin import OnebotExpandPlugin
-from onebot_expand.services import ALL_SERVICES
-from onebot_expand.tools import (
+from ..config import OnebotExpandConfig
+from ..event_handler import SelfIdInjectHandler
+from ..plugin import OnebotExpandPlugin
+from ..services import ALL_SERVICES
+from ..tools import (
     GetConfigTool,
     SendGroupMsgTool,
     SendOnlineFileTool,

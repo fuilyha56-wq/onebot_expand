@@ -6,7 +6,7 @@
 
 | 指标 | 值 |
 |---|---|
-| 版本 | 1.0.15 |
+| 版本 | 1.0.17 |
 | Tool 组件 | **216** 个（默认关闭，可按需启用） |
 | Service 组件 | **23** 个（始终可用） |
 | 依赖插件 | `onebot_adapter` |
@@ -39,8 +39,20 @@
 | 闪传 | 14 | FlashService | 闪传任务/消息/文件列表/URL/分享/下载/文件集CRUD/上传/重分享 |
 | 群相册 | 9 | GroupAlbumService | 群相册列表/上传/评论/点赞/删除/创建 |
 | 群待办 | 4 | GroupTodoService | 群待办查询/设置/完成/取消 |
-| QQ空间 | 9 | QzoneService | 说说列表/动态/发表/删除/点赞/评论/拉黑/权限 |
+| QQ空间 | 9 | QzoneService | 说说列表/动态/发表/删除/点赞/评论/拉黑/权限；内部提供详情与楼中楼兼容能力 |
 | Ark分享 | 4 | ArkService | 用户/群Ark卡片分享 |
+
+### QZone 详情兼容层
+
+`QzoneService` 保持 9 项公开 OneBot action 不变，同时提供仅供其他 Service 调用的
+`get_qzone_msg_detail(tid, host_uin)` 与 `reply_qzone_comment(...)`。当 SnowLuma 的
+公开列表或动态响应裁剪评论树时，这两个内部方法会通过既有 `get_cookies(qzone.qq.com)`
+取得当前会话 Cookie，创建短生命周期客户端，并按 QZone CGI 契约读取详情或发送楼中楼
+回复。
+
+Cookie 不会写入配置、持久化状态或日志，也不会注册为新的 OneBot action 或 LLM Tool。
+调用方必须使用详情响应中确认的顶层全局评论 ID；兼容请求失败时返回标准失败响应，不会
+退化为普通 `comment_qzone` 评论。
 
 ## 架构
 

@@ -6,7 +6,7 @@ import time
 
 import pytest
 
-from onebot_expand.event_handler import SelfIdInjectHandler
+from ..event_handler import SelfIdInjectHandler
 from src.app.plugin_system.types import EventType
 from src.kernel.event import EventDecision
 

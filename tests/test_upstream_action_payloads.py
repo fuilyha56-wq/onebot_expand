@@ -5,9 +5,9 @@ from typing import Any
 
 import pytest
 
-from onebot_expand import api_client
-from onebot_expand.config import OnebotExpandConfig
-from onebot_expand.services import (
+from .. import api_client
+from ..config import OnebotExpandConfig
+from ..services import (
     emoji_ext_service,
     file_service,
     group_file_service,
@@ -16,7 +16,7 @@ from onebot_expand.services import (
     misc_service,
     user_ext_service,
 )
-from onebot_expand.tools import (
+from ..tools import (
     emoji_ext_tools,
     file_tools,
     group_file_tools,
@@ -407,7 +407,7 @@ async def test_upload_file_stream_tool_preserves_zero_values(
         return {"status": "ok", "data": {"type": "stream"}}
 
     monkeypatch.setattr(file_service, "_call_onebot_api", fake_call)
-    monkeypatch.setattr("onebot_expand.tools.file_tools._call_onebot_api", fake_call)
+    monkeypatch.setattr(file_tools, "_call_onebot_api", fake_call)
 
     config = OnebotExpandConfig()
     config.api_switches.enable_all_tools = True
@@ -425,10 +425,7 @@ async def test_upload_file_stream_tool_preserves_zero_values(
         verify_only=False,
     )
     success, _ = (
-        await __import__(
-            "onebot_expand.tools.file_tools", fromlist=["UploadFileStreamTool"]
-        )
-        .UploadFileStreamTool(plugin=plugin)
+        await file_tools.UploadFileStreamTool(plugin=plugin)
         .execute(
             "stream-id",
             chunk_data="",

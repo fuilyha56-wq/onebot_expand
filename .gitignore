@@ -53,3 +53,7 @@ config/local_*.toml
 # Local development helpers (not part of plugin runtime)
 _diff_check.py
 SKILL.md
+
+# Runtime data / media cache / logs (added by DSH 2026-08-19)
+data/
+media_cache/

@@ -17,7 +17,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-
 __all__ = [
     "EmojiEntry",
     "SEND_EMOJI_TABLE",
