@@ -24,8 +24,8 @@ import sys
 # onebot_expand 包就是本目录的父目录
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from onebot_expand.api_defs import ALL_APIS
-from onebot_expand.tests import call_napcat, is_available
+from ..api_defs import ALL_APIS
+from . import call_napcat, is_available
 
 # 某些 action 用空参数会崩溃或产生副作用，用最小占位参数
 MIN_PARAMS: dict[str, dict] = {

@@ -237,6 +237,23 @@ class EmojiExtService(BaseService):
         }
         return await _call_onebot_api("get_emoji_likes", params)
 
+    async def get_msg_emoji_likes(self, message_id: MessageId) -> dict[str, Any]:
+        """获取一条消息的全部表情回应（SnowLuma 扩展）。
+
+        对应 SnowLuma 扩展 API: ``get_msg_emoji_likes``。
+        返回该消息上每个表情回应的编号、数量与用户列表。
+
+        Args:
+            message_id: 消息 ID。
+
+        Returns:
+            适配器返回的响应字典，包含全部表情回应列表。
+        """
+        params: dict[str, Any] = {
+            "message_id": message_id,
+        }
+        return await _call_onebot_api("get_msg_emoji_likes", params)
+
     async def set_group_reaction(
         self,
         message_id: MessageId,

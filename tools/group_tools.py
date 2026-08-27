@@ -1,6 +1,6 @@
 """群操作 API 的 Tool 组件。
 
-包含 13 个群操作 Tool，对应 OneBot v11 标准与 NapCat 扩展群操作 API：
+包含 14 个群操作 Tool，对应 OneBot v11 标准与 NapCat 扩展群操作 API：
     - set_group_kick: 踢出群成员
     - set_group_ban: 禁言群成员
     - set_group_anonymous_ban: 禁言匿名群成员
@@ -14,6 +14,7 @@
     - set_group_member_invite_policy: 设置群成员邀请策略
     - set_group_member_permissions: 设置群成员功能权限
     - set_group_new_member_history_visibility: 设置新成员历史消息可见性
+    - get_group_admin_settings: 获取群管理设置当前值（SnowLuma 扩展）
 
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
 """
@@ -40,6 +41,7 @@ __all__ = [
     "SetGroupMemberInvitePolicyTool",
     "SetGroupMemberPermissionsTool",
     "SetGroupNewMemberHistoryVisibilityTool",
+    "GetGroupAdminSettingsTool",
 ]
 
 
@@ -50,8 +52,8 @@ class SetGroupKickTool(BaseTool):
     将指定群成员移出群聊，可选是否拒绝再次加群请求。
     """
 
-    name = "set_group_kick"
-    description = "踢出指定群成员"
+    tool_name = "set_group_kick"
+    tool_description = "踢出指定群成员"
 
     async def execute(
         self,
@@ -78,8 +80,8 @@ class SetGroupBanTool(BaseTool):
     对指定群成员设置禁言时长，duration 为 0 表示解除禁言。
     """
 
-    name = "set_group_ban"
-    description = "禁言指定群成员，duration为0表示解除禁言"
+    tool_name = "set_group_ban"
+    tool_description = "禁言指定群成员，duration为0表示解除禁言"
 
     async def execute(
         self,
@@ -109,8 +111,8 @@ class SetGroupAnonymousBanTool(BaseTool):
     需提供 anonymous（匿名对象）或 anonymous_flag（匿名 flag）之一。
     """
 
-    name = "set_group_anonymous_ban"
-    description = "禁言匿名群成员，需提供匿名对象或匿名flag"
+    tool_name = "set_group_anonymous_ban"
+    tool_description = "禁言匿名群成员，需提供匿名对象或匿名flag"
 
     async def execute(
         self,
@@ -146,8 +148,8 @@ class SetGroupWholeBanTool(BaseTool):
     开启或关闭群的全员禁言状态。
     """
 
-    name = "set_group_whole_ban"
-    description = "开启或关闭群的全员禁言"
+    tool_name = "set_group_whole_ban"
+    tool_description = "开启或关闭群的全员禁言"
 
     async def execute(
         self,
@@ -173,8 +175,8 @@ class SetGroupAdminTool(BaseTool):
     设置或取消指定群成员的管理员身份。
     """
 
-    name = "set_group_admin"
-    description = "设置或取消群成员的管理员身份"
+    tool_name = "set_group_admin"
+    tool_description = "设置或取消群成员的管理员身份"
 
     async def execute(
         self,
@@ -202,8 +204,8 @@ class SetGroupAnonymousTool(BaseTool):
     开启或关闭群的匿名聊天功能。
     """
 
-    name = "set_group_anonymous"
-    description = "开启或关闭群的匿名聊天功能"
+    tool_name = "set_group_anonymous"
+    tool_description = "开启或关闭群的匿名聊天功能"
 
     async def execute(
         self,
@@ -229,8 +231,8 @@ class SetGroupCardTool(BaseTool):
     修改指定群成员的群名片（群昵称）。
     """
 
-    name = "set_group_card"
-    description = "设置群成员的群名片（群昵称）"
+    tool_name = "set_group_card"
+    tool_description = "设置群成员的群名片（群昵称）"
 
     async def execute(
         self,
@@ -258,8 +260,8 @@ class SetGroupNameTool(BaseTool):
     修改指定群的群名称。
     """
 
-    name = "set_group_name"
-    description = "修改群名称"
+    tool_name = "set_group_name"
+    tool_description = "修改群名称"
 
     async def execute(
         self,
@@ -284,8 +286,8 @@ class SetGroupLeaveTool(BaseTool):
     退出指定群聊，可选是否解散群（仅群主可解散）。
     """
 
-    name = "set_group_leave"
-    description = "退出群聊，可选是否解散群（仅群主可解散）"
+    tool_name = "set_group_leave"
+    tool_description = "退出群聊，可选是否解散群（仅群主可解散）"
 
     async def execute(
         self,
@@ -311,8 +313,8 @@ class SetGroupSpecialTitleTool(BaseTool):
     修改指定群成员的专属头衔。
     """
 
-    name = "set_group_special_title"
-    description = "设置群成员的专属头衔"
+    tool_name = "set_group_special_title"
+    tool_description = "设置群成员的专属头衔"
 
     async def execute(
         self,
@@ -338,8 +340,8 @@ class SetGroupSpecialTitleTool(BaseTool):
 class SetGroupMemberInvitePolicyTool(BaseTool):
     """设置群成员邀请策略的 Tool。"""
 
-    name = "set_group_member_invite_policy"
-    description = "设置群成员邀请好友进群的审核策略"
+    tool_name = "set_group_member_invite_policy"
+    tool_description = "设置群成员邀请好友进群的审核策略"
 
     async def execute(
         self,
@@ -362,8 +364,8 @@ class SetGroupMemberInvitePolicyTool(BaseTool):
 class SetGroupMemberPermissionsTool(BaseTool):
     """设置群成员功能权限的 Tool。"""
 
-    name = "set_group_member_permissions"
-    description = "设置群成员上传相册、临时会话和创建群聊权限"
+    tool_name = "set_group_member_permissions"
+    tool_description = "设置群成员上传相册、临时会话和创建群聊权限"
 
     async def execute(
         self,
@@ -400,8 +402,8 @@ class SetGroupMemberPermissionsTool(BaseTool):
 class SetGroupNewMemberHistoryVisibilityTool(BaseTool):
     """设置新成员历史消息可见性的 Tool。"""
 
-    name = "set_group_new_member_history_visibility"
-    description = "设置新入群成员是否可见最近聊天记录"
+    tool_name = "set_group_new_member_history_visibility"
+    tool_description = "设置新入群成员是否可见最近聊天记录"
 
     async def execute(
         self,
@@ -416,3 +418,26 @@ class SetGroupNewMemberHistoryVisibilityTool(BaseTool):
         if result.get("status") == "ok":
             return True, f"已设置群 {group_id} 的新成员历史消息可见性"
         return False, f"设置新成员历史消息可见性失败: {result.get('msg', '未知错误')}"
+
+
+class GetGroupAdminSettingsTool(BaseTool):
+    """获取群管理设置当前值的 Tool（SnowLuma 扩展）。
+
+    对应 SnowLuma API: ``get_group_admin_settings``。
+    返回加群选项、邀请策略、成员权限、搜索开关等当前值。
+    """
+
+    name = "get_group_admin_settings"
+    description = "获取群管理设置当前值（SnowLuma扩展）"
+
+    async def execute(
+        self,
+        group_id: Annotated[int, "目标群号"],
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行获取群管理设置。"""
+        params: dict[str, Any] = {"group_id": group_id}
+        result = await _call_onebot_api("get_group_admin_settings", params)
+        if result.get("status") == "ok":
+            data = result.get("data", {})
+            return True, data
+        return False, f"获取群管理设置失败: {result.get('msg', '未知错误')}"

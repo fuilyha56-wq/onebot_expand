@@ -399,6 +399,31 @@ class GetRecommendFaceTool(BaseTool):
 
 
 
+class GetMsgEmojiLikesTool(BaseTool):
+    """获取一条消息全部表情回应的 Tool（SnowLuma 扩展）。
+
+    对应 SnowLuma API: ``get_msg_emoji_likes``。
+    返回该消息上每个表情回应的编号、数量与用户列表。
+    """
+
+    name = "get_msg_emoji_likes"
+    description = "获取一条消息的全部表情回应（SnowLuma扩展）"
+
+    async def execute(
+        self,
+        message_id: Annotated[MessageId, "目标消息ID"],
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行获取消息全部表情回应。"""
+        params: dict[str, Any] = {
+            "message_id": message_id,
+        }
+        result = await _call_onebot_api("get_msg_emoji_likes", params)
+        if result.get("status") == "ok":
+            data = result.get("data", {})
+            return True, data
+        return False, f"获取消息全部表情回应失败: {result.get('msg', '未知错误')}"
+
+
 class UnsetMsgEmojiLikeTool(BaseTool):
     """取消消息表情回应的 Tool。
 

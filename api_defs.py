@@ -417,6 +417,13 @@ class ExpandAction:
     SEND_ARK_SHARE = "send_ark_share"
     SHARE_GROUP_EX = "share_group_ex"
     SEND_GROUP_ARK_SHARE = "send_group_ark_share"
+    SEND_TUWEN_ARK = "send_tuwen_ark"
+
+    # 表情回应扩展（SnowLuma）
+    GET_MSG_EMOJI_LIKES = "get_msg_emoji_likes"
+
+    # 群管理设置查询（SnowLuma）
+    GET_GROUP_ADMIN_SETTINGS = "get_group_admin_settings"
 
     # LLOneBot 扩展
     BATCH_DELETE_GROUP_MEMBER = "batch_delete_group_member"
@@ -744,13 +751,15 @@ ALL_APIS: dict[str, APIDef] = {
         action="set_group_anonymous_ban",
         category=APICategory.GROUP,
         source=APISource.ONEBOT_V11,
-        description="禁言匿名群成员",
+        description="禁言匿名群成员（三方协议端均未实现，仅保留标准定义）",
         params={
             "group_id": "int",
             "anonymous": "dict",
             "anonymous_flag": "str",
             "duration": "int",
         },
+        napcat_only=False,
+        snowluma_compat=False,
     ),
     OneBotAction.SET_GROUP_WHOLE_BAN: APIDef(
         action="set_group_whole_ban",
@@ -777,11 +786,13 @@ ALL_APIS: dict[str, APIDef] = {
         action="set_group_anonymous",
         category=APICategory.GROUP,
         source=APISource.ONEBOT_V11,
-        description="开启/关闭匿名聊天",
+        description="开启/关闭匿名聊天（三方协议端均未实现，仅保留标准定义）",
         params={
             "group_id": "int",
             "enable": "bool",
         },
+        napcat_only=False,
+        snowluma_compat=False,
     ),
     OneBotAction.SET_GROUP_CARD: APIDef(
         action="set_group_card",
@@ -860,6 +871,17 @@ ALL_APIS: dict[str, APIDef] = {
         params={
             "group_id": "str",
             "visible": "bool",
+        },
+        napcat_only=False,
+        snowluma_compat=True,
+    ),
+    ExpandAction.GET_GROUP_ADMIN_SETTINGS: APIDef(
+        action="get_group_admin_settings",
+        category=APICategory.GROUP,
+        source=APISource.EXPAND,
+        description="获取群管理设置当前值（SnowLuma 扩展，返回加群选项/邀请策略/成员权限/搜索开关等）",
+        params={
+            "group_id": "int",
         },
         napcat_only=False,
         snowluma_compat=True,
@@ -1858,6 +1880,17 @@ ALL_APIS: dict[str, APIDef] = {
             "emoji_id": "int",
         },
     ),
+    ExpandAction.GET_MSG_EMOJI_LIKES: APIDef(
+        action="get_msg_emoji_likes",
+        category=APICategory.EMOJI_EXT,
+        source=APISource.EXPAND,
+        description="获取一条消息的全部表情回应（SnowLuma 扩展，返回每个表情的编号/数量/用户列表）",
+        params={
+            "message_id": "int | str",
+        },
+        napcat_only=False,
+        snowluma_compat=True,
+    ),
     ExpandAction.SET_GROUP_REACTION: APIDef(
         action="set_group_reaction",
         category=APICategory.EMOJI_EXT,
@@ -2501,6 +2534,23 @@ ALL_APIS: dict[str, APIDef] = {
             "group_id": "int",
         },
     ),
+    ExpandAction.SEND_TUWEN_ARK: APIDef(
+        action="send_tuwen_ark",
+        category=APICategory.ARK,
+        source=APISource.EXPAND,
+        description="发送图文Ark卡片（SnowLuma 扩展，私聊/群聊二选一，返回 null 不可撤回）",
+        params={
+            "user_id": "int",
+            "group_id": "int",
+            "title": "str",
+            "desc": "str",
+            "summary": "str",
+            "preview_url": "str",
+            "jump_url": "str",
+        },
+        napcat_only=False,
+        snowluma_compat=True,
+    ),
     # ==================== LLOneBot 扩展 API (20) ====================
     ExpandAction.BATCH_DELETE_GROUP_MEMBER: APIDef(
         action="batch_delete_group_member",
@@ -2766,6 +2816,7 @@ GROUP_APIS: list[str] = [
     NapCatAction.SET_GROUP_MEMBER_INVITE_POLICY,
     NapCatAction.SET_GROUP_MEMBER_PERMISSIONS,
     NapCatAction.SET_GROUP_NEW_MEMBER_HISTORY_VISIBILITY,
+    ExpandAction.GET_GROUP_ADMIN_SETTINGS,
 ]
 
 FILE_APIS: list[str] = [
@@ -2905,6 +2956,7 @@ EMOJI_EXT_APIS: list[str] = [
     ExpandAction.MOVE_CUSTOM_FACE_TO_FRONT,
     ExpandAction.FETCH_EMOJI_LIKE,
     ExpandAction.GET_EMOJI_LIKES,
+    ExpandAction.GET_MSG_EMOJI_LIKES,
     ExpandAction.SET_GROUP_REACTION,
     ExpandAction.GET_RECOMMEND_FACE,
     ExpandAction.UNSET_MSG_EMOJI_LIKE,
@@ -3006,6 +3058,7 @@ ARK_APIS: list[str] = [
     ExpandAction.SEND_ARK_SHARE,
     ExpandAction.SHARE_GROUP_EX,
     ExpandAction.SEND_GROUP_ARK_SHARE,
+    ExpandAction.SEND_TUWEN_ARK,
 ]
 
 

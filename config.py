@@ -553,6 +553,10 @@ class OnebotExpandConfig(BaseConfig):
             default=False,
             description="是否启用 set_group_new_member_history_visibility API（设置新成员历史消息可见性，NapCat / SnowLuma 扩展）",
         )
+        enable_get_group_admin_settings: bool = Field(
+            default=False,
+            description="是否启用 get_group_admin_settings API（获取群管理设置当前值，SnowLuma 扩展）",
+        )
 
         # --- 文件类 API (5) ---
         enable_upload_group_file: bool = Field(
@@ -968,6 +972,10 @@ class OnebotExpandConfig(BaseConfig):
             default=False,
             description="是否启用 get_emoji_likes API（获取表情回应用户）",
         )
+        enable_get_msg_emoji_likes: bool = Field(
+            default=False,
+            description="是否启用 get_msg_emoji_likes API（获取消息全部表情回应，SnowLuma 扩展）",
+        )
         enable_fetch_sys_faces: bool = Field(
             default=False,
             description="是否启用 fetch_sys_faces API（获取系统表情列表，SnowLuma 扩展）",
@@ -1239,6 +1247,10 @@ class OnebotExpandConfig(BaseConfig):
         enable_send_group_ark_share: bool = Field(
             default=False,
             description="是否启用 send_group_ark_share API（发送群Ark分享）",
+        )
+        enable_send_tuwen_ark: bool = Field(
+            default=False,
+            description="是否启用 send_tuwen_ark API（发送图文Ark卡片，SnowLuma 扩展）",
         )
 
         # --- LLOneBot 扩展类 API (21) ---

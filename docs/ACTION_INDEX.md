@@ -1,6 +1,6 @@
 # onebot_expand API 索引名单
 
-> 共 **216** 个主名 action + **18** 个别名 · 覆盖 OneBot v11 / NapCat / SnowLuma / LLOneBot 四方协议端
+> 共 **219** 个主名 action + **18** 个别名 · 覆盖 OneBot v11 / NapCat / SnowLuma / LLOneBot 四方协议端
 
 **来源标记**：`OB11`=OneBot v11 标准 · `NapCat`=NapCat 扩展 · `go-cqhttp`=go-cqhttp 兼容 · `Expand`=插件扩展 · `LLOneBot`=LLOneBot 扩展
 
@@ -35,16 +35,16 @@
 | `_mark_all_as_read` | Expand | — | ✓ | — |
 | `upload_forward_msg` | Expand | — | ✓ | upload_foward_msg |
 
-### 群操作 (group, 13 个)
+### 群操作 (group, 14 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
 | `set_group_kick` | OB11 | — | ✓ | — |
 | `set_group_ban` | OB11 | — | ✓ | — |
-| `set_group_anonymous_ban` | OB11 | — | ✓ | — |
+| `set_group_anonymous_ban` | OB11 | — | ✗ | — |
 | `set_group_whole_ban` | OB11 | — | ✓ | — |
 | `set_group_admin` | OB11 | — | ✓ | — |
-| `set_group_anonymous` | OB11 | — | ✓ | — |
+| `set_group_anonymous` | OB11 | — | ✗ | — |
 | `set_group_card` | OB11 | — | ✓ | — |
 | `set_group_name` | OB11 | — | ✓ | — |
 | `set_group_leave` | OB11 | — | ✓ | — |
@@ -52,6 +52,7 @@
 | `set_group_member_invite_policy` | NapCat | — | ✓ | — |
 | `set_group_member_permissions` | NapCat | — | ✓ | — |
 | `set_group_new_member_history_visibility` | NapCat | — | ✓ | — |
+| `get_group_admin_settings` | Expand | — | ✓ | — |
 
 ### 文件操作 (file, 16 个)
 
@@ -217,7 +218,7 @@
 | `friend_poke` | Expand | — | ✓ | — |
 | `group_poke` | Expand | — | ✓ | — |
 
-### 表情/收藏扩展 (emoji_ext, 16 个)
+### 表情/收藏扩展 (emoji_ext, 17 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -230,6 +231,7 @@
 | `move_custom_face_to_front` | Expand | — | ✓ | — |
 | `fetch_emoji_like` | Expand | — | ✓ | — |
 | `get_emoji_likes` | Expand | — | ✓ | — |
+| `get_msg_emoji_likes` | Expand | — | ✓ | — |
 | `set_group_reaction` | Expand | — | ✓ | — |
 | `get_recommend_face` | LLOneBot | — | ✗ | — |
 | `unset_msg_emoji_like` | LLOneBot | — | ✗ | — |
@@ -339,7 +341,7 @@
 | `set_qzone_ban` | Expand | — | ✓ | — |
 | `set_qzone_msg_right` | Expand | — | ✓ | — |
 
-### Ark分享 (ark, 4 个)
+### Ark分享 (ark, 5 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -347,6 +349,7 @@
 | `send_ark_share` | Expand | — | ✓ | — |
 | `share_group_ex` | Expand | — | ✓ | — |
 | `send_group_ark_share` | Expand | — | ✓ | — |
+| `send_tuwen_ark` | Expand | — | ✓ | — |
 
 ---
 
@@ -382,6 +385,6 @@
 - **OB11**：32 个 — OneBot v11 标准 API
 - **NapCat**：23 个 — NapCat 扩展 API
 - **go-cqhttp**：20 个 — go-cqhttp 兼容 API
-- **Expand**：141 个 — 插件扩展 API（含 SnowLuma/LLOneBot 独有扩展）
+- **Expand**：144 个 — 插件扩展 API（含 SnowLuma/LLOneBot 独有扩展）
 
-**合计**：216 个主名 action + 18 个别名 = 234 个可调用名
+**合计**：219 个主名 action + 18 个别名 = 237 个可调用名

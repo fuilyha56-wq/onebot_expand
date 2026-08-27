@@ -5,9 +5,10 @@ from typing import Any
 
 import pytest
 
-from onebot_expand import api_client
-from onebot_expand.config import OnebotExpandConfig
-from onebot_expand.services import (
+from .. import api_client
+from ..config import OnebotExpandConfig
+from ..services import (
+    ark_service,
     emoji_ext_service,
     file_service,
     group_file_service,
@@ -16,7 +17,7 @@ from onebot_expand.services import (
     misc_service,
     user_ext_service,
 )
-from onebot_expand.tools import (
+from ..tools import (
     emoji_ext_tools,
     file_tools,
     group_file_tools,
@@ -54,6 +55,52 @@ async def test_new_snowluma_action_payloads(
         ("search_sys_faces", {"query": "开心"}),
         ("fetch_super_face_id", {"face_id": 14, "refresh": False}),
         ("get_group_todo_list", {"group_id": 10001}),
+    ]
+
+
+@pytest.mark.asyncio
+async def test_20260827_new_action_payloads(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """2026-08-27 新增的 SnowLuma action 应传递与上游 schema 一致的参数。"""
+    calls: list[tuple[str, dict[str, Any]]] = []
+
+    async def fake_call(action: str, params: dict[str, Any]) -> dict[str, Any]:
+        calls.append((action, params))
+        return {"status": "ok", "data": {}}
+
+    monkeypatch.setattr(group_service, "_call_onebot_api", fake_call)
+    monkeypatch.setattr(emoji_ext_service, "_call_onebot_api", fake_call)
+    monkeypatch.setattr(ark_service, "_call_onebot_api", fake_call)
+
+    group = group_service.GroupService(plugin=None)
+    emoji = emoji_ext_service.EmojiExtService(plugin=None)
+    ark = ark_service.ArkService(plugin=None)
+    await group.get_admin_settings(10001)
+    await emoji.get_msg_emoji_likes(-123456)
+    await ark.send_tuwen_ark(
+        title="标题",
+        desc="描述",
+        jump_url="https://example.com",
+        group_id=10001,
+    )
+    with pytest.raises(ValueError):
+        await ark.send_tuwen_ark(title="t", desc="d", jump_url="u")
+
+    assert calls == [
+        ("get_group_admin_settings", {"group_id": 10001}),
+        ("get_msg_emoji_likes", {"message_id": -123456}),
+        (
+            "send_tuwen_ark",
+            {
+                "title": "标题",
+                "desc": "描述",
+                "summary": "[分享]",
+                "preview_url": "https://tangram-1251316161.file.myqcloud.com/files/20210721/e50a8e37e08f29bf1ffc7466e1950690.png",
+                "jump_url": "https://example.com",
+                "group_id": 10001,
+            },
+        ),
     ]
 
 
@@ -407,7 +454,7 @@ async def test_upload_file_stream_tool_preserves_zero_values(
         return {"status": "ok", "data": {"type": "stream"}}
 
     monkeypatch.setattr(file_service, "_call_onebot_api", fake_call)
-    monkeypatch.setattr("onebot_expand.tools.file_tools._call_onebot_api", fake_call)
+    monkeypatch.setattr(file_tools, "_call_onebot_api", fake_call)
 
     config = OnebotExpandConfig()
     config.api_switches.enable_all_tools = True
@@ -425,10 +472,7 @@ async def test_upload_file_stream_tool_preserves_zero_values(
         verify_only=False,
     )
     success, _ = (
-        await __import__(
-            "onebot_expand.tools.file_tools", fromlist=["UploadFileStreamTool"]
-        )
-        .UploadFileStreamTool(plugin=plugin)
+        await file_tools.UploadFileStreamTool(plugin=plugin)
         .execute(
             "stream-id",
             chunk_data="",

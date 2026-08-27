@@ -347,6 +347,8 @@ class GroupService(BaseService):
     ) -> dict[str, Any]:
         """设置新成员历史消息可见性。
 
+        对应 NapCat / SnowLuma 扩展 API: ``set_group_new_member_history_visibility``。
+
         Args:
             group_id: 群号。
             visible: 新成员是否可见最近聊天记录。
@@ -358,3 +360,19 @@ class GroupService(BaseService):
             "set_group_new_member_history_visibility",
             {"group_id": group_id, "visible": visible},
         )
+
+    async def get_admin_settings(self, group_id: int) -> dict[str, Any]:
+        """获取群管理设置当前值（SnowLuma 扩展）。
+
+        对应 SnowLuma 扩展 API: ``get_group_admin_settings``。
+        返回加群选项、邀请策略、成员权限、搜索开关等字段的当前值，
+        字段与对应设置接口对齐。
+
+        Args:
+            group_id: 群号。
+
+        Returns:
+            适配器返回的响应字典，包含全部群管理设置当前值。
+        """
+        params: dict[str, Any] = {"group_id": group_id}
+        return await _call_onebot_api("get_group_admin_settings", params)

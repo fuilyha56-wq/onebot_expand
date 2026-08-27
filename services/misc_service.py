@@ -14,15 +14,15 @@ API 列表 (19):
     - create_collection: 创建收藏
     - get_collection_list: 获取收藏列表
     - send_packet: 发送原始SSO包
-    - send_pb: 发送原始 Protobuf 数据（LLOneBot 扩展）
+    - send_pb: 发送原始 Protobuf 数据（LLBot 扩展）
     - handle_quick_operation: go-cqhttp 快速操作
     - get_word_slices: go-cqhttp 分词
-    - get_config: 获取协议端配置（LLOneBot 扩展）
-    - set_config: 设置协议端配置（LLOneBot 扩展）
-    - get_event: 获取事件（LLOneBot 扩展）
-    - llonebot_debug: 调用协议端内部 API（LLOneBot 扩展）
-    - scan_qrcode: 扫码登录（LLOneBot 扩展）
-    - get_guild_list: 获取频道列表（NapCat/LLOneBot 扩展）
+    - get_config: 获取协议端配置（LLBot 扩展）
+    - set_config: 设置协议端配置（LLBot 扩展）
+    - get_event: 获取事件（LLBot 扩展）
+    - llonebot_debug: 调用协议端内部 API（LLBot 扩展）
+    - scan_qrcode: 扫码登录（LLBot 扩展）
+    - get_guild_list: 获取频道列表（NapCat/LLBot 扩展）
 """
 
 from __future__ import annotations
@@ -214,7 +214,7 @@ class MiscService(BaseService):
         return await _call_onebot_api("send_packet", params)
 
     async def send_pb(self, cmd: str, hex_data: str) -> dict[str, Any]:
-        """发送原始 Protobuf 数据（LLOneBot 扩展）。
+        """发送原始 Protobuf 数据（LLBot 扩展）。
 
         Args:
             cmd: 命令名。
