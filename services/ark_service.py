@@ -105,3 +105,48 @@ class ArkService(BaseService):
         """
         params: dict[str, Any] = {"group_id": group_id}
         return await _call_onebot_api("send_group_ark_share", params)
+
+    async def send_tuwen_ark(
+        self,
+        title: str,
+        desc: str,
+        jump_url: str,
+        user_id: int | None = None,
+        group_id: int | None = None,
+        summary: str = "[分享]",
+        preview_url: str = "https://tangram-1251316161.file.myqcloud.com/files/20210721/e50a8e37e08f29bf1ffc7466e1950690.png",
+    ) -> dict[str, Any]:
+        """发送图文Ark卡片（SnowLuma 扩展）。
+
+        对应 SnowLuma 扩展 API: ``send_tuwen_ark``。
+        发送固定图文 ark 模板到私聊或群聊，返回 null（无法用于撤回/设精华）。
+
+        Args:
+            title: 卡片标题。
+            desc: 卡片描述。
+            jump_url: 跳转链接。
+            user_id: 目标用户 QQ 号，与 group_id 二选一。
+            group_id: 目标群号，与 user_id 二选一。
+            summary: 卡片摘要，默认 "[分享]"。
+            preview_url: 预览图 URL，默认为 SnowLuma 内置占位图。
+
+        Returns:
+            适配器返回的响应字典（data 为 null）。
+
+        Raises:
+            ValueError: user_id 与 group_id 未二选一时抛出。
+        """
+        if (user_id is None) == (group_id is None):
+            raise ValueError("user_id 与 group_id 必须二选一（恰好提供一个）")
+        params: dict[str, Any] = {
+            "title": title,
+            "desc": desc,
+            "summary": summary,
+            "preview_url": preview_url,
+            "jump_url": jump_url,
+        }
+        if group_id is not None:
+            params["group_id"] = group_id
+        else:
+            params["user_id"] = user_id
+        return await _call_onebot_api("send_tuwen_ark", params)

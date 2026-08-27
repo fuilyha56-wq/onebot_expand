@@ -22,6 +22,8 @@
 
 from __future__ import annotations
 
+import asyncio
+import time
 from typing import Any
 
 from src.app.plugin_system.base import BaseService
@@ -30,6 +32,17 @@ from ..api_client import _call_onebot_api
 from ..qzone_compat import QzoneCompatibilityClient, QzoneCompatibilityError
 
 __all__ = ["QzoneService"]
+
+#: 兼容层 Cookie 缓存有效期（秒）。QZone Cookie 通常数小时有效，
+#: 短 TTL 缓存可避免一轮轮询内重复请求 ``get_cookies`` 触发风控。
+_COOKIE_CACHE_TTL_SECONDS = 300.0
+
+#: 类级共享 Cookie 缓存：``(cookie 字符串, 到期时间戳)``。
+#:
+#: Service 每次构造新实例（非单例），实例级缓存无法跨调用复用；
+#: Cookie 对同一 Bot 账号全局一致，因此放在类级并配合并发去重锁。
+_SHARED_COOKIE_CACHE: tuple[str, float] | None = None
+_COOKIE_FETCH_LOCK = asyncio.Lock()
 
 
 class QzoneService(BaseService):
@@ -41,7 +54,7 @@ class QzoneService(BaseService):
 
     name: str = "qzone_service"
     description: str = "QQ空间服务"
-    version: str = "1.0.0"
+    version: str = "1.0.1"
 
     @staticmethod
     def _compatibility_failure(error: Exception) -> dict[str, Any]:
@@ -55,24 +68,45 @@ class QzoneService(BaseService):
             "wording": message,
         }
 
+    @classmethod
+    def _invalidate_cookie_cache(cls) -> None:
+        """清除类级共享 Cookie 缓存，下次请求重新拉取。"""
+        global _SHARED_COOKIE_CACHE
+        _SHARED_COOKIE_CACHE = None
+
     async def _get_compatibility_client(self) -> QzoneCompatibilityClient:
-        """经协议端获取当前 QZone Cookie 并创建短生命周期兼容客户端。"""
-        response = await _call_onebot_api(
-            "get_cookies",
-            {"domain": "qzone.qq.com"},
-        )
-        if str(response.get("status", "")).lower() != "ok":
-            message = str(
-                response.get("msg")
-                or response.get("wording")
-                or "协议端未返回 QZone Cookie。"
+        """经协议端获取当前 QZone Cookie 并创建短生命周期兼容客户端。
+
+        Cookie 使用类级缓存（TTL 内直接复用），并发调用在锁内去重，
+        避免一轮轮询对协议端发起数十次 ``get_cookies`` 请求。
+        """
+        global _SHARED_COOKIE_CACHE
+        async with _COOKIE_FETCH_LOCK:
+            now = time.monotonic()
+            if _SHARED_COOKIE_CACHE is not None:
+                cookie_string, expires_at = _SHARED_COOKIE_CACHE
+                if now < expires_at:
+                    return QzoneCompatibilityClient(cookie_string)
+            response = await _call_onebot_api(
+                "get_cookies",
+                {"domain": "qzone.qq.com"},
             )
-            raise QzoneCompatibilityError(message)
-        data = response.get("data")
-        cookies = data.get("cookies") if isinstance(data, dict) else None
-        if not isinstance(cookies, str) or not cookies.strip():
-            raise QzoneCompatibilityError("协议端返回的 QZone Cookie 为空。")
-        return QzoneCompatibilityClient(cookies)
+            if str(response.get("status", "")).lower() != "ok":
+                message = str(
+                    response.get("msg")
+                    or response.get("wording")
+                    or "协议端未返回 QZone Cookie。"
+                )
+                raise QzoneCompatibilityError(message)
+            data = response.get("data")
+            cookies = data.get("cookies") if isinstance(data, dict) else None
+            if not isinstance(cookies, str) or not cookies.strip():
+                raise QzoneCompatibilityError("协议端返回的 QZone Cookie 为空。")
+            _SHARED_COOKIE_CACHE = (
+                cookies,
+                now + _COOKIE_CACHE_TTL_SECONDS,
+            )
+            return QzoneCompatibilityClient(cookies)
 
     async def _load_self_uin(self) -> int:
         """通过标准 OneBot 登录信息读取当前 Bot QQ。"""

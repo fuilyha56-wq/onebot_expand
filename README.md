@@ -6,8 +6,8 @@
 
 | 指标 | 值 |
 |---|---|
-| 版本 | 1.0.17 |
-| Tool 组件 | **216** 个（默认关闭，可按需启用） |
+| 版本 | 1.0.19 |
+| Tool 组件 | **219** 个（默认关闭，可按需启用） |
 | Service 组件 | **23** 个（始终可用） |
 | 依赖插件 | `onebot_adapter` |
 | 协议端兼容 | NapCat · SnowLuma · LLOneBot（按 API 单独标记兼容性） |
@@ -21,7 +21,7 @@
 | 模块 | Tool 数 | Service | 说明 |
 |---|---|---|---|
 | 消息 | 20 | MessageService | 群/私聊消息发送、转发、撤回、已读标记 |
-| 群操作 | 13 | GroupService | 禁言、踢出、管理、头衔、成员权限与邀请策略等 |
+| 群操作 | 14 | GroupService | 禁言、踢出、管理、头衔、成员权限与邀请策略、管理设置查询等 |
 | 文件操作 | 16 | FileService | 群/私聊文件上传、图片/语音获取、在线文件、流式传输 |
 | 账号信息 | 10 | AccountService | 登录号、好友、群列表与详情查询 |
 | NapCat 扩展 | 15 | NapcatExtService | Cookies、CSRF、状态、精华消息等 |
@@ -32,7 +32,7 @@
 | 用户信息扩展 | 15 | UserExtService | 好友备注/分类/单向好友/资料/头像/点赞/个性装扮 |
 | 在线状态 | 4 | StatusService | 在线状态/DIY状态/输入状态 |
 | 戳一拍 | 2 | PokeService | 好友/群戳一拍 |
-| 表情/收藏扩展 | 16 | EmojiExtService | 收藏表情CRUD、系统表情查询、回应、推荐表情 |
+| 表情/收藏扩展 | 17 | EmojiExtService | 收藏表情CRUD、系统表情查询、回应（含消息全部回应）、推荐表情 |
 | AI语音 | 3 | AiVoiceService | AI角色/语音生成 |
 | 凭证/安全/下载 | 8 | CredService | clientkey/credentials/rkey/URL安全/OCR/下载/解密 |
 | 机型/其他 | 19 | MiscService | 机型/退出/包状态/内联键盘/小程序/翻译/收藏/SSO/Protobuf/快速操作/分词/配置/事件/调试/扫码/频道 |
@@ -40,7 +40,7 @@
 | 群相册 | 9 | GroupAlbumService | 群相册列表/上传/评论/点赞/删除/创建 |
 | 群待办 | 4 | GroupTodoService | 群待办查询/设置/完成/取消 |
 | QQ空间 | 9 | QzoneService | 说说列表/动态/发表/删除/点赞/评论/拉黑/权限；内部提供详情与楼中楼兼容能力 |
-| Ark分享 | 4 | ArkService | 用户/群Ark卡片分享 |
+| Ark分享 | 5 | ArkService | 用户/群Ark卡片分享、图文Ark卡片 |
 
 ### QZone 详情兼容层
 
@@ -62,7 +62,7 @@ Cookie 不会写入配置、持久化状态或日志，也不会注册为新的 
 
 - **api_client 层**：`_call_onebot_api` 统一调用入口，Service 与 Tool 共用，不依赖任何一层
 - **Service 层**（23 个）：始终可用，供其他插件程序化调用，通过 `api_client` 调协议端
-- **Tool 层**（216 个）：供 LLM 直接调用，默认全部关闭，可按需启用
+- **Tool 层**（219 个）：供 LLM 直接调用，默认全部关闭，可按需启用
 
 **当前状态**：Service 与事件处理器始终注册；Tool 仅在总开关和对应独立开关同时开启时动态注册。
 
@@ -132,7 +132,7 @@ enable_send_group_msg = true     # 群聊消息发送（默认 false）
 
 [api_switches.qzone]
 enable_get_qzone_msg_list = true # QQ空间说说列表（默认 false）
-# ... 共 216 个独立开关
+# ... 共 219 个独立开关
 ```
 
 ✅ **Service 路径不受这些开关影响**——Service 方法始终可调用，供其他插件程序化使用。
@@ -141,7 +141,7 @@ enable_get_qzone_msg_list = true # QQ空间说说列表（默认 false）
 
 完整 API 名单见 [ACTION_INDEX.md](./docs/ACTION_INDEX.md)，按分类组织，含：
 
-- 主名 action 列表（216 个）
+- 主名 action 列表（219 个）
 - 别名映射表（18 个别名）
 - 每个 API 的来源标记、适配器兼容性
 - 按分类统计
@@ -159,11 +159,11 @@ enable_get_qzone_msg_list = true # QQ空间说说列表（默认 false）
 onebot_expand/
 ├── plugin.py              # 插件入口
 ├── config.py              # 配置定义
-├── api_defs.py            # API 元数据定义（216 个 APIDef）
+├── api_defs.py            # API 元数据定义（219 个 APIDef）
 ├── manifest.json          # 组件清单
 ├── path_mapper.py         # 文件路径映射
 ├── emoji_tables.py        # QQ 表情映射表
-├── tools/                 # 216 个 Tool 类
+├── tools/                 # 219 个 Tool 类
 │   ├── __init__.py        # Tool 注册 + 总开关包装器
 │   ├── message_tools.py
 │   ├── group_tools.py

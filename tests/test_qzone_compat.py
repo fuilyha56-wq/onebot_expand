@@ -300,7 +300,11 @@ async def test_user_feeds_replace_summary_comments_with_detail_and_keep_fallback
 async def test_qzone_service_uses_snowluma_cookie_for_detail_and_reply(
     monkeypatch: object,
 ) -> None:
-    """Service 应经现有 get_cookies action 调用详情与楼中楼兼容客户端。"""
+    """Service 应经现有 get_cookies action 调用详情与楼中楼兼容客户端。
+
+    Cookie 在类级缓存 TTL 内复用：三次兼容调用只触发一次
+    ``get_cookies``，避免一轮轮询对协议端发起数十次 Cookie 请求。
+    """
     calls: list[tuple[str, dict[str, object]]] = []
     created_cookies: list[str] = []
 
@@ -346,6 +350,7 @@ async def test_qzone_service_uses_snowluma_cookie_for_detail_and_reply(
         "QzoneCompatibilityClient",
         FakeCompatibilityClient,
     )
+    qzone_service.QzoneService._invalidate_cookie_cache()
     service = qzone_service.QzoneService(plugin=None)
 
     detail = await service.get_qzone_msg_detail("post-1", 10000)
@@ -393,8 +398,61 @@ async def test_qzone_service_uses_snowluma_cookie_for_detail_and_reply(
         "uin=o10000; p_skey=test-p-skey",
         "uin=o10000; p_skey=test-p-skey",
     ]
-    assert calls == [
-        ("get_cookies", {"domain": "qzone.qq.com"}),
-        ("get_cookies", {"domain": "qzone.qq.com"}),
-        ("get_cookies", {"domain": "qzone.qq.com"}),
-    ]
+    # TTL 缓存生效：三次兼容调用仅一次 get_cookies。
+    assert calls == [("get_cookies", {"domain": "qzone.qq.com"})]
+    qzone_service.QzoneService._invalidate_cookie_cache()
+
+
+def test_qzone_service_cookie_cache_expires_and_dedupes_concurrent_calls() -> None:
+    """Cookie 缓存过期后应重新拉取，并发调用应在锁内去重。"""
+    import asyncio
+
+    from ..services import qzone_service as module
+
+    async def scenario() -> tuple[int, int]:
+        fetch_count = 0
+        client_count = 0
+
+        class FakeClient:
+            def __init__(self, cookie_string: str) -> None:
+                nonlocal client_count
+                client_count += 1
+
+            async def get_msg_detail(
+                self,
+                host_uin: int,
+                tid: str,
+            ) -> dict[str, object]:
+                return {"tid": tid, "uin": host_uin, "commentlist": []}
+
+        async def fake_call(action: str, params: dict[str, object]) -> dict[str, object]:
+            nonlocal fetch_count
+            fetch_count += 1
+            return {
+                "status": "ok",
+                "retcode": 0,
+                "data": {"cookies": f"uin=o10000; p_skey=k{fetch_count}"},
+            }
+
+        module._call_onebot_api = fake_call  # type: ignore[assignment]
+        module.QzoneCompatibilityClient = FakeClient  # type: ignore[assignment,misc]
+        module.QzoneService._invalidate_cookie_cache()
+
+        service = module.QzoneService(plugin=None)
+
+        async def call_detail() -> None:
+            await service.get_qzone_msg_detail("post-1", 10000)
+
+        # 并发 5 个请求：锁内去重后只允许一次真实拉取。
+        await asyncio.gather(*(call_detail() for _ in range(5)))
+        concurrent_fetches = fetch_count
+
+        # 模拟缓存过期：清空缓存时间戳。
+        module._SHARED_COOKIE_CACHE = None
+        await call_detail()
+        return concurrent_fetches, fetch_count - concurrent_fetches
+
+    concurrent_fetches, refetches = asyncio.run(scenario())
+    assert concurrent_fetches == 1
+    assert refetches == 1
+    module.QzoneService._invalidate_cookie_cache()

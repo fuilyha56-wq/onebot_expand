@@ -2,7 +2,7 @@
 
 导出全部 216 个 Tool 类，按功能域分组：
     - 消息相关 (20): message_tools
-    - 群操作 (10): group_tools
+    - 群操作 (14): group_tools
     - 文件操作 (16): file_tools
     - 账号信息 (10): account_tools
     - NapCat 扩展 (15): napcat_tools
@@ -13,7 +13,7 @@
     - 用户信息扩展 (14): user_ext_tools
     - 在线状态 (4): status_tools
     - 戳一拍 (2): poke_tools
-    - 表情/收藏扩展 (16): emoji_ext_tools
+    - 表情/收藏扩展 (17): emoji_ext_tools
     - AI语音 (3): ai_voice_tools
     - 凭证/安全/下载 (8): cred_tools
     - 机型/其他 (18): misc_tools
@@ -21,7 +21,7 @@
     - 群相册 (9): group_album_tools
     - 群待办 (4): group_todo_tools
     - QQ空间 (9): qzone_tools
-    - Ark分享 (4): ark_tools
+    - Ark分享 (5): ark_tools
 
 同时导出模块级共享函数 ``_call_onebot_api``，供各 Tool 模块统一调用。
 """
@@ -56,7 +56,7 @@ __all__ = [
     "MarkPrivateMsgAsReadTool",
     "MarkAllAsReadTool",
     "UploadForwardMsgTool",
-    # 群操作 Tool (10)
+    # 群操作 Tool (14)
     "SetGroupKickTool",
     "SetGroupBanTool",
     "SetGroupAnonymousBanTool",
@@ -70,6 +70,7 @@ __all__ = [
     "SetGroupMemberInvitePolicyTool",
     "SetGroupMemberPermissionsTool",
     "SetGroupNewMemberHistoryVisibilityTool",
+    "GetGroupAdminSettingsTool",
     # 文件操作 Tool (11)
     "UploadGroupFileTool",
     "UploadPrivateFileTool",
@@ -180,6 +181,7 @@ __all__ = [
     "MoveCustomFaceToFrontTool",
     "FetchEmojiLikeTool",
     "GetEmojiLikesTool",
+    "GetMsgEmojiLikesTool",
     "SetGroupReactionTool",
     # AI语音 Tool (3)
     "GetAiCharactersTool",
@@ -242,11 +244,12 @@ __all__ = [
     "CommentQzoneTool",
     "SetQzoneBanTool",
     "SetQzoneMsgRightTool",
-    # Ark分享 Tool (4)
+    # Ark分享 Tool (5)
     "SharePeerTool",
     "SendArkShareTool",
     "ShareGroupExTool",
     "SendGroupArkShareTool",
+    "SendTuwenArkTool",
     # 全部 Tool 类列表
     "ALL_TOOLS",
 ]
@@ -284,6 +287,7 @@ from .message_tools import (  # noqa: E402
     UploadForwardMsgTool,
 )
 from .group_tools import (  # noqa: E402
+    GetGroupAdminSettingsTool,
     SetGroupAdminTool,
     SetGroupAnonymousBanTool,
     SetGroupAnonymousTool,
@@ -425,6 +429,7 @@ from .emoji_ext_tools import (  # noqa: E402
     FetchSuperFaceIdTool,
     FetchSysFacesTool,
     GetEmojiLikesTool,
+    GetMsgEmojiLikesTool,
     GetRecommendFaceTool,
     ModifyCustomFaceTool,
     MoveCustomFaceToFrontTool,
@@ -516,6 +521,7 @@ from .qzone_tools import (  # noqa: E402
 from .ark_tools import (  # noqa: E402
     SendArkShareTool,
     SendGroupArkShareTool,
+    SendTuwenArkTool,
     ShareGroupExTool,
     SharePeerTool,
 )
@@ -543,7 +549,7 @@ ALL_TOOLS: list[type] = [
     MarkPrivateMsgAsReadTool,
     MarkAllAsReadTool,
     UploadForwardMsgTool,
-    # 群操作 (13)
+    # 群操作 (14)
     SetGroupKickTool,
     SetGroupBanTool,
     SetGroupAnonymousBanTool,
@@ -557,6 +563,7 @@ ALL_TOOLS: list[type] = [
     SetGroupMemberInvitePolicyTool,
     SetGroupMemberPermissionsTool,
     SetGroupNewMemberHistoryVisibilityTool,
+    GetGroupAdminSettingsTool,
     # 文件操作 (11)
     UploadGroupFileTool,
     UploadPrivateFileTool,
@@ -657,7 +664,7 @@ ALL_TOOLS: list[type] = [
     # 戳一拍 (2)
     FriendPokeTool,
     GroupPokeTool,
-    # 表情/收藏扩展 (10)
+    # 表情/收藏扩展 (17)
     FetchCustomFaceTool,
     FetchCustomFaceDetailTool,
     AddCustomFaceTool,
@@ -667,6 +674,7 @@ ALL_TOOLS: list[type] = [
     MoveCustomFaceToFrontTool,
     FetchEmojiLikeTool,
     GetEmojiLikesTool,
+    GetMsgEmojiLikesTool,
     SetGroupReactionTool,
     # AI语音 (3)
     GetAiCharactersTool,
@@ -729,11 +737,12 @@ ALL_TOOLS: list[type] = [
     CommentQzoneTool,
     SetQzoneBanTool,
     SetQzoneMsgRightTool,
-    # Ark分享 (4)
+    # Ark分享 (5)
     SharePeerTool,
     SendArkShareTool,
     ShareGroupExTool,
     SendGroupArkShareTool,
+    SendTuwenArkTool,
     # group_ext_tools 新增
     BatchDeleteGroupMemberTool,
     SetGroupMsgMaskTool,

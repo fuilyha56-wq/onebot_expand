@@ -1,10 +1,11 @@
 """Ark分享 API 的 Tool 组件。
 
-包含 4 个 Ark 分享 Tool，对应 NapCat Ark 分享 API：
+包含 5 个 Ark 分享 Tool，对应 NapCat / SnowLuma Ark 分享 API：
     - share_peer: 分享用户/群Ark卡片
     - send_ark_share: 分享Ark卡片
     - share_group_ex: 分享群Ark卡片
     - send_group_ark_share: 发送群Ark分享
+    - send_tuwen_ark: 发送图文Ark卡片（SnowLuma 扩展）
 
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
 """
@@ -22,6 +23,7 @@ __all__ = [
     "SendArkShareTool",
     "ShareGroupExTool",
     "SendGroupArkShareTool",
+    "SendTuwenArkTool",
 ]
 
 
@@ -123,3 +125,46 @@ class SendGroupArkShareTool(BaseTool):
         if result.get("status") == "ok":
             return True, f"群 {group_id} Ark分享发送成功"
         return False, f"发送群Ark分享失败: {result.get('msg', '未知错误')}"
+
+
+class SendTuwenArkTool(BaseTool):
+    """发送图文Ark卡片的 Tool（SnowLuma 扩展）。
+
+    对应 SnowLuma API: ``send_tuwen_ark``。
+    发送固定图文 ark 模板，返回 null（无法用于撤回/设精华）。
+    """
+
+    name = "send_tuwen_ark"
+    description = "发送图文Ark卡片（私聊/群聊二选一，SnowLuma扩展）"
+
+    async def execute(
+        self,
+        title: Annotated[str, "卡片标题"],
+        desc: Annotated[str, "卡片描述"],
+        jump_url: Annotated[str, "跳转链接"],
+        user_id: Annotated[int, "目标用户QQ号（与 group_id 二选一）"] = 0,
+        group_id: Annotated[int, "目标群号（与 user_id 二选一）"] = 0,
+        summary: Annotated[str, "卡片摘要"] = "[分享]",
+        preview_url: Annotated[
+            str,
+            "预览图 URL，默认为 SnowLuma 内置占位图",
+        ] = "https://tangram-1251316161.file.myqcloud.com/files/20210721/e50a8e37e08f29bf1ffc7466e1950690.png",
+    ) -> tuple[bool, str]:
+        """执行发送图文Ark卡片。"""
+        if bool(user_id) == bool(group_id):
+            raise ValueError("user_id 与 group_id 必须二选一（恰好提供一个）")
+        params: dict[str, Any] = {
+            "title": title,
+            "desc": desc,
+            "summary": summary,
+            "preview_url": preview_url,
+            "jump_url": jump_url,
+        }
+        if group_id:
+            params["group_id"] = group_id
+        else:
+            params["user_id"] = user_id
+        result = await _call_onebot_api("send_tuwen_ark", params)
+        if result.get("status") == "ok":
+            return True, "图文Ark卡片发送成功"
+        return False, f"发送图文Ark卡片失败: {result.get('msg', '未知错误')}"

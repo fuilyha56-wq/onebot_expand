@@ -1,6 +1,6 @@
 """群操作 API 的 Tool 组件。
 
-包含 13 个群操作 Tool，对应 OneBot v11 标准与 NapCat 扩展群操作 API：
+包含 14 个群操作 Tool，对应 OneBot v11 标准与 NapCat 扩展群操作 API：
     - set_group_kick: 踢出群成员
     - set_group_ban: 禁言群成员
     - set_group_anonymous_ban: 禁言匿名群成员
@@ -14,6 +14,7 @@
     - set_group_member_invite_policy: 设置群成员邀请策略
     - set_group_member_permissions: 设置群成员功能权限
     - set_group_new_member_history_visibility: 设置新成员历史消息可见性
+    - get_group_admin_settings: 获取群管理设置当前值（SnowLuma 扩展）
 
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
 """
@@ -40,6 +41,7 @@ __all__ = [
     "SetGroupMemberInvitePolicyTool",
     "SetGroupMemberPermissionsTool",
     "SetGroupNewMemberHistoryVisibilityTool",
+    "GetGroupAdminSettingsTool",
 ]
 
 
@@ -416,3 +418,26 @@ class SetGroupNewMemberHistoryVisibilityTool(BaseTool):
         if result.get("status") == "ok":
             return True, f"已设置群 {group_id} 的新成员历史消息可见性"
         return False, f"设置新成员历史消息可见性失败: {result.get('msg', '未知错误')}"
+
+
+class GetGroupAdminSettingsTool(BaseTool):
+    """获取群管理设置当前值的 Tool（SnowLuma 扩展）。
+
+    对应 SnowLuma API: ``get_group_admin_settings``。
+    返回加群选项、邀请策略、成员权限、搜索开关等当前值。
+    """
+
+    name = "get_group_admin_settings"
+    description = "获取群管理设置当前值（SnowLuma扩展）"
+
+    async def execute(
+        self,
+        group_id: Annotated[int, "目标群号"],
+    ) -> tuple[bool, str | dict[str, Any]]:
+        """执行获取群管理设置。"""
+        params: dict[str, Any] = {"group_id": group_id}
+        result = await _call_onebot_api("get_group_admin_settings", params)
+        if result.get("status") == "ok":
+            data = result.get("data", {})
+            return True, data
+        return False, f"获取群管理设置失败: {result.get('msg', '未知错误')}"

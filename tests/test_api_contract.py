@@ -43,12 +43,23 @@ EXPECTED_ACTIONS = {
         "group_id": "str",
         "visible": "bool",
     },
+    "get_group_admin_settings": {"group_id": "int"},
+    "get_msg_emoji_likes": {"message_id": "int | str"},
+    "send_tuwen_ark": {
+        "user_id": "int",
+        "group_id": "int",
+        "title": "str",
+        "desc": "str",
+        "summary": "str",
+        "preview_url": "str",
+        "jump_url": "str",
+    },
 }
 
 
 def test_api_registry_has_expected_upstream_actions() -> None:
     """上游新增 action 应以精确参数契约注册。"""
-    assert len(ALL_APIS) == 216
+    assert len(ALL_APIS) == 219
     for action, params in EXPECTED_ACTIONS.items():
         assert ALL_APIS[action].params == params
 
@@ -118,7 +129,7 @@ def test_api_tools_switches_and_aliases_are_one_to_one() -> None:
         if field_name != "enable_all_tools"
     }
 
-    assert len(ALL_TOOLS) == len(ALL_APIS) == len(tool_names) == 216
+    assert len(ALL_TOOLS) == len(ALL_APIS) == len(tool_names) == 219
     assert len(set(tool_names)) == len(tool_names)
     assert set(tool_names) == set(ALL_APIS)
     assert switch_fields == set(ALL_APIS)
