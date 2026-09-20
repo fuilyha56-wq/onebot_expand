@@ -160,6 +160,41 @@ def test_parse_qzone_json_extracts_format_fs_frame_callback() -> None:
     }
 
 
+def test_send_qzone_request_rejects_non_whitelisted_url() -> None:
+    """SSRF 防护：非 QZone CGI 白名单 URL 必须被拒绝，白名单 URL 放行。"""
+    import pytest
+
+    from ..qzone_compat import (
+        QZONE_DETAIL_URL,
+        QzoneCompatibilityError,
+        QzoneHttpRequest,
+        _send_qzone_request,
+    )
+
+    # 白名单内的 URL（带查询串）放行（用一个必然失败的端口超时验证不被 URL 校验拦截）
+    good = QzoneHttpRequest(
+        url=f"{QZONE_DETAIL_URL}?g_tk=1&uin=10000",
+        method="GET",
+        body="",
+        headers={},
+    )
+    # 黑名单地址一律在发送前被拒绝
+    for malicious in [
+        "https://evil.example.com/cgi-bin/emotion_cgi_msgdetail_v6",
+        "http://127.0.0.1:8080/admin",
+        "https://user.qzone.qq.com.evil.example.com/proxy/domain/taotao.qq.com/",
+    ]:
+        bad = QzoneHttpRequest(url=malicious, method="GET", body="", headers={})
+        with pytest.raises(QzoneCompatibilityError):
+            _send_qzone_request(bad, "uin=o1; skey=abc", 5.0)
+
+    # 白名单地址不应触发 URL 校验异常（网络层失败与 URL 校验是不同异常）
+    try:
+        _send_qzone_request(good, "uin=o1; skey=abc", 0.1)
+    except QzoneCompatibilityError as error:
+        assert "白名单" not in str(error)
+
+
 def test_user_feed_request_and_normalization_need_no_browser() -> None:
     """任意 QQ 说说读取应是带 Cookie 的出站 HTTPS 请求且保留评论树。"""
     request = build_qzone_user_feeds_request(
