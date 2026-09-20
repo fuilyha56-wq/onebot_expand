@@ -37,9 +37,7 @@ class GetGroupTodoListTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
     ) -> tuple[bool, str | list[dict[str, Any]]]:
         result = await _call_onebot_api("get_group_todo_list", {"group_id": group_id})
-        if result.get("status") == "ok":
-            return True, result.get("data", [])
-        return False, f"获取群待办列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupTodoTool(BaseTool):
@@ -56,16 +54,14 @@ class SetGroupTodoTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         message_id: Annotated[MessageId, "消息ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置群待办。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "message_id": message_id,
         }
         result = await _call_onebot_api("set_group_todo", params)
-        if result.get("status") == "ok":
-            return True, f"已在群 {group_id} 设置待办"
-        return False, f"设置群待办失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class CompleteGroupTodoTool(BaseTool):
@@ -82,16 +78,14 @@ class CompleteGroupTodoTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         message_id: Annotated[MessageId, "消息ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行完成群待办。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "message_id": message_id,
         }
         result = await _call_onebot_api("complete_group_todo", params)
-        if result.get("status") == "ok":
-            return True, f"已完成群 {group_id} 的待办"
-        return False, f"完成群待办失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class CancelGroupTodoTool(BaseTool):
@@ -108,13 +102,11 @@ class CancelGroupTodoTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         message_id: Annotated[MessageId, "消息ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行取消群待办。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "message_id": message_id,
         }
         result = await _call_onebot_api("cancel_group_todo", params)
-        if result.get("status") == "ok":
-            return True, f"已取消群 {group_id} 的待办"
-        return False, f"取消群待办失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result

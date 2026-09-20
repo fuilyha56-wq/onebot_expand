@@ -42,7 +42,7 @@ class SetFriendAddRequestTool(BaseTool):
         flag: Annotated[str, "好友添加请求的 flag"],
         approve: Annotated[bool, "是否同意请求"],
         remark: Annotated[str, "好友备注（可选）"] = "",
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行处理好友添加请求。"""
         params: dict[str, Any] = {
             "flag": flag,
@@ -52,10 +52,7 @@ class SetFriendAddRequestTool(BaseTool):
             params["remark"] = remark
 
         result = await _call_onebot_api("set_friend_add_request", params)
-        if result.get("status") == "ok":
-            action = "同意" if approve else "拒绝"
-            return True, f"已{action}好友添加请求"
-        return False, f"处理好友添加请求失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupAddRequestTool(BaseTool):
@@ -74,7 +71,7 @@ class SetGroupAddRequestTool(BaseTool):
         sub_type: Annotated[str, "请求子类型（add 或 invite）"],
         approve: Annotated[bool, "是否同意请求"],
         reason: Annotated[str, "拒绝理由（可选）"] = "",
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行处理加群请求。"""
         params: dict[str, Any] = {
             "flag": flag,
@@ -85,10 +82,7 @@ class SetGroupAddRequestTool(BaseTool):
             params["reason"] = reason
 
         result = await _call_onebot_api("set_group_add_request", params)
-        if result.get("status") == "ok":
-            action = "同意" if approve else "拒绝"
-            return True, f"已{action}加群请求"
-        return False, f"处理加群请求失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupSystemMsgTool(BaseTool):
@@ -107,10 +101,7 @@ class GetGroupSystemMsgTool(BaseTool):
         """执行获取群系统消息。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_group_system_msg", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取群系统消息失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetDoubtFriendsAddRequestTool(BaseTool):
@@ -130,10 +121,7 @@ class GetDoubtFriendsAddRequestTool(BaseTool):
         """执行获取可疑好友申请。"""
         params: dict[str, Any] = {"count": count}
         result = await _call_onebot_api("get_doubt_friends_add_request", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取可疑好友申请失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetDoubtFriendsAddRequestTool(BaseTool):
@@ -150,14 +138,11 @@ class SetDoubtFriendsAddRequestTool(BaseTool):
         self,
         flag: Annotated[str, "可疑好友申请的 flag"],
         approve: Annotated[bool, "是否同意请求"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行处理可疑好友申请。"""
         params: dict[str, Any] = {
             "flag": flag,
             "approve": approve,
         }
         result = await _call_onebot_api("set_doubt_friends_add_request", params)
-        if result.get("status") == "ok":
-            action = "同意" if approve else "拒绝"
-            return True, f"已{action}可疑好友申请"
-        return False, f"处理可疑好友申请失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result

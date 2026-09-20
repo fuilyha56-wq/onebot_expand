@@ -84,8 +84,8 @@ async def test_20260827_new_action_payloads(
         jump_url="https://example.com",
         group_id=10001,
     )
-    with pytest.raises(ValueError):
-        await ark.send_tuwen_ark(title="t", desc="d", jump_url="u")
+    # 原样透传：不指定目标也照发，由协议端返回错误
+    await ark.send_tuwen_ark(title="t", desc="d", jump_url="u")
 
     assert calls == [
         ("get_group_admin_settings", {"group_id": 10001}),
@@ -101,6 +101,16 @@ async def test_20260827_new_action_payloads(
                 "group_id": 10001,
             },
         ),
+        (
+            "send_tuwen_ark",
+            {
+                "title": "t",
+                "desc": "d",
+                "summary": "[分享]",
+                "preview_url": "https://tangram-1251316161.file.myqcloud.com/files/20210721/e50a8e37e08f29bf1ffc7466e1950690.png",
+                "jump_url": "u",
+            },
+        ),
     ]
 
 
@@ -108,10 +118,10 @@ async def test_20260827_new_action_payloads(
 async def test_fetch_face_entity_tool_preserves_null_response(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """表情编号不存在时 Tool 应保留 SnowLuma 返回的 null。"""
+    """表情编号不存在时 Tool 应原样透传 SnowLuma 的完整响应。"""
 
     async def fake_call(_action: str, _params: dict[str, Any]) -> dict[str, Any]:
-        return {"status": "ok", "data": None}
+        return {"status": "ok", "retcode": 0, "data": None, "echo": "e-1"}
 
     monkeypatch.setattr(emoji_ext_tools, "_call_onebot_api", fake_call)
     plugin = SimpleNamespace(
@@ -124,19 +134,17 @@ async def test_fetch_face_entity_tool_preserves_null_response(
     )
     tool = emoji_ext_tools.FetchFaceEntityTool(plugin=plugin)
 
-    success, data = await tool.execute(999999)
+    success, result = await tool.execute(999999)
 
     assert success is True
-    assert data is None
+    assert result == {"status": "ok", "retcode": 0, "data": None, "echo": "e-1"}
 
 
 @pytest.mark.asyncio
-async def test_api_client_blocks_snowluma_incompatible_action(
+async def test_api_client_passes_through_snowluma_incompatible_action(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """SnowLuma 后端应在本地拒绝协议端不兼容的 action。"""
-    config = OnebotExpandConfig()
-    config.adapter.backend = "snowluma"
+    """原样透传铁律：SnowLuma 后端也不得本地拦截，照发协议端。"""
     calls: list[tuple[str, str, dict[str, Any], float]] = []
 
     async def fake_send(
@@ -146,42 +154,36 @@ async def test_api_client_blocks_snowluma_incompatible_action(
         timeout: float,
     ) -> dict[str, Any]:
         calls.append((adapter_sign, command_name, command_data, timeout))
-        return {"status": "ok", "data": {}}
+        return {"status": "failed", "retcode": 1404, "data": None, "msg": "不支持"}
 
-    monkeypatch.setattr(api_client, "get_config", lambda _name: config)
     monkeypatch.setattr(api_client, "send_adapter_command", fake_send)
 
-    blocked = await api_client._call_onebot_api(
+    sent = await api_client._call_onebot_api(
         "send_online_file",
         {"user_id": 10001, "file_path": "file.txt"},
     )
-    blocked_send_pb = await api_client._call_onebot_api(
+    sent_pb = await api_client._call_onebot_api(
         "send_pb",
         {"cmd": "trpc.test", "hex": "0a00"},
     )
-    await api_client._call_onebot_api("get_group_root_files", {"group_id": 10001})
+    passed = await api_client._call_onebot_api("get_group_root_files", {"group_id": 10001})
 
-    assert blocked["status"] == "failed"
-    assert blocked["retcode"] == 1404
-    assert blocked_send_pb["status"] == "failed"
-    assert blocked_send_pb["retcode"] == 1404
-    assert calls == [
-        (
-            "onebot_adapter:adapter:onebot_adapter",
-            "get_group_root_files",
-            {"group_id": 10001},
-            30.0,
-        )
+    # 全部照发协议端，协议端的失败响应原样透传回来
+    assert sent["status"] == "failed"
+    assert sent_pb["status"] == "failed"
+    assert passed["status"] == "failed"
+    assert [c[1] for c in calls] == [
+        "send_online_file",
+        "send_pb",
+        "get_group_root_files",
     ]
 
 
 @pytest.mark.asyncio
-async def test_api_client_rejects_snowluma_record_conversion(
+async def test_api_client_passes_through_out_format(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """SnowLuma 不应把被忽略的 out_format 冒充为已执行的转码。"""
-    config = OnebotExpandConfig()
-    config.adapter.backend = "snowluma"
+    """原样透传铁律：out_format 不在本地拦截，由协议端自行处理。"""
     calls: list[tuple[str, str, dict[str, Any], float]] = []
 
     async def fake_send(
@@ -193,39 +195,30 @@ async def test_api_client_rejects_snowluma_record_conversion(
         calls.append((adapter_sign, command_name, command_data, timeout))
         return {"status": "ok", "data": {}}
 
-    monkeypatch.setattr(api_client, "get_config", lambda _name: config)
     monkeypatch.setattr(api_client, "send_adapter_command", fake_send)
 
-    rejected = await api_client._call_onebot_api(
+    with_format = await api_client._call_onebot_api(
         "download_file_record_stream",
         {"file_id": "record-id", "out_format": "mp3"},
     )
-    original = await api_client._call_onebot_api(
+    without_format = await api_client._call_onebot_api(
         "download_file_record_stream",
         {"file_id": "record-id"},
     )
-    config.adapter.backend = "napcat"
-    converted = await api_client._call_onebot_api(
-        "download_file_record_stream",
-        {"file_id": "record-id", "out_format": "mp3"},
-    )
 
-    assert rejected["status"] == "failed"
-    assert rejected["retcode"] == 1400
-    assert "不支持 out_format 转码" in rejected["msg"]
-    assert original["status"] == "ok"
-    assert converted["status"] == "ok"
+    assert with_format["status"] == "ok"
+    assert without_format["status"] == "ok"
     assert calls == [
         (
             "onebot_adapter:adapter:onebot_adapter",
             "download_file_record_stream",
-            {"file_id": "record-id"},
+            {"file_id": "record-id", "out_format": "mp3"},
             30.0,
         ),
         (
             "onebot_adapter:adapter:onebot_adapter",
             "download_file_record_stream",
-            {"file_id": "record-id", "out_format": "mp3"},
+            {"file_id": "record-id"},
             30.0,
         ),
     ]
@@ -269,19 +262,30 @@ async def test_group_service_maps_new_action_payloads(
 
 
 @pytest.mark.asyncio
-async def test_group_service_rejects_empty_member_permissions() -> None:
-    """群服务不应发送没有任何权限项的请求。"""
+async def test_group_service_passes_through_empty_member_permissions(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """原样透传铁律：空权限请求也照发协议端，由协议端返回错误。"""
+    calls: list[tuple[str, dict[str, Any]]] = []
+
+    async def fake_call(action: str, params: dict[str, Any]) -> dict[str, Any]:
+        calls.append((action, params))
+        return {"status": "failed", "retcode": 1200, "data": None}
+
+    monkeypatch.setattr(group_service, "_call_onebot_api", fake_call)
     service = group_service.GroupService(plugin=None)
 
-    with pytest.raises(ValueError, match="至少需要提供一个群成员功能权限"):
-        await service.set_member_permissions("10001")
+    result = await service.set_member_permissions("10001")
+
+    assert result["status"] == "failed"
+    assert calls == [("set_group_member_permissions", {"group_id": "10001"})]
 
 
 @pytest.mark.asyncio
-async def test_user_service_requires_one_friend_category_selector(
+async def test_user_service_passes_through_friend_category_selector(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """好友分类服务应要求分类 ID 与名称恰好提供一个。"""
+    """原样透传铁律：分类选择参数不做本地校验，全部照发。"""
     calls: list[tuple[str, dict[str, Any]]] = []
 
     async def fake_call(action: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -293,15 +297,19 @@ async def test_user_service_requires_one_friend_category_selector(
 
     await service.set_friends_category(10002, category_id=3)
     await service.set_friends_category(10002, category_name="同事")
+    # 透传：零个或两个选择参数都照发，由协议端处理
+    await service.set_friends_category(10002)
+    await service.set_friends_category(10002, category_id=3, category_name="同事")
 
     assert calls == [
         ("set_friends_category", {"uin": 10002, "categoryId": 3}),
         ("set_friends_category", {"uin": 10002, "categoryName": "同事"}),
+        ("set_friends_category", {"uin": 10002}),
+        (
+            "set_friends_category",
+            {"uin": 10002, "categoryId": 3, "categoryName": "同事"},
+        ),
     ]
-    with pytest.raises(ValueError, match="恰好提供一个"):
-        await service.set_friends_category(10002)
-    with pytest.raises(ValueError, match="恰好提供一个"):
-        await service.set_friends_category(10002, category_id=3, category_name="同事")
 
 
 @pytest.mark.asyncio
@@ -368,7 +376,11 @@ async def test_private_file_url_service_and_tool_send_snowluma_fields(
     ).execute("snowluma-file-id", "snowluma-file-hash")
 
     assert success
-    assert result == {"url": "http://file.example/download"}
+    # 原样透传：返回协议端的完整响应字典而非 data 子集
+    assert result == {
+        "status": "ok",
+        "data": {"url": "http://file.example/download"},
+    }
     assert calls == [
         (
             "get_private_file_url",
@@ -507,12 +519,18 @@ async def test_upload_file_stream_tool_preserves_zero_values(
 async def test_upload_file_stream_tool_returns_completion_data(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """流式上传完成响应中的本地文件信息应返回给调用方。"""
+    """原样透传：流式上传的完整响应（含 data 内本地文件信息）逐字段返回。"""
     completion_data = {
         "type": "response",
         "file_path": "C:/Temp/snowluma-stream/upload/audit.txt",
         "file_size": 38,
         "sha256": "0123456789abcdef",
+    }
+    full_response = {
+        "status": "ok",
+        "retcode": 0,
+        "data": completion_data,
+        "echo": "echo-1",
     }
 
     async def fake_call(action: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -522,7 +540,7 @@ async def test_upload_file_stream_tool_returns_completion_data(
             "file_retention": 60000,
             "is_complete": True,
         }
-        return {"status": "ok", "data": completion_data}
+        return full_response
 
     monkeypatch.setattr(file_tools, "_call_onebot_api", fake_call)
 
@@ -537,7 +555,7 @@ async def test_upload_file_stream_tool_returns_completion_data(
     )
 
     assert success
-    assert result == completion_data
+    assert result == full_response
 
 
 @pytest.mark.asyncio
@@ -596,7 +614,10 @@ async def test_new_tools_map_payloads_and_validate_optional_fields(
         ("send_pb", {"cmd": "trpc.test", "hex": "0a00"}),
     ]
 
-    with pytest.raises(ValueError, match="至少需要提供一个群成员功能权限"):
-        await group_tools.SetGroupMemberPermissionsTool(plugin=plugin).execute("10001")
-    with pytest.raises(ValueError, match="恰好提供一个"):
-        await user_ext_tools.SetFriendsCategoryTool(plugin=plugin).execute(10002)
+    # 原样透传铁律：本地不做参数形态校验，缺参数也照发协议端
+    await group_tools.SetGroupMemberPermissionsTool(plugin=plugin).execute("10001")
+    await user_ext_tools.SetFriendsCategoryTool(plugin=plugin).execute(10002)
+    assert calls[-2:] == [
+        ("set_group_member_permissions", {"group_id": "10001"}),
+        ("set_friends_category", {"uin": 10002}),
+    ]

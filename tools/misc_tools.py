@@ -73,10 +73,7 @@ class GetModelShowTool(BaseTool):
         """执行获取机型展示。"""
         params: dict[str, Any] = {"model": model}
         result = await _call_onebot_api("_get_model_show", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取机型展示失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetModelShowTool(BaseTool):
@@ -93,16 +90,14 @@ class SetModelShowTool(BaseTool):
         self,
         model: Annotated[str, "机型型号"],
         show: Annotated[str, "展示内容"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置机型展示。"""
         params: dict[str, Any] = {
             "model": model,
             "show": show,
         }
         result = await _call_onebot_api("_set_model_show", params)
-        if result.get("status") == "ok":
-            return True, f"机型展示已设置为 {model}: {show}"
-        return False, f"设置机型展示失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class BotExitTool(BaseTool):
@@ -117,13 +112,11 @@ class BotExitTool(BaseTool):
 
     async def execute(
         self,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行退出机器人。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("bot_exit", params)
-        if result.get("status") == "ok":
-            return True, "Bot 已退出"
-        return False, f"Bot退出失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class NcGetPacketStatusTool(BaseTool):
@@ -142,10 +135,7 @@ class NcGetPacketStatusTool(BaseTool):
         """执行获取packet状态。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("nc_get_packet_status", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取packet状态失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class ClickInlineKeyboardButtonTool(BaseTool):
@@ -164,7 +154,7 @@ class ClickInlineKeyboardButtonTool(BaseTool):
         bot_appid: Annotated[int, "机器人AppID"],
         msg_seq: Annotated[int, "消息序号"],
         button_id: Annotated[str, "按钮ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行点击内联键盘按钮。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -173,9 +163,7 @@ class ClickInlineKeyboardButtonTool(BaseTool):
             "button_id": button_id,
         }
         result = await _call_onebot_api("click_inline_keyboard_button", params)
-        if result.get("status") == "ok":
-            return True, f"已点击按钮 {button_id}"
-        return False, f"点击内联键盘按钮失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetMiniAppArkTool(BaseTool):
@@ -205,10 +193,7 @@ class GetMiniAppArkTool(BaseTool):
             "jump_url": jump_url,
         }
         result = await _call_onebot_api("get_mini_app_ark", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取小程序卡片失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class TranslateEn2zhTool(BaseTool):
@@ -228,10 +213,7 @@ class TranslateEn2zhTool(BaseTool):
         """执行英译中。"""
         params: dict[str, Any] = {"words": words}
         result = await _call_onebot_api("translate_en2zh", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"英译中失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class CreateCollectionTool(BaseTool):
@@ -250,10 +232,7 @@ class CreateCollectionTool(BaseTool):
         """执行创建收藏。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("create_collection", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"创建收藏失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetCollectionListTool(BaseTool):
@@ -272,10 +251,7 @@ class GetCollectionListTool(BaseTool):
         """执行获取收藏列表。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_collection_list", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取收藏列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SendPacketTool(BaseTool):
@@ -298,10 +274,7 @@ class SendPacketTool(BaseTool):
         if data:
             params["data"] = data
         result = await _call_onebot_api("send_packet", params)
-        if result.get("status") == "ok":
-            data_resp = result.get("data", {})
-            return True, data_resp
-        return False, f"发送SSO包失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SendPBTool(BaseTool):
@@ -317,9 +290,7 @@ class SendPBTool(BaseTool):
     ) -> tuple[bool, str | dict[str, Any]]:
         """执行发送原始 Protobuf 数据。"""
         result = await _call_onebot_api("send_pb", {"cmd": cmd, "hex": hex_data})
-        if result.get("status") == "ok":
-            return True, result.get("data", {})
-        return False, f"发送 Protobuf 数据失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class HandleQuickOperationTool(BaseTool):
@@ -335,16 +306,14 @@ class HandleQuickOperationTool(BaseTool):
         self,
         context: Annotated[dict[str, Any], "事件上下文"],
         operation: Annotated[dict[str, Any], "快速操作内容"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行快速操作。"""
         params: dict[str, Any] = {
             "context": context,
             "operation": operation,
         }
         result = await _call_onebot_api("handle_quick_operation", params)
-        if result.get("status") == "ok":
-            return True, "快速操作已执行"
-        return False, f"快速操作失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetWordSlicesTool(BaseTool):
@@ -364,10 +333,7 @@ class GetWordSlicesTool(BaseTool):
         """执行文本分词。"""
         params: dict[str, Any] = {"content": content}
         result = await _call_onebot_api("get_word_slices", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"分词失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetConfigTool(BaseTool):
@@ -381,13 +347,11 @@ class GetConfigTool(BaseTool):
 
     async def execute(
         self,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行获取协议端配置。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_config", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"获取协议端配置失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetConfigTool(BaseTool):
@@ -402,15 +366,13 @@ class SetConfigTool(BaseTool):
     async def execute(
         self,
         config: Annotated[dict, "配置字典"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置协议端配置。"""
         params: dict[str, Any] = {
             "config": config,
         }
         result = await _call_onebot_api("set_config", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"设置协议端配置失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetEventTool(BaseTool):
@@ -424,13 +386,11 @@ class GetEventTool(BaseTool):
 
     async def execute(
         self,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行获取事件。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_event", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"获取事件失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class LlonebotDebugTool(BaseTool):
@@ -447,7 +407,7 @@ class LlonebotDebugTool(BaseTool):
         api_class: Annotated[str, "API类名"],
         method: Annotated[str, "方法名"],
         args: Annotated[list, "参数列表"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行调试接口。"""
         params: dict[str, Any] = {
             "api_class": api_class,
@@ -455,9 +415,7 @@ class LlonebotDebugTool(BaseTool):
             "args": args,
         }
         result = await _call_onebot_api("llonebot_debug", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"调试接口失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class ScanQRCodeTool(BaseTool):
@@ -472,15 +430,13 @@ class ScanQRCodeTool(BaseTool):
     async def execute(
         self,
         qrcode: Annotated[str, "二维码内容"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行扫码登录。"""
         params: dict[str, Any] = {
             "qrcode": qrcode,
         }
         result = await _call_onebot_api("scan_qrcode", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"扫码登录失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGuildListTool(BaseTool):
@@ -494,10 +450,8 @@ class GetGuildListTool(BaseTool):
 
     async def execute(
         self,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行获取频道列表。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_guild_list", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"获取频道列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result

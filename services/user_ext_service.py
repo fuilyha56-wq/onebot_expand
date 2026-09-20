@@ -270,13 +270,7 @@ class UserExtService(BaseService):
 
         Returns:
             适配器返回的响应字典。
-
-        Raises:
-            ValueError: 未恰好提供一个分类选择参数时抛出。
         """
-        if (category_id is None) == (category_name is None):
-            raise ValueError("category_id 与 category_name 必须恰好提供一个")
-
         params: dict[str, Any] = {"uin": uin}
         if category_id is not None:
             params["categoryId"] = category_id

@@ -35,15 +35,13 @@ class FriendPokeTool(BaseTool):
         self,
         user_id: Annotated[int, "目标用户QQ号"],
         target_id: Annotated[int, "被戳目标QQ号（可选）"] = 0,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行好友戳一戳。"""
         params: dict[str, Any] = {"user_id": user_id}
         if target_id:
             params["target_id"] = target_id
         result = await _call_onebot_api("friend_poke", params)
-        if result.get("status") == "ok":
-            return True, f"已向好友 {user_id} 发送戳一戳"
-        return False, f"好友戳一戳失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GroupPokeTool(BaseTool):
@@ -60,13 +58,11 @@ class GroupPokeTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         user_id: Annotated[int, "目标成员QQ号"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行群戳一戳。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "user_id": user_id,
         }
         result = await _call_onebot_api("group_poke", params)
-        if result.get("status") == "ok":
-            return True, f"已在群 {group_id} 向用户 {user_id} 发送戳一戳"
-        return False, f"群戳一戳失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result

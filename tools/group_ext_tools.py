@@ -56,16 +56,14 @@ class SetGroupPortraitTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         file: Annotated[str, "图片路径或URL"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置群头像。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "file": file,
         }
         result = await _call_onebot_api("set_group_portrait", params)
-        if result.get("status") == "ok":
-            return True, f"已设置群 {group_id} 的头像"
-        return False, f"设置群头像失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupRemarkTool(BaseTool):
@@ -82,16 +80,14 @@ class SetGroupRemarkTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         remark: Annotated[str, "群备注内容"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置群备注。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "remark": remark,
         }
         result = await _call_onebot_api("set_group_remark", params)
-        if result.get("status") == "ok":
-            return True, f'已设置群 {group_id} 的备注为 "{remark}"'
-        return False, f"设置群备注失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupAddOptionTool(BaseTool):
@@ -108,18 +104,14 @@ class SetGroupAddOptionTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         add_type: Annotated[int, "加群方式（0:允许任何人,1:需要验证,2:不允许任何人）"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置加群选项。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "add_type": add_type,
         }
         result = await _call_onebot_api("set_group_add_option", params)
-        if result.get("status") == "ok":
-            type_names = {0: "允许任何人", 1: "需要验证", 2: "不允许任何人"}
-            type_desc = type_names.get(add_type, f"类型{add_type}")
-            return True, f"已设置群 {group_id} 的加群方式为: {type_desc}"
-        return False, f"设置加群选项失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupSearchTool(BaseTool):
@@ -135,15 +127,13 @@ class SetGroupSearchTool(BaseTool):
     async def execute(
         self,
         group_id: Annotated[int, "目标群号"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行允许群被搜索。"""
         params: dict[str, Any] = {
             "group_id": group_id,
         }
         result = await _call_onebot_api("set_group_search", params)
-        if result.get("status") == "ok":
-            return True, f"已设置群 {group_id} 允许被搜索"
-        return False, f"设置群搜索失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupRobotAddOptionTool(BaseTool):
@@ -160,17 +150,14 @@ class SetGroupRobotAddOptionTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         robot_member_switch: Annotated[bool, "是否允许机器人加群"] = True,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置群机器人加群选项。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "robot_member_switch": robot_member_switch,
         }
         result = await _call_onebot_api("set_group_robot_add_option", params)
-        if result.get("status") == "ok":
-            action = "允许" if robot_member_switch else "禁止"
-            return True, f"已设置群 {group_id} {action}机器人加群"
-        return False, f"设置群机器人加群选项失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupKickMembersTool(BaseTool):
@@ -188,7 +175,7 @@ class SetGroupKickMembersTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
         user_id_list: Annotated[list[int], "要踢出的成员QQ号列表"],
         reject_add_request: Annotated[bool, "是否拒绝这些人再次加群请求"] = False,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行批量踢出群成员。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -196,9 +183,7 @@ class SetGroupKickMembersTool(BaseTool):
             "reject_add_request": reject_add_request,
         }
         result = await _call_onebot_api("set_group_kick_members", params)
-        if result.get("status") == "ok":
-            return True, f"已批量踢出群 {group_id} 中的 {len(user_id_list)} 名成员"
-        return False, f"批量踢出群成员失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupShutListTool(BaseTool):
@@ -220,10 +205,7 @@ class GetGroupShutListTool(BaseTool):
             "group_id": group_id,
         }
         result = await _call_onebot_api("get_group_shut_list", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取群禁言列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupIgnoredNotifiesTool(BaseTool):
@@ -242,10 +224,7 @@ class GetGroupIgnoredNotifiesTool(BaseTool):
         """执行获取被过滤的入群请求。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_group_ignored_notifies", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取被过滤的入群请求失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupIgnoreAddRequestTool(BaseTool):
@@ -264,10 +243,7 @@ class GetGroupIgnoreAddRequestTool(BaseTool):
         """执行获取被忽略的入群请求。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_group_ignore_add_request", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取被忽略的入群请求失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupInfoExTool(BaseTool):
@@ -289,10 +265,7 @@ class GetGroupInfoExTool(BaseTool):
             "group_id": group_id,
         }
         result = await _call_onebot_api("get_group_info_ex", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取群信息扩展失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupSignTool(BaseTool):
@@ -308,15 +281,13 @@ class SetGroupSignTool(BaseTool):
     async def execute(
         self,
         group_id: Annotated[int, "目标群号"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行群签到。"""
         params: dict[str, Any] = {
             "group_id": group_id,
         }
         result = await _call_onebot_api("set_group_sign", params)
-        if result.get("status") == "ok":
-            return True, f"已在群 {group_id} 签到"
-        return False, f"群签到失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupSignedListTool(BaseTool):
@@ -336,10 +307,7 @@ class GetGroupSignedListTool(BaseTool):
         """执行获取群今日打卡列表。"""
         params: dict[str, Any] = {"group_id": group_id}
         result = await _call_onebot_api("get_group_signed_list", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取群今日打卡列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class BatchDeleteGroupMemberTool(BaseTool):
@@ -355,16 +323,14 @@ class BatchDeleteGroupMemberTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         user_ids: Annotated[list[int], "要踢出的QQ号列表"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行批量踢出群成员。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "user_ids": user_ids,
         }
         result = await _call_onebot_api("batch_delete_group_member", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"批量踢出群成员失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 
@@ -381,15 +347,13 @@ class SetGroupMsgMaskTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         mask: Annotated[int, "屏蔽等级(1-4)"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置群消息屏蔽。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "mask": mask,
         }
         result = await _call_onebot_api("set_group_msg_mask", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"设置群消息屏蔽失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 

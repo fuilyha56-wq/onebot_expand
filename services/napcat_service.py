@@ -27,7 +27,6 @@ from typing import Any
 
 from src.app.plugin_system.base import BaseService
 
-from ..emoji_tables import get_emoji_by_id
 from ..message_utils import MessageId
 from ..api_client import _call_onebot_api
 
@@ -38,39 +37,12 @@ class NapcatExtService(BaseService):
     """NapCat 扩展功能服务。
 
     封装全部 NapCat 扩展 API 调用，提供统一调用入口，始终可用（不受 Tool 开关影响）。
-    set_msg_emoji_like 方法会使用 emoji_tables 验证 emoji_id 的有效性。
     Service 不是单例，每次 get_service() 都创建新实例，不应依赖实例级缓存。
     """
 
     name: str = "napcat_ext_service"
     description: str = "NapCat 扩展功能服务"
     version: str = "1.0.0"
-
-    def _is_reaction_emoji_enabled(self, emoji_id: int) -> bool:
-        """检查表情回应功能及指定表情 ID 是否启用。
-
-        需同时满足以下条件：
-        1. 配置中表情回应功能已启用 (emoji.enable_reaction_emoji)
-        2. 表情 ID 在启用的回应表情 ID 白名单中（空列表表示全部启用）
-
-        Args:
-            emoji_id: 表情 ID。
-
-        Returns:
-            True 表示启用，False 表示禁用。
-        """
-        config = self.plugin.config
-        if config is None:
-            return True
-        emoji_cfg = getattr(config, "emoji", None)
-        if emoji_cfg is None:
-            return True
-        if not getattr(emoji_cfg, "enable_reaction_emoji", True):
-            return False
-        enabled_ids = getattr(emoji_cfg, "reaction_emoji_enabled_ids", [])
-        if not enabled_ids:
-            return True
-        return emoji_id in enabled_ids
 
     async def set_msg_emoji_like(
         self,
@@ -81,34 +53,15 @@ class NapcatExtService(BaseService):
         """对消息添加/取消表情回应。
 
         对应 NapCat 扩展 API: ``set_msg_emoji_like``。
-        会使用 emoji_tables 验证 emoji_id 是否为合法的回应表情。
 
         Args:
             message_id: 消息 ID。
-            emoji_id: 表情 ID（需在表情回应表中存在）。
+            emoji_id: 表情 ID。
             set: True 添加回应，False 取消回应，默认为 True。
 
         Returns:
             适配器返回的响应字典。
         """
-
-        # 使用 emoji_tables 验证 emoji_id 是否为合法的回应表情
-        entry = get_emoji_by_id(emoji_id, table_type="reaction")
-        if entry is None:
-            return {
-                "status": "error",
-                "retcode": -1,
-                "msg": f"无效的回应表情 ID: {emoji_id}，该 ID 不在表情回应表中",
-            }
-
-        # 检查表情回应功能及该表情是否启用
-        if not self._is_reaction_emoji_enabled(emoji_id):
-            return {
-                "status": "error",
-                "retcode": -1,
-                "msg": f"表情回应功能或表情 ID {emoji_id}（{entry.describe}）已被禁用",
-            }
-
         params: dict[str, Any] = {
             "message_id": message_id,
             "emoji_id": emoji_id,

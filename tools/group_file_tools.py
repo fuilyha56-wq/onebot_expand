@@ -65,10 +65,7 @@ class GetGroupFileUrlTool(BaseTool):
             "busid": busid,
         }
         result = await _call_onebot_api("get_group_file_url", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取群文件下载链接失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupRootFilesTool(BaseTool):
@@ -90,10 +87,7 @@ class GetGroupRootFilesTool(BaseTool):
             "group_id": group_id,
         }
         result = await _call_onebot_api("get_group_root_files", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取群根目录文件失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupFilesByFolderTool(BaseTool):
@@ -117,10 +111,7 @@ class GetGroupFilesByFolderTool(BaseTool):
             "folder_id": folder_id,
         }
         result = await _call_onebot_api("get_group_files_by_folder", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取群子目录文件失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class DeleteGroupFileTool(BaseTool):
@@ -138,7 +129,7 @@ class DeleteGroupFileTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
         file_id: Annotated[str, "群文件ID"],
         busid: Annotated[int, "文件类型ID（busid）"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行删除群文件。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -146,9 +137,7 @@ class DeleteGroupFileTool(BaseTool):
             "busid": busid,
         }
         result = await _call_onebot_api("delete_group_file", params)
-        if result.get("status") == "ok":
-            return True, f"已删除群 {group_id} 中的文件 {file_id}"
-        return False, f"删除群文件失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class CreateGroupFileFolderTool(BaseTool):
@@ -166,7 +155,7 @@ class CreateGroupFileFolderTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
         name: Annotated[str, "文件夹名称"],
         parent_id: Annotated[str, "父文件夹ID（可选，空字符串表示根目录）"] = "",
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行创建群文件夹。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -175,9 +164,7 @@ class CreateGroupFileFolderTool(BaseTool):
         if parent_id:
             params["parent_id"] = parent_id
         result = await _call_onebot_api("create_group_file_folder", params)
-        if result.get("status") == "ok":
-            return True, f'已在群 {group_id} 中创建文件夹 "{name}"'
-        return False, f"创建群文件夹失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class DeleteGroupFolderTool(BaseTool):
@@ -194,16 +181,14 @@ class DeleteGroupFolderTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         folder_id: Annotated[str, "群文件夹ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行删除群文件夹。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "folder_id": folder_id,
         }
         result = await _call_onebot_api("delete_group_folder", params)
-        if result.get("status") == "ok":
-            return True, f"已删除群 {group_id} 中的文件夹 {folder_id}"
-        return False, f"删除群文件夹失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupFileSystemInfoTool(BaseTool):
@@ -225,10 +210,7 @@ class GetGroupFileSystemInfoTool(BaseTool):
             "group_id": group_id,
         }
         result = await _call_onebot_api("get_group_file_system_info", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取群文件系统信息失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class MoveGroupFileTool(BaseTool):
@@ -247,7 +229,7 @@ class MoveGroupFileTool(BaseTool):
         file_id: Annotated[str, "群文件ID"],
         parent_directory: Annotated[str, "当前所在目录ID"],
         target_directory: Annotated[str, "目标目录ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行移动群文件。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -256,9 +238,7 @@ class MoveGroupFileTool(BaseTool):
             "target_directory": target_directory,
         }
         result = await _call_onebot_api("move_group_file", params)
-        if result.get("status") == "ok":
-            return True, f"已移动群 {group_id} 中的文件 {file_id}"
-        return False, f"移动群文件失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class RenameGroupFileTool(BaseTool):
@@ -277,7 +257,7 @@ class RenameGroupFileTool(BaseTool):
         file_id: Annotated[str, "群文件ID"],
         current_parent_directory: Annotated[str, "当前所在目录ID"],
         new_name: Annotated[str, "新文件名"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行重命名群文件。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -286,9 +266,7 @@ class RenameGroupFileTool(BaseTool):
             "new_name": new_name,
         }
         result = await _call_onebot_api("rename_group_file", params)
-        if result.get("status") == "ok":
-            return True, f'已重命名群 {group_id} 中的文件为 "{new_name}"'
-        return False, f"重命名群文件失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class RenameGroupFileFolderTool(BaseTool):
@@ -306,7 +284,7 @@ class RenameGroupFileFolderTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
         folder_id: Annotated[str, "群文件夹ID"],
         new_folder_name: Annotated[str, "新文件夹名"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行重命名群文件夹。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -314,9 +292,7 @@ class RenameGroupFileFolderTool(BaseTool):
             "new_folder_name": new_folder_name,
         }
         result = await _call_onebot_api("rename_group_file_folder", params)
-        if result.get("status") == "ok":
-            return True, f'已重命名群 {group_id} 中的文件夹为 "{new_folder_name}"'
-        return False, f"重命名群文件夹失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class TransGroupFileTool(BaseTool):
@@ -333,16 +309,14 @@ class TransGroupFileTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         file_id: Annotated[str, "群文件ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行转存群文件。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "file_id": file_id,
         }
         result = await _call_onebot_api("trans_group_file", params)
-        if result.get("status") == "ok":
-            return True, f"已转存群 {group_id} 中的文件 {file_id}"
-        return False, f"转存群文件失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetPrivateFileUrlTool(BaseTool):
@@ -370,10 +344,7 @@ class GetPrivateFileUrlTool(BaseTool):
             "file_hash": file_hash,
         }
         result = await _call_onebot_api("get_private_file_url", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取私聊文件下载链接失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupFileForeverTool(BaseTool):
@@ -389,13 +360,11 @@ class SetGroupFileForeverTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         file_id: Annotated[str, "文件ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置群文件永久保存。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "file_id": file_id,
         }
         result = await _call_onebot_api("set_group_file_forever", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"设置群文件永久保存失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result

@@ -54,10 +54,7 @@ class GetLoginInfoTool(BaseTool):
         """执行获取 Bot 登录信息。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_login_info", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取登录信息失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetStrangerInfoTool(BaseTool):
@@ -81,10 +78,7 @@ class GetStrangerInfoTool(BaseTool):
             "no_cache": no_cache,
         }
         result = await _call_onebot_api("get_stranger_info", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取陌生人信息失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetFriendListTool(BaseTool):
@@ -103,10 +97,7 @@ class GetFriendListTool(BaseTool):
         """执行获取好友列表。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_friend_list", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取好友列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupListTool(BaseTool):
@@ -125,10 +116,7 @@ class GetGroupListTool(BaseTool):
         """执行获取群列表。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_group_list", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取群列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupMemberListTool(BaseTool):
@@ -152,10 +140,7 @@ class GetGroupMemberListTool(BaseTool):
             "no_cache": no_cache,
         }
         result = await _call_onebot_api("get_group_member_list", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取群成员列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupMemberInfoTool(BaseTool):
@@ -181,10 +166,7 @@ class GetGroupMemberInfoTool(BaseTool):
             "no_cache": no_cache,
         }
         result = await _call_onebot_api("get_group_member_info", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取群成员信息失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupInfoTool(BaseTool):
@@ -208,10 +190,7 @@ class GetGroupInfoTool(BaseTool):
             "no_cache": no_cache,
         }
         result = await _call_onebot_api("get_group_info", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取群信息失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupDetailInfoTool(BaseTool):
@@ -231,10 +210,7 @@ class GetGroupDetailInfoTool(BaseTool):
         """执行获取群详细信息。"""
         params: dict[str, Any] = {"group_id": group_id}
         result = await _call_onebot_api("get_group_detail_info", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取群详细信息失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupHonorInfoTool(BaseTool):
@@ -262,10 +238,7 @@ class GetGroupHonorInfoTool(BaseTool):
             "type": type,
         }
         result = await _call_onebot_api("get_group_honor_info", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取群荣誉信息失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetRobotUinRangeTool(BaseTool):
@@ -284,7 +257,4 @@ class GetRobotUinRangeTool(BaseTool):
         """执行获取机器人 UIN 范围。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_robot_uin_range", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取机器人 UIN 范围失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
