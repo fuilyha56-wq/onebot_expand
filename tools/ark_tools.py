@@ -49,10 +49,7 @@ class SharePeerTool(BaseTool):
         if group_id:
             params["group_id"] = group_id
         result = await _call_onebot_api("share_peer", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"分享Ark卡片失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SendArkShareTool(BaseTool):
@@ -69,7 +66,7 @@ class SendArkShareTool(BaseTool):
         self,
         user_id: Annotated[int, "目标用户QQ号（可选）"] = 0,
         group_id: Annotated[int, "目标群号（可选）"] = 0,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行分享Ark卡片。"""
         params: dict[str, Any] = {}
         if user_id:
@@ -77,9 +74,7 @@ class SendArkShareTool(BaseTool):
         if group_id:
             params["group_id"] = group_id
         result = await _call_onebot_api("send_ark_share", params)
-        if result.get("status") == "ok":
-            return True, "Ark卡片分享成功"
-        return False, f"分享Ark卡片失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class ShareGroupExTool(BaseTool):
@@ -99,10 +94,7 @@ class ShareGroupExTool(BaseTool):
         """执行分享群Ark卡片。"""
         params: dict[str, Any] = {"group_id": group_id}
         result = await _call_onebot_api("share_group_ex", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"分享群Ark卡片失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SendGroupArkShareTool(BaseTool):
@@ -118,13 +110,11 @@ class SendGroupArkShareTool(BaseTool):
     async def execute(
         self,
         group_id: Annotated[int, "目标群号"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行发送群Ark分享。"""
         params: dict[str, Any] = {"group_id": group_id}
         result = await _call_onebot_api("send_group_ark_share", params)
-        if result.get("status") == "ok":
-            return True, f"群 {group_id} Ark分享发送成功"
-        return False, f"发送群Ark分享失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SendTuwenArkTool(BaseTool):
@@ -149,10 +139,8 @@ class SendTuwenArkTool(BaseTool):
             str,
             "预览图 URL，默认为 SnowLuma 内置占位图",
         ] = "https://tangram-1251316161.file.myqcloud.com/files/20210721/e50a8e37e08f29bf1ffc7466e1950690.png",
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行发送图文Ark卡片。"""
-        if bool(user_id) == bool(group_id):
-            raise ValueError("user_id 与 group_id 必须二选一（恰好提供一个）")
         params: dict[str, Any] = {
             "title": title,
             "desc": desc,
@@ -162,9 +150,7 @@ class SendTuwenArkTool(BaseTool):
         }
         if group_id:
             params["group_id"] = group_id
-        else:
+        if user_id:
             params["user_id"] = user_id
         result = await _call_onebot_api("send_tuwen_ark", params)
-        if result.get("status") == "ok":
-            return True, "图文Ark卡片发送成功"
-        return False, f"发送图文Ark卡片失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result

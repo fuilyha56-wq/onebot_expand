@@ -50,10 +50,7 @@ class GetQunAlbumListTool(BaseTool):
         """执行获取群相册列表。"""
         params: dict[str, Any] = {"group_id": group_id}
         result = await _call_onebot_api("get_qun_album_list", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取群相册列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class UploadImageToQunAlbumTool(BaseTool):
@@ -71,7 +68,7 @@ class UploadImageToQunAlbumTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
         file: Annotated[str, "图片路径或URL"],
         album_id: Annotated[str, "相册ID（可选）"] = "",
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行上传图片到群相册。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -80,9 +77,7 @@ class UploadImageToQunAlbumTool(BaseTool):
         if album_id:
             params["album_id"] = album_id
         result = await _call_onebot_api("upload_image_to_qun_album", params)
-        if result.get("status") == "ok":
-            return True, f"图片已上传到群 {group_id} 的相册"
-        return False, f"上传图片到群相册失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupAlbumMediaListTool(BaseTool):
@@ -106,10 +101,7 @@ class GetGroupAlbumMediaListTool(BaseTool):
             "album_id": album_id,
         }
         result = await _call_onebot_api("get_group_album_media_list", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取群相册媒体列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class DoGroupAlbumCommentTool(BaseTool):
@@ -128,7 +120,7 @@ class DoGroupAlbumCommentTool(BaseTool):
         album_id: Annotated[str, "相册ID"],
         lloc: Annotated[str, "图片位置标识"],
         content: Annotated[str, "评论内容"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行评论群相册。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -137,9 +129,7 @@ class DoGroupAlbumCommentTool(BaseTool):
             "content": content,
         }
         result = await _call_onebot_api("do_group_album_comment", params)
-        if result.get("status") == "ok":
-            return True, "评论发送成功"
-        return False, f"评论群相册失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupAlbumMediaLikeTool(BaseTool):
@@ -157,7 +147,7 @@ class SetGroupAlbumMediaLikeTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
         album_id: Annotated[str, "相册ID"],
         batch_id: Annotated[str, "批次ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行点赞群相册。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -165,9 +155,7 @@ class SetGroupAlbumMediaLikeTool(BaseTool):
             "batch_id": batch_id,
         }
         result = await _call_onebot_api("set_group_album_media_like", params)
-        if result.get("status") == "ok":
-            return True, "点赞成功"
-        return False, f"点赞群相册失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class CancelGroupAlbumMediaLikeTool(BaseTool):
@@ -185,7 +173,7 @@ class CancelGroupAlbumMediaLikeTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
         album_id: Annotated[str, "相册ID"],
         batch_id: Annotated[str, "批次ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行取消点赞群相册。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -193,9 +181,7 @@ class CancelGroupAlbumMediaLikeTool(BaseTool):
             "batch_id": batch_id,
         }
         result = await _call_onebot_api("cancel_group_album_media_like", params)
-        if result.get("status") == "ok":
-            return True, "已取消点赞"
-        return False, f"取消点赞群相册失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class DelGroupAlbumMediaTool(BaseTool):
@@ -213,7 +199,7 @@ class DelGroupAlbumMediaTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
         album_id: Annotated[str, "相册ID"],
         lloc: Annotated[str, "图片位置标识"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行删除群相册媒体。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -221,9 +207,7 @@ class DelGroupAlbumMediaTool(BaseTool):
             "lloc": lloc,
         }
         result = await _call_onebot_api("del_group_album_media", params)
-        if result.get("status") == "ok":
-            return True, "图片删除成功"
-        return False, f"删除群相册媒体失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class CreateGroupAlbumTool(BaseTool):
@@ -240,7 +224,7 @@ class CreateGroupAlbumTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
         name: Annotated[str, "相册名称"],
         desc: Annotated[str, "相册描述"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行创建群相册。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -248,9 +232,7 @@ class CreateGroupAlbumTool(BaseTool):
             "desc": desc,
         }
         result = await _call_onebot_api("create_group_album", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"创建群相册失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 
@@ -267,15 +249,13 @@ class DeleteGroupAlbumTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         album_id: Annotated[str, "相册ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行删除群相册。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "album_id": album_id,
         }
         result = await _call_onebot_api("delete_group_album", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"删除群相册失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 

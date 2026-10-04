@@ -2,7 +2,7 @@
 
 封装群管理扩展相关 API，提供统一的群管理扩展操作接口。
 
-API 列表 (12):
+API 列表 (15):
     - set_group_portrait: 设置群头像
     - set_group_remark: 设置群备注
     - set_group_add_option: 设置加群选项
@@ -13,6 +13,7 @@ API 列表 (12):
     - get_group_ignored_notifies: 获取被过滤的入群请求
     - get_group_ignore_add_request: 获取被忽略的入群请求
     - get_group_info_ex: 获取群信息扩展
+    - get_group_share_link: 获取群分享链接
     - set_group_sign: 群签到
     - get_group_signed_list: 获取群今日打卡列表
 """
@@ -234,6 +235,35 @@ class GroupExtService(BaseService):
             "group_id": group_id,
         }
         return await _call_onebot_api("get_group_info_ex", params)
+
+    async def get_group_share_link(
+        self,
+        group_id: int | str,
+        need_short_url: bool | str | None = None,
+        src_id: int | str | None = None,
+        additional_param: str | None = None,
+    ) -> dict[str, Any]:
+        """获取群分享链接。
+
+        对应 NapCat API: ``get_group_share_link``。
+
+        Args:
+            group_id: 群号。
+            need_short_url: 是否返回短链；未提供时交由协议端处理。
+            src_id: 分享来源 ID；未提供时交由协议端处理。
+            additional_param: 附加参数；未提供时不发送该字段。
+
+        Returns:
+            适配器返回的响应字典。
+        """
+        params: dict[str, Any] = {"group_id": group_id}
+        if need_short_url is not None:
+            params["need_short_url"] = need_short_url
+        if src_id is not None:
+            params["src_id"] = src_id
+        if additional_param is not None:
+            params["additional_param"] = additional_param
+        return await _call_onebot_api("get_group_share_link", params)
 
     async def set_group_sign(
         self,

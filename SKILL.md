@@ -25,6 +25,8 @@ languages: python, typescript
 **关键铁律：**
 - **Tool 默认全部关闭**（`enable_<action> = false`，`enable_all_tools = false`）。Service 路径不受开关影响，始终可用。
 - **多类 Tool 规划为一个 Service**——按功能域聚合，不按 action 数量切分。
+- **原样透传铁律（最高优先级，凌驾于其他所有规则）**：所有参数原样透传给协议端（NapCat/SnowLuma/LLOneBot），协议端返回的响应原样透传给调用方——不拦截、不改写、不清洗、不提取、不摘要、不伪造。返回的格式与原内容必须与协议端（SL/NP/LLOneBot）直接返回的完全一致，没有任何区别（详见 §11）。
+- **完整测试铁律**：每次维护必须完整测试所有功能（全部 Tool + 全部 Service + api_client 透传一致性），不得只测新增 API（详见 §11.2）。
 - **本插件目录**：`E:\plugins\onebot_expand`
 - **运行时副本**：`E:\Neo-mofox-instance\bot-3693525299\neo-mofox\plugins\onebot_expand`
 - **NapCat 源**：`E:\NapCatQQ`
@@ -170,11 +172,13 @@ class SendGroupMsgTool(BaseActionTool):
 
 ### Step 8 — 测试
 
+**每次维护必须完整测试所有功能**，不只测新增 API（完整测试铁律见 §11.2）：
+1. **静态透传检查**：运行透传一致性测试（`tests/test_passthrough.py`），扫描全部 Tool 源码，禁止任何响应加工/参数改写模式
+2. **单元测试**：`pytest tests/` 全绿
+3. **实测**：NapCat 在线时，经 `tests/napcat_test_adapter.py` 对全部 action 冒烟，验证响应与协议端直接返回一致
+4. 测试通过后把开关改回 `false`（保留默认关闭）
+
 每个新增/修改的 API 都要：
-1. 启用对应 `enable_<action>=true` 与 `enable_all_tools=true`
-2. 通过 **测试适配器**（`tests/napcat_test_adapter.py`）实际调用 NapCat
-3. 验证返回结构与 `APIDef.params` 声明一致
-4. 测试通过后，把开关改回 `false`（保留默认关闭）
 
 #### 测试适配器
 
@@ -493,6 +497,10 @@ class SendMsgTool(BaseTool):
 | SnowLuma 路由失败但 API 标了兼容 | `snowluma_compat` 标错 | 按上方 §4 流程重新判定，更新 `APIDef` |
 | Service 调用失败但 Tool 正常 | Service 不应受开关影响 | 检查 Service 是否误用了 Tool 包装器 |
 | `action` 名前后不一致 | 常量类与 ALL_APIS 字典字面量分叉 | 统一引用常量类，禁止裸字符串 |
+| Tool 返回中文摘要或缺字段 | 违反原样透传铁律（响应被加工） | 改为 `return result.get("status") == "ok", result`（详见 §11） |
+| 调用被本地拦截返回 1404/1400 | 违反原样透传铁律（本地拦截） | 删除本地拦截，照发协议端，由协议端返回错误 |
+| 参数被改写（str→int/去空白/结构重排） | 违反原样透传铁律（参数改写） | 删除 normalize/inject 逻辑，调用方给什么就发什么 |
+| Tool 返回 `data` 子集而非完整响应 | 响应被提取 | 返回完整响应字典（`status`/`retcode`/`data`/`echo` 等全量保留） |
 
 ## 8. 维护执行清单
 
@@ -923,3 +931,54 @@ E:\LLBot\src\onebot11\action\types.ts                       # LLBot ActionName �
 E:\LLBot\src\onebot11\action\index.ts                       # LLBot action 注册总表
 E:\LLBot\src\onebot11\action\llbot\                        # LLBot 独有 action 实现
 ```
+
+## 11. 原样透传与完整测试铁律（最高优先级）
+
+> 本节是本 skill 的**最高优先级规则**，凌驾于其他所有章节。任何与本章冲突的实现都是 bug，必须修复。
+
+### 11.1 原样透传铁律（passthrough）
+
+onebot_expand 是协议端（NapCat / SnowLuma / LLOneBot）的**纯透传桥梁**。任何 OneBot action 调用（api_client / Service 方法 / Tool execute）必须同时满足：
+
+**（1）参数原样透传过去**
+
+- 调用方给出的参数值，不经任何清洗、类型转换、规范化、结构重排，直接放进 `params` 发给协议端
+- **禁止**：`str→int` 转换（如 `normalize_message_id` 把 `"12345"` 改成 `12345`）、去空白、合并转发节点结构改写（如 `_normalize_forward_messages` 简写节点包装）、注入调用方未给出的消息段（如 reply 段注入）
+- 方法/Tool 参数名与 OneBot API 参数名 1:1 对应；调用方未提供的可选参数不硬塞默认值进 `params`
+
+**（2）响应原样透传回来**
+
+- 协议端返回什么，就完整返回什么：整个 `{status, retcode, data, echo, msg, wording, ...}` 响应字典逐字段、逐值透传
+- **禁止**：只提取 `data`、翻译成中文摘要、丢弃字段、合并字段、本地伪造 `{"status": ..., "retcode": ...}`
+- Tool 层返回 `tuple[bool, result]`：第一元素仅由 `result.get("status") == "ok"` 派生，第二元素必须是**完整原始响应字典**
+
+**（3）本地禁止拦截调用**
+
+- 不因 `snowluma_compat` / `napcat_only`、emoji 白名单、参数校验等任何理由在本地拦截调用或伪造响应
+- 兼容性标记（§4）只用于文档、WebUI 展示与 Tool 注册过滤，**不用于调用期拦截**
+- 协议端不支持的动作也照发，由协议端自行返回错误，把该错误响应原样透传回来
+
+**（4）唯一例外（显式白名单）**
+
+| 例外 | 理由 |
+|---|---|
+| `resolve_action()` 别名→主名解析（§6） | 插件 action 命名机制，不改参数内容 |
+| 文件传输适配（path_mapper 路径映射 / base64 / 共享卷） | 用户显式开启配置才生效的翻译层；全部关闭时文件参数原样透传 |
+| `qzone_service` 的内部能力（`get_qzone_msg_detail` / `get_qzone_user_feeds` / `reply_qzone_comment`） | 不是 OneBot action，不经过协议端 |
+| `event_handler` / `patches` | 入站事件适配，不属于 API 调用链 |
+| Tool 开关包装器（§7） | 注册/执行前的开关检查，不触碰参数与响应内容 |
+
+### 11.2 完整测试铁律
+
+每次维护必须**完整测试所有功能**，禁止只测新增 API：
+
+1. **静态透传一致性检查**（必须，自动化）：`pytest tests/test_passthrough.py`
+   - 扫描全部 Tool 源码，断言不存在违规模式：`return True, "..."` 中文摘要、`result.get("data")` 响应提取、本地伪造 `{"status": ...}` 响应、`normalize_message_id` 参数改写
+   - 断言 `len(ALL_TOOLS) == len(ALL_APIS)`
+2. **单元/契约测试**（必须）：`pytest tests/` 全绿，包括 `test_api_contract.py`、`test_upstream_action_payloads.py`、`test_tool_registration.py`、`test_qzone_compat.py`
+3. **协议端实测**（NapCat/SnowLuma 在线时）：经 `tests/napcat_test_adapter.py` 对全部 action 冒烟
+   - 只读 API 用最小参数实测；写操作用测试群/测试号
+   - 验证：插件路径返回的响应与协议端直接返回**结构逐字段一致**（`status`/`retcode`/`data`/`wording`/`echo` 等全量保留），参数侧发送的 `params` 与调用方输入逐键一致
+4. **测试后回收开关**：所有 `enable_<action>` 与 `enable_all_tools` 恢复 `false`
+
+任何新增功能在合入前必须先通过 1 和 2；违反透传铁律的功能不允许合入。

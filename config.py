@@ -793,7 +793,7 @@ class OnebotExpandConfig(BaseConfig):
             description="是否启用 _del_group_notice API（删除群公告）",
         )
 
-        # --- 群管理扩展类 API (11) ---
+        # --- 群管理扩展类 API (12) ---
         enable_set_group_portrait: bool = Field(
             default=False,
             description="是否启用 set_group_portrait API（设置群头像）",
@@ -833,6 +833,10 @@ class OnebotExpandConfig(BaseConfig):
         enable_get_group_info_ex: bool = Field(
             default=False,
             description="是否启用 get_group_info_ex API（获取群信息扩展）",
+        )
+        enable_get_group_share_link: bool = Field(
+            default=False,
+            description="是否启用 get_group_share_link API（获取群分享链接，仅 NapCat）",
         )
         enable_set_group_sign: bool = Field(
             default=False,

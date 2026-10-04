@@ -61,17 +61,14 @@ class DeleteFriendTool(BaseTool):
         self,
         user_id: Annotated[int, "目标用户QQ号"],
         block: Annotated[bool, "是否同时拉黑该好友"] = False,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行删除好友。"""
         params: dict[str, Any] = {
             "user_id": user_id,
             "block": block,
         }
         result = await _call_onebot_api("delete_friend", params)
-        if result.get("status") == "ok":
-            block_msg = "并已拉黑" if block else ""
-            return True, f"已删除好友 {user_id}{block_msg}"
-        return False, f"删除好友失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetFriendRemarkTool(BaseTool):
@@ -88,16 +85,14 @@ class SetFriendRemarkTool(BaseTool):
         self,
         user_id: Annotated[int, "目标用户QQ号"],
         remark: Annotated[str, "备注名"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置好友备注。"""
         params: dict[str, Any] = {
             "user_id": user_id,
             "remark": remark,
         }
         result = await _call_onebot_api("set_friend_remark", params)
-        if result.get("status") == "ok":
-            return True, f"已设置好友 {user_id} 的备注为: {remark}"
-        return False, f"设置好友备注失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetFriendsWithCategoryTool(BaseTool):
@@ -116,10 +111,7 @@ class GetFriendsWithCategoryTool(BaseTool):
         """执行获取分组好友列表。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_friends_with_category", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取分组好友列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetUnidirectionalFriendListTool(BaseTool):
@@ -138,10 +130,7 @@ class GetUnidirectionalFriendListTool(BaseTool):
         """执行获取单向好友列表。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_unidirectional_friend_list", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取单向好友列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetQQProfileTool(BaseTool):
@@ -158,7 +147,7 @@ class SetQQProfileTool(BaseTool):
         self,
         nickname: Annotated[str, "昵称"] = "",
         personal_note: Annotated[str, "个人说明"] = "",
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置QQ资料。"""
         params: dict[str, Any] = {}
         if nickname:
@@ -166,9 +155,7 @@ class SetQQProfileTool(BaseTool):
         if personal_note:
             params["personal_note"] = personal_note
         result = await _call_onebot_api("set_qq_profile", params)
-        if result.get("status") == "ok":
-            return True, "QQ资料设置成功"
-        return False, f"设置QQ资料失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetQQAvatarTool(BaseTool):
@@ -184,13 +171,11 @@ class SetQQAvatarTool(BaseTool):
     async def execute(
         self,
         file: Annotated[str, "头像图片路径或URL"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置QQ头像。"""
         params: dict[str, Any] = {"file": file}
         result = await _call_onebot_api("set_qq_avatar", params)
-        if result.get("status") == "ok":
-            return True, "QQ头像设置成功"
-        return False, f"设置QQ头像失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetSelfLongnickTool(BaseTool):
@@ -206,13 +191,11 @@ class SetSelfLongnickTool(BaseTool):
     async def execute(
         self,
         long_nick: Annotated[str, "个性签名内容"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置个性签名。"""
         params: dict[str, Any] = {"long_nick": long_nick}
         result = await _call_onebot_api("set_self_longnick", params)
-        if result.get("status") == "ok":
-            return True, "个性签名设置成功"
-        return False, f"设置个性签名失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetRecentContactTool(BaseTool):
@@ -232,10 +215,7 @@ class GetRecentContactTool(BaseTool):
         """执行获取最近联系人。"""
         params: dict[str, Any] = {"count": count}
         result = await _call_onebot_api("get_recent_contact", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取最近联系人失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetProfileLikeTool(BaseTool):
@@ -261,10 +241,7 @@ class GetProfileLikeTool(BaseTool):
             "count": count,
         }
         result = await _call_onebot_api("get_profile_like", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取资料点赞失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetProfileLikeMeTool(BaseTool):
@@ -280,16 +257,14 @@ class GetProfileLikeMeTool(BaseTool):
         self,
         start: Annotated[int, "起始位置(默认0)"],
         count: Annotated[int, "数量(默认20,最多30)"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行获取自身被点赞列表。"""
         params: dict[str, Any] = {
             "start": start,
             "count": count,
         }
         result = await _call_onebot_api("get_profile_like_me", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"获取自身被点赞列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetProfileLikeCountTool(BaseTool):
@@ -304,15 +279,13 @@ class GetProfileLikeCountTool(BaseTool):
     async def execute(
         self,
         user_id: Annotated[int, "目标QQ号"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行获取用户点赞总数。"""
         params: dict[str, Any] = {
             "user_id": user_id,
         }
         result = await _call_onebot_api("get_profile_like_count", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"获取用户点赞总数失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetQQAvatarTool(BaseTool):
@@ -328,16 +301,14 @@ class GetQQAvatarTool(BaseTool):
         self,
         user_id: Annotated[int, "目标QQ号(与group_id二选一)"],
         group_id: Annotated[int, "目标群号(与user_id二选一)"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行获取QQ头像URL。"""
         params: dict[str, Any] = {
             "user_id": user_id,
             "group_id": group_id,
         }
         result = await _call_onebot_api("get_qq_avatar", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"获取QQ头像URL失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetFriendCategoryTool(BaseTool):
@@ -353,16 +324,14 @@ class SetFriendCategoryTool(BaseTool):
         self,
         user_id: Annotated[int, "目标QQ号"],
         category_id: Annotated[int, "分类ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置好友分类。"""
         params: dict[str, Any] = {
             "user_id": user_id,
             "category_id": category_id,
         }
         result = await _call_onebot_api("set_friend_category", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"设置好友分类失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetFriendsCategoryTool(BaseTool):
@@ -376,20 +345,15 @@ class SetFriendsCategoryTool(BaseTool):
         uin: Annotated[int, "目标QQ号"],
         category_id: Annotated[int | None, "分类ID"] = None,
         category_name: Annotated[str | None, "分类名称"] = None,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置好友分类。"""
-        if (category_id is None) == (category_name is None):
-            raise ValueError("category_id 与 category_name 必须恰好提供一个")
-
         params: dict[str, Any] = {"uin": uin}
         if category_id is not None:
             params["categoryId"] = category_id
         if category_name is not None:
             params["categoryName"] = category_name
         result = await _call_onebot_api("set_friends_category", params)
-        if result.get("status") == "ok":
-            return True, f"已设置好友 {uin} 的分类"
-        return False, f"设置好友分类失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetFriendDressTool(BaseTool):
@@ -405,12 +369,10 @@ class GetFriendDressTool(BaseTool):
     async def execute(
         self,
         user_id: Annotated[int, "目标QQ号"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行获取好友个性装扮。"""
         params: dict[str, Any] = {
             "user_id": user_id,
         }
         result = await _call_onebot_api("_get_friend_dress", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"获取好友个性装扮失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result

@@ -1,66 +1,48 @@
-"""消息 ID 与引用消息段辅助函数测试。"""
+"""消息 ID 类型别名测试（原样透传铁律版）。
+
+历史上的 normalize_message_id / normalize_message_ids / build_text_message
+参数改写辅助函数已按 SKILL.md §11.1 原样透传铁律移除；
+本文件验证类型别名仍可用，且改写函数确实不存在。
+"""
 
 from __future__ import annotations
 
 import pytest
 
-from ..message_utils import (
-    build_text_message,
-    normalize_message_id,
-    normalize_message_ids,
-)
-from ..tools.message_tools import _normalize_forward_messages
+from .. import message_utils
+from ..message_utils import MessageId
 
 
-def test_normalize_message_id_accepts_core_message_table_values() -> None:
-    """主程序消息表中的字符串 ID 应转换为 OneBot 可接受的值。"""
-    assert normalize_message_id(" 12345 ") == 12345
-    assert normalize_message_id("platform-message-id") == "platform-message-id"
-    assert normalize_message_id(12345) == 12345
+def test_message_id_type_alias_accepts_int_and_str() -> None:
+    """MessageId 类型别名应同时容纳 int 与 str（运行时不做转换）。"""
+    a: MessageId = 12345
+    b: MessageId = "platform-message-id"
+    assert a == 12345
+    assert b == "platform-message-id"
 
 
-@pytest.mark.parametrize("message_id", ["", "   ", True])
-def test_normalize_message_id_rejects_invalid_values(message_id: int | str) -> None:
-    """空 ID 与布尔值不应被发送到 OneBot。"""
-    with pytest.raises(ValueError):
-        normalize_message_id(message_id)
+def test_param_transform_helpers_are_removed() -> None:
+    """参数改写辅助函数必须已被移除（原样透传铁律）。"""
+    assert not hasattr(message_utils, "normalize_message_id")
+    assert not hasattr(message_utils, "normalize_message_ids")
+    assert not hasattr(message_utils, "build_text_message")
 
 
-def test_normalize_message_ids_handles_nested_message_payloads() -> None:
-    """合并转发等嵌套消息中的 message_id 也应被规范化。"""
-    params = {
-        "message_id": "100",
-        "messages": [{"data": {"message_id": "nested-id"}}],
-    }
+def test_forward_node_normalizer_is_removed() -> None:
+    """合并转发节点改写函数必须已被移除（参数原样透传）。"""
+    from ..tools import message_tools
 
-    assert normalize_message_ids(params) == {
-        "message_id": 100,
-        "messages": [{"data": {"message_id": "nested-id"}}],
-    }
-    assert params["message_id"] == "100"
+    assert not hasattr(message_tools, "_normalize_forward_messages")
+    assert not hasattr(message_tools, "_extract_message_id")
+    assert not hasattr(message_tools, "ForwardNode")
 
 
-def test_build_text_message_prepends_reply_segment() -> None:
-    """引用回复段必须位于文本段之前。"""
-    assert build_text_message("hello", "12345") == [
-        {"type": "reply", "data": {"id": 12345}},
-        {"type": "text", "data": {"text": "hello"}},
-    ]
+def test_api_client_does_not_rewrite_params() -> None:
+    """api_client 不得再引用参数改写函数。"""
+    import inspect
 
+    from .. import api_client
 
-def test_normalize_forward_messages_wraps_short_nodes() -> None:
-    """合并转发的简写节点应转换为 OneBot 标准 node 段。"""
-    assert _normalize_forward_messages(
-        [{"uin": "10001", "nick": "Alice", "content": "你好"}]
-    ) == [
-        {
-            "type": "node",
-            "data": {"uin": "10001", "name": "Alice", "content": "你好"},
-        }
-    ]
-
-
-def test_normalize_forward_messages_rejects_incomplete_short_node() -> None:
-    """不完整的合并转发简写节点应在调用 OneBot 前被拒绝。"""
-    with pytest.raises(ValueError, match="uin、nick（或 name）和 content"):
-        _normalize_forward_messages([{"uin": "10001", "content": "你好"}])
+    source = inspect.getsource(api_client)
+    assert "normalize_message_ids" not in source
+    assert "snowluma_compat" not in source  # 兼容性标记不得用于调用期拦截

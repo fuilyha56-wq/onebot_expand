@@ -294,6 +294,7 @@ class ExpandAction:
     GET_GROUP_IGNORED_NOTIFIES = "get_group_ignored_notifies"
     GET_GROUP_IGNORE_ADD_REQUEST = "get_group_ignore_add_request"
     GET_GROUP_INFO_EX = "get_group_info_ex"
+    GET_GROUP_SHARE_LINK = "get_group_share_link"
     SET_GROUP_SIGN = "set_group_sign"
     GET_GROUP_SIGNED_LIST = "get_group_signed_list"
     GET_ROBOT_UIN_RANGE = "get_robot_uin_range"
@@ -1554,6 +1555,20 @@ ALL_APIS: dict[str, APIDef] = {
         params={
             "group_id": "int",
         },
+    ),
+    ExpandAction.GET_GROUP_SHARE_LINK: APIDef(
+        action="get_group_share_link",
+        category=APICategory.GROUP_EXT,
+        source=APISource.EXPAND,
+        description="获取群分享链接（NapCat 专属）",
+        params={
+            "group_id": "int | str",
+            "need_short_url": "bool | str",
+            "src_id": "int | str",
+            "additional_param": "str",
+        },
+        napcat_only=True,
+        snowluma_compat=False,
     ),
     ExpandAction.SET_GROUP_SIGN: APIDef(
         action="set_group_sign",
@@ -2902,6 +2917,7 @@ GROUP_EXT_APIS: list[str] = [
     ExpandAction.GET_GROUP_IGNORED_NOTIFIES,
     ExpandAction.GET_GROUP_IGNORE_ADD_REQUEST,
     ExpandAction.GET_GROUP_INFO_EX,
+    ExpandAction.GET_GROUP_SHARE_LINK,
     ExpandAction.SET_GROUP_SIGN,
     ExpandAction.GET_GROUP_SIGNED_LIST,
     ExpandAction.BATCH_DELETE_GROUP_MEMBER,

@@ -323,9 +323,6 @@ class GroupService(BaseService):
 
         Returns:
             适配器返回的响应字典。
-
-        Raises:
-            ValueError: 未提供任何权限项时抛出。
         """
         params: dict[str, Any] = {"group_id": group_id}
         permissions = {
@@ -336,8 +333,6 @@ class GroupService(BaseService):
         params.update(
             {key: value for key, value in permissions.items() if value is not None}
         )
-        if len(params) == 1:
-            raise ValueError("至少需要提供一个群成员功能权限")
         return await _call_onebot_api("set_group_member_permissions", params)
 
     async def set_new_member_history_visibility(

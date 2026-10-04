@@ -132,12 +132,7 @@ class ArkService(BaseService):
 
         Returns:
             适配器返回的响应字典（data 为 null）。
-
-        Raises:
-            ValueError: user_id 与 group_id 未二选一时抛出。
         """
-        if (user_id is None) == (group_id is None):
-            raise ValueError("user_id 与 group_id 必须二选一（恰好提供一个）")
         params: dict[str, Any] = {
             "title": title,
             "desc": desc,
@@ -147,6 +142,6 @@ class ArkService(BaseService):
         }
         if group_id is not None:
             params["group_id"] = group_id
-        else:
+        if user_id is not None:
             params["user_id"] = user_id
         return await _call_onebot_api("send_tuwen_ark", params)

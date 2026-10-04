@@ -54,10 +54,7 @@ class GetQzoneMsgListTool(BaseTool):
             "num": num,
         }
         result = await _call_onebot_api("get_qzone_msg_list", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取QQ空间说说列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetQzoneFeedsTool(BaseTool):
@@ -81,10 +78,7 @@ class GetQzoneFeedsTool(BaseTool):
             "count": count,
         }
         result = await _call_onebot_api("get_qzone_feeds", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取QQ空间好友动态失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SendQzoneMsgTool(BaseTool):
@@ -103,7 +97,7 @@ class SendQzoneMsgTool(BaseTool):
         images: Annotated[list[str] | None, "图片数组（可选），支持 file:// http(s):// base://"] = None,
         ugc_right: Annotated[int, "查看权限：1=所有人可见，4=好友可见，16=部分好友可见，64=仅自己可见，128=部分好友不可见"] = 1,
         target_uins: Annotated[list[int] | None, "权限作用QQ号数组（ugc_right=16/128 时必填）"] = None,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行发表说说。"""
         params: dict[str, Any] = {"content": content, "ugc_right": ugc_right}
         if images:
@@ -111,9 +105,7 @@ class SendQzoneMsgTool(BaseTool):
         if target_uins:
             params["target_uins"] = target_uins
         result = await _call_onebot_api("send_qzone_msg", params)
-        if result.get("status") == "ok":
-            return True, "说说发表成功"
-        return False, f"发表说说失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class DeleteQzoneMsgTool(BaseTool):
@@ -129,13 +121,11 @@ class DeleteQzoneMsgTool(BaseTool):
     async def execute(
         self,
         tid: Annotated[str, "说说ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行删除说说。"""
         params: dict[str, Any] = {"tid": tid}
         result = await _call_onebot_api("delete_qzone_msg", params)
-        if result.get("status") == "ok":
-            return True, f"说说 {tid} 已删除"
-        return False, f"删除说说失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class LikeQzoneTool(BaseTool):
@@ -152,15 +142,13 @@ class LikeQzoneTool(BaseTool):
         self,
         tid: Annotated[str, "说说ID"],
         target_uin: Annotated[int, "说说发布者QQ号（可选）"] = 0,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行给说说点赞。"""
         params: dict[str, Any] = {"tid": tid}
         if target_uin:
             params["target_uin"] = target_uin
         result = await _call_onebot_api("like_qzone", params)
-        if result.get("status") == "ok":
-            return True, "点赞成功"
-        return False, f"点赞说说失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class UnlikeQzoneTool(BaseTool):
@@ -177,15 +165,13 @@ class UnlikeQzoneTool(BaseTool):
         self,
         tid: Annotated[str, "说说ID"],
         target_uin: Annotated[int, "说说发布者QQ号（可选）"] = 0,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行取消点赞。"""
         params: dict[str, Any] = {"tid": tid}
         if target_uin:
             params["target_uin"] = target_uin
         result = await _call_onebot_api("unlike_qzone", params)
-        if result.get("status") == "ok":
-            return True, "已取消点赞"
-        return False, f"取消点赞失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class CommentQzoneTool(BaseTool):
@@ -204,7 +190,7 @@ class CommentQzoneTool(BaseTool):
         content: Annotated[str, "评论内容"],
         target_uin: Annotated[int, "说说发布者QQ号（可选）"] = 0,
         images: Annotated[list[str] | None, "图片数组（可选），支持 file:// http(s):// base://"] = None,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行评论说说。"""
         params: dict[str, Any] = {
             "tid": tid,
@@ -215,9 +201,7 @@ class CommentQzoneTool(BaseTool):
         if images:
             params["images"] = images
         result = await _call_onebot_api("comment_qzone", params)
-        if result.get("status") == "ok":
-            return True, "评论发送成功"
-        return False, f"评论说说失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 class SetQzoneBanTool(BaseTool):
     """QQ 空间拉黑/解除拉黑的 Tool（SnowLuma 扩展）。
@@ -232,16 +216,14 @@ class SetQzoneBanTool(BaseTool):
         self,
         user_id: Annotated[int, "目标QQ号"],
         enable: Annotated[bool, "true 拉黑，false 解除拉黑"] = True,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行 QQ 空间拉黑。"""
         params: dict[str, Any] = {
             "user_id": user_id,
             "enable": enable,
         }
         result = await _call_onebot_api("set_qzone_ban", params)
-        if result.get("status") == "ok":
-            return True, "QQ空间拉黑设置成功"
-        return False, f"QQ空间拉黑失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetQzoneMsgRightTool(BaseTool):
@@ -258,7 +240,7 @@ class SetQzoneMsgRightTool(BaseTool):
         tid: Annotated[str, "说说ID"],
         ugc_right: Annotated[int, "查看权限：1=所有人可见，4=好友可见，16=部分好友可见，64=仅自己可见，128=部分好友不可见"],
         target_uins: Annotated[list[int] | None, "权限作用QQ号数组（ugc_right=16/128 时必填）"] = None,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行修改说说权限。"""
         params: dict[str, Any] = {
             "tid": tid,
@@ -267,6 +249,4 @@ class SetQzoneMsgRightTool(BaseTool):
         if target_uins:
             params["target_uins"] = target_uins
         result = await _call_onebot_api("set_qzone_msg_right", params)
-        if result.get("status") == "ok":
-            return True, "说说权限修改成功"
-        return False, f"说说权限修改失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result

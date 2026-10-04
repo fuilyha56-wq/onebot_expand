@@ -1,6 +1,6 @@
 # onebot_expand API 索引名单
 
-> 共 **219** 个主名 action + **18** 个别名 · 覆盖 OneBot v11 / NapCat / SnowLuma / LLOneBot 四方协议端
+> 共 **220** 个主名 action + **18** 个别名 · 覆盖 OneBot v11 / NapCat / SnowLuma / LLOneBot 四方协议端
 
 **来源标记**：`OB11`=OneBot v11 标准 · `NapCat`=NapCat 扩展 · `go-cqhttp`=go-cqhttp 兼容 · `Expand`=插件扩展 · `LLOneBot`=LLOneBot 扩展
 
@@ -136,7 +136,7 @@
 | `_get_group_notice` | Expand | — | ✓ | — |
 | `_del_group_notice` | Expand | — | ✓ | — |
 
-### 群管理扩展 (group_ext, 14 个)
+### 群管理扩展 (group_ext, 15 个)
 
 | action | 来源 | napcat_only | snowluma_compat | 别名 |
 |---|---|---|---|---|
@@ -150,6 +150,7 @@
 | `get_group_ignored_notifies` | Expand | — | ✓ | — |
 | `get_group_ignore_add_request` | Expand | — | ✓ | — |
 | `get_group_info_ex` | Expand | — | ✓ | — |
+| `get_group_share_link` | Expand | ✓ | ✗ | — |
 | `set_group_sign` | Expand | — | ✓ | send_group_sign |
 | `get_group_signed_list` | Expand | — | ✓ | — |
 | `batch_delete_group_member` | LLOneBot | — | ✗ | — |
@@ -387,4 +388,4 @@
 - **go-cqhttp**：20 个 — go-cqhttp 兼容 API
 - **Expand**：144 个 — 插件扩展 API（含 SnowLuma/LLOneBot 独有扩展）
 
-**合计**：219 个主名 action + 18 个别名 = 237 个可调用名
+**合计**：220 个主名 action + 18 个别名 = 238 个可调用名

@@ -13,9 +13,10 @@ import re
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from typing import Any, Literal
-from urllib.error import HTTPError, URLError
+
+import httpx
+
 from urllib.parse import urlencode
-from urllib.request import Request, urlopen
 
 QZONE_DETAIL_URL = (
     "https://h5.qzone.qq.com/proxy/domain/taotao.qq.com/"
@@ -33,6 +34,14 @@ QZONE_USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
     "AppleWebKit/537.36 (KHTML, like Gecko) "
     "Chrome/138.0.0.0 Safari/537.36"
+)
+
+#: 允许 ``_send_qzone_request`` 访问的 URL 白名单（基址精确匹配）。
+#: 请求 URL 只能由上述常量构造，外部输入只允许出现在查询串中（防 SSRF）。
+_QZONE_ALLOWED_URL_PREFIXES = (
+    QZONE_DETAIL_URL,
+    QZONE_USER_FEEDS_URL,
+    QZONE_REPLY_URL,
 )
 
 
@@ -484,7 +493,22 @@ def _send_qzone_request(
     cookie_header: str,
     timeout_seconds: float,
 ) -> str:
-    """在工作线程中发送 HTTP 请求，避免阻塞框架事件循环。"""
+    """在工作线程中发送 HTTP 请求，避免阻塞框架事件循环。
+
+    SSRF 防护：请求 URL 必须严格等于白名单常量之一（查询串分离校验），
+    只把白名单常量本身发往 QZone，外部输入只允许出现在查询串中。
+    """
+    base_url, _, query = str(request.url).partition("?")
+    allowed_base = None
+    for prefix in _QZONE_ALLOWED_URL_PREFIXES:
+        if base_url == prefix:
+            allowed_base = prefix
+            break
+    if allowed_base is None:
+        raise QzoneCompatibilityError(
+            "QZone 兼容层拒绝访问非白名单地址（URL 校验失败）。"
+        )
+    final_url = allowed_base + ("?" + query if query else "")
     headers = {
         "User-Agent": QZONE_USER_AGENT,
         "Accept-Encoding": "identity",
@@ -492,22 +516,28 @@ def _send_qzone_request(
         **request.headers,
     }
     request_data = request.body.encode("utf-8") if request.method == "POST" else None
-    raw_request = Request(
-        request.url,
-        data=request_data,
-        headers=headers,
-        method=request.method,
-    )
     try:
-        with urlopen(raw_request, timeout=timeout_seconds) as response:
-            charset = response.headers.get_content_charset() or "utf-8"
-            return response.read().decode(charset, errors="replace")
-    except HTTPError as error:
+        with httpx.Client(
+            timeout=timeout_seconds,
+            verify=True,
+            follow_redirects=False,
+        ) as client:
+            response = client.request(
+                request.method,
+                final_url,
+                content=request_data,
+                headers=headers,
+            )
+            charset = (
+                response.headers.get_content_charset()
+                if hasattr(response.headers, "get_content_charset")
+                else None
+            ) or "utf-8"
+            return response.content.decode(charset, errors="replace")
+    except httpx.HTTPError as error:
         raise QzoneCompatibilityError(
-            f"QZone HTTP 请求失败（status={error.code}）。"
+            f"QZone HTTP 请求失败（{type(error).__name__}）。"
         ) from error
-    except URLError as error:
-        raise QzoneCompatibilityError("QZone HTTP 请求无法连接。") from error
 
 
 class QzoneCompatibilityClient:

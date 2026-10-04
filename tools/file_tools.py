@@ -178,7 +178,7 @@ class UploadGroupFileTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
         file_path: Annotated[str, "本地文件路径"],
         file_name: Annotated[str, "显示的文件名（空则自动从路径提取）"] = "",
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行上传群文件。"""
         resolved_path = await _resolve_file_path(file_path)
         name = _extract_file_name(file_path, file_name)
@@ -191,9 +191,7 @@ class UploadGroupFileTool(BaseTool):
         result = await _call_onebot_api(
             "upload_group_file", params, timeout=_FILE_TIMEOUT
         )
-        if result.get("status") == "ok":
-            return True, f"群文件上传成功: {name}"
-        return False, f"群文件上传失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class UploadPrivateFileTool(BaseTool):
@@ -212,7 +210,7 @@ class UploadPrivateFileTool(BaseTool):
         user_id: Annotated[int, "目标用户QQ号"],
         file_path: Annotated[str, "本地文件路径"],
         file_name: Annotated[str, "显示的文件名（空则自动从路径提取）"] = "",
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行上传私聊文件。"""
         resolved_path = await _resolve_file_path(file_path)
         name = _extract_file_name(file_path, file_name)
@@ -225,9 +223,7 @@ class UploadPrivateFileTool(BaseTool):
         result = await _call_onebot_api(
             "upload_private_file", params, timeout=_FILE_TIMEOUT
         )
-        if result.get("status") == "ok":
-            return True, f"私聊文件上传成功: {name}"
-        return False, f"私聊文件上传失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetFileTool(BaseTool):
@@ -254,10 +250,7 @@ class GetFileTool(BaseTool):
             "file_id": file_id,
         }
         result = await _call_onebot_api("get_file", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取文件信息失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetImageTool(BaseTool):
@@ -277,10 +270,7 @@ class GetImageTool(BaseTool):
         """执行获取图片信息。"""
         params: dict[str, Any] = {"file": file}
         result = await _call_onebot_api("get_image", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取图片信息失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetRecordTool(BaseTool):
@@ -306,10 +296,7 @@ class GetRecordTool(BaseTool):
             "out_format": out_format,
         }
         result = await _call_onebot_api("get_record", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取语音文件信息失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SendOnlineFileTool(BaseTool):
@@ -327,7 +314,7 @@ class SendOnlineFileTool(BaseTool):
         user_id: Annotated[int, "目标用户QQ号"],
         file_path: Annotated[str, "本地文件路径"],
         file_name: Annotated[str, "显示的文件名（空则自动从路径提取）"] = "",
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行发送在线文件。"""
         resolved_path = await _resolve_file_path(file_path)
         name = _extract_file_name(file_path, file_name)
@@ -339,9 +326,7 @@ class SendOnlineFileTool(BaseTool):
         result = await _call_onebot_api(
             "send_online_file", params, timeout=_FILE_TIMEOUT
         )
-        if result.get("status") == "ok":
-            return True, f"在线文件发送成功: {name}"
-        return False, f"在线文件发送失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SendOnlineFolderTool(BaseTool):
@@ -359,7 +344,7 @@ class SendOnlineFolderTool(BaseTool):
         user_id: Annotated[int, "目标用户QQ号"],
         folder_path: Annotated[str, "本地文件夹路径"],
         folder_name: Annotated[str, "显示的文件夹名（空则自动从路径提取）"] = "",
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行发送在线文件夹。"""
         resolved_path = await _resolve_file_path(folder_path)
         name = _extract_file_name(folder_path, folder_name)
@@ -371,9 +356,7 @@ class SendOnlineFolderTool(BaseTool):
         result = await _call_onebot_api(
             "send_online_folder", params, timeout=_FILE_TIMEOUT
         )
-        if result.get("status") == "ok":
-            return True, f"在线文件夹发送成功: {name}"
-        return False, f"在线文件夹发送失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetOnlineFileMsgTool(BaseTool):
@@ -393,10 +376,7 @@ class GetOnlineFileMsgTool(BaseTool):
         """执行获取在线文件消息列表。"""
         params: dict[str, Any] = {"user_id": user_id}
         result = await _call_onebot_api("get_online_file_msg", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取在线文件消息列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class ReceiveOnlineFileTool(BaseTool):
@@ -414,7 +394,7 @@ class ReceiveOnlineFileTool(BaseTool):
         user_id: Annotated[int, "发送方QQ号"],
         msg_id: Annotated[str, "消息ID"],
         element_id: Annotated[str, "元素ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行接收在线文件。"""
         params: dict[str, Any] = {
             "user_id": user_id,
@@ -424,9 +404,7 @@ class ReceiveOnlineFileTool(BaseTool):
         result = await _call_onebot_api(
             "receive_online_file", params, timeout=_FILE_TIMEOUT
         )
-        if result.get("status") == "ok":
-            return True, "在线文件接收成功"
-        return False, f"在线文件接收失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class RefuseOnlineFileTool(BaseTool):
@@ -444,7 +422,7 @@ class RefuseOnlineFileTool(BaseTool):
         user_id: Annotated[int, "发送方QQ号"],
         msg_id: Annotated[str, "消息ID"],
         element_id: Annotated[str, "元素ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行拒绝在线文件。"""
         params: dict[str, Any] = {
             "user_id": user_id,
@@ -452,9 +430,7 @@ class RefuseOnlineFileTool(BaseTool):
             "element_id": element_id,
         }
         result = await _call_onebot_api("refuse_online_file", params)
-        if result.get("status") == "ok":
-            return True, "已拒绝在线文件"
-        return False, f"拒绝在线文件失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class CancelOnlineFileTool(BaseTool):
@@ -471,16 +447,14 @@ class CancelOnlineFileTool(BaseTool):
         self,
         user_id: Annotated[int, "接收方QQ号"],
         msg_id: Annotated[str, "消息ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行取消已发送在线文件。"""
         params: dict[str, Any] = {
             "user_id": user_id,
             "msg_id": msg_id,
         }
         result = await _call_onebot_api("cancel_online_file", params)
-        if result.get("status") == "ok":
-            return True, "已取消在线文件"
-        return False, f"取消在线文件失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class CleanStreamTempFileTool(BaseTool):
@@ -492,13 +466,11 @@ class CleanStreamTempFileTool(BaseTool):
     name = "clean_stream_temp_file"
     description = "清理流式传输临时文件"
 
-    async def execute(self) -> tuple[bool, str]:
+    async def execute(self) -> tuple[bool, dict[str, Any]]:
         """执行清理流式临时文件。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("clean_stream_temp_file", params)
-        if result.get("status") == "ok":
-            return True, "已清理流式临时文件"
-        return False, f"清理流式临时文件失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class UploadFileStreamTool(BaseTool):
@@ -548,9 +520,7 @@ class UploadFileStreamTool(BaseTool):
         if verify_only is not None:
             params["verify_only"] = verify_only
         result = await _call_onebot_api("upload_file_stream", params)
-        if result.get("status") == "ok":
-            return True, result.get("data", {})
-        return False, f"流式上传失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class DownloadFileStreamTool(BaseTool):
@@ -577,9 +547,7 @@ class DownloadFileStreamTool(BaseTool):
         if chunk_size:
             params["chunk_size"] = chunk_size
         result = await _call_onebot_api("download_file_stream", params)
-        if result.get("status") == "ok":
-            return True, result.get("data", {})
-        return False, f"流式下载失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class DownloadFileRecordStreamTool(BaseTool):
@@ -616,9 +584,7 @@ class DownloadFileRecordStreamTool(BaseTool):
         if out_format:
             params["out_format"] = out_format
         result = await _call_onebot_api("download_file_record_stream", params)
-        if result.get("status") == "ok":
-            return True, result.get("data", {})
-        return False, f"流式语音下载失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class DownloadFileImageStreamTool(BaseTool):
@@ -645,6 +611,4 @@ class DownloadFileImageStreamTool(BaseTool):
         if chunk_size:
             params["chunk_size"] = chunk_size
         result = await _call_onebot_api("download_file_image_stream", params)
-        if result.get("status") == "ok":
-            return True, result.get("data", {})
-        return False, f"流式图片下载失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result

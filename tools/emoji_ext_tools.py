@@ -67,10 +67,7 @@ class FetchCustomFaceTool(BaseTool):
         """执行获取收藏表情。"""
         params: dict[str, Any] = {"count": count}
         result = await _call_onebot_api("fetch_custom_face", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取收藏表情失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class FetchSysFacesTool(BaseTool):
@@ -84,9 +81,7 @@ class FetchSysFacesTool(BaseTool):
         refresh: Annotated[bool, "是否刷新缓存"] = False,
     ) -> tuple[bool, str | dict[str, Any]]:
         result = await _call_onebot_api("fetch_sys_faces", {"refresh": refresh})
-        if result.get("status") == "ok":
-            return True, result.get("data", {})
-        return False, f"获取系统表情列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class FetchFaceEntityTool(BaseTool):
@@ -103,9 +98,7 @@ class FetchFaceEntityTool(BaseTool):
         result = await _call_onebot_api(
             "fetch_face_entity", {"face_id": face_id, "refresh": refresh}
         )
-        if result.get("status") == "ok":
-            return True, result.get("data", {})
-        return False, f"获取系统表情实体失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SearchSysFacesTool(BaseTool):
@@ -119,9 +112,7 @@ class SearchSysFacesTool(BaseTool):
         query: Annotated[str, "搜索关键词"],
     ) -> tuple[bool, str | dict[str, Any]]:
         result = await _call_onebot_api("search_sys_faces", {"query": query})
-        if result.get("status") == "ok":
-            return True, result.get("data", {})
-        return False, f"搜索系统表情失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class FetchSuperFaceIdTool(BaseTool):
@@ -138,9 +129,7 @@ class FetchSuperFaceIdTool(BaseTool):
         result = await _call_onebot_api(
             "fetch_super_face_id", {"face_id": face_id, "refresh": refresh}
         )
-        if result.get("status") == "ok":
-            return True, result.get("data", {})
-        return False, f"判断超级表情格式失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class FetchCustomFaceDetailTool(BaseTool):
@@ -160,10 +149,7 @@ class FetchCustomFaceDetailTool(BaseTool):
         """执行获取收藏表情详情。"""
         params: dict[str, Any] = {"count": count}
         result = await _call_onebot_api("fetch_custom_face_detail", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取收藏表情详情失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class AddCustomFaceTool(BaseTool):
@@ -179,13 +165,11 @@ class AddCustomFaceTool(BaseTool):
     async def execute(
         self,
         file: Annotated[str, "表情图片路径或URL"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行添加收藏表情。"""
         params: dict[str, Any] = {"file": file}
         result = await _call_onebot_api("add_custom_face", params)
-        if result.get("status") == "ok":
-            return True, "收藏表情添加成功"
-        return False, f"添加收藏表情失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class DeleteCustomFaceTool(BaseTool):
@@ -201,13 +185,11 @@ class DeleteCustomFaceTool(BaseTool):
     async def execute(
         self,
         emoji_id: Annotated[str, "表情ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行删除收藏表情。"""
         params: dict[str, Any] = {"emoji_id": emoji_id}
         result = await _call_onebot_api("delete_custom_face", params)
-        if result.get("status") == "ok":
-            return True, f"已删除收藏表情 {emoji_id}"
-        return False, f"删除收藏表情失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetCustomFaceDescTool(BaseTool):
@@ -226,7 +208,7 @@ class SetCustomFaceDescTool(BaseTool):
         res_id: Annotated[str, "资源ID"],
         md5: Annotated[str, "表情MD5"],
         desc: Annotated[str, "新的描述"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行修改收藏表情描述。"""
         params: dict[str, Any] = {
             "emoji_id": emoji_id,
@@ -235,9 +217,7 @@ class SetCustomFaceDescTool(BaseTool):
             "desc": desc,
         }
         result = await _call_onebot_api("set_custom_face_desc", params)
-        if result.get("status") == "ok":
-            return True, "收藏表情描述已更新"
-        return False, f"修改收藏表情描述失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class ModifyCustomFaceTool(BaseTool):
@@ -254,16 +234,14 @@ class ModifyCustomFaceTool(BaseTool):
         self,
         emoji_id: Annotated[str, "表情ID"],
         desc: Annotated[str, "新的备注"] = "",
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行修改收藏表情备注。"""
         params: dict[str, Any] = {
             "emoji_id": emoji_id,
             "desc": desc,
         }
         result = await _call_onebot_api("modify_custom_face", params)
-        if result.get("status") == "ok":
-            return True, "收藏表情备注已更新"
-        return False, f"修改收藏表情备注失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class MoveCustomFaceToFrontTool(BaseTool):
@@ -279,13 +257,11 @@ class MoveCustomFaceToFrontTool(BaseTool):
     async def execute(
         self,
         emoji_id: Annotated[str, "表情ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行收藏表情移到最前。"""
         params: dict[str, Any] = {"emoji_id": emoji_id}
         result = await _call_onebot_api("move_custom_face_to_front", params)
-        if result.get("status") == "ok":
-            return True, "收藏表情已移到最前"
-        return False, f"移动收藏表情失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class FetchEmojiLikeTool(BaseTool):
@@ -311,10 +287,7 @@ class FetchEmojiLikeTool(BaseTool):
             "count": count,
         }
         result = await _call_onebot_api("fetch_emoji_like", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取表情回应分页失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetEmojiLikesTool(BaseTool):
@@ -338,10 +311,7 @@ class GetEmojiLikesTool(BaseTool):
             "emoji_id": emoji_id,
         }
         result = await _call_onebot_api("get_emoji_likes", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取表情回应用户失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupReactionTool(BaseTool):
@@ -360,7 +330,7 @@ class SetGroupReactionTool(BaseTool):
         code: Annotated[str, "表情code"],
         group_id: Annotated[int, "群号（可选，不传则自动从消息派生）"] = 0,
         is_set: Annotated[bool, "True=设置，False=取消"] = True,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行群聊消息表情回应。"""
         params: dict[str, Any] = {
             "message_id": message_id,
@@ -370,9 +340,7 @@ class SetGroupReactionTool(BaseTool):
         if group_id:
             params["group_id"] = group_id
         result = await _call_onebot_api("set_group_reaction", params)
-        if result.get("status") == "ok":
-            return True, "群消息表情回应已设置"
-        return False, f"群消息表情回应失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetRecommendFaceTool(BaseTool):
@@ -387,15 +355,13 @@ class GetRecommendFaceTool(BaseTool):
     async def execute(
         self,
         word: Annotated[str, "搜索关键词"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行获取推荐表情。"""
         params: dict[str, Any] = {
             "word": word,
         }
         result = await _call_onebot_api("get_recommend_face", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"获取推荐表情失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 
@@ -418,10 +384,7 @@ class GetMsgEmojiLikesTool(BaseTool):
             "message_id": message_id,
         }
         result = await _call_onebot_api("get_msg_emoji_likes", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取消息全部表情回应失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class UnsetMsgEmojiLikeTool(BaseTool):
@@ -437,13 +400,11 @@ class UnsetMsgEmojiLikeTool(BaseTool):
         self,
         message_id: Annotated[MessageId, "消息ID"],
         emoji_id: Annotated[int, "表情ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行取消消息表情回应。"""
         params: dict[str, Any] = {
             "message_id": message_id,
             "emoji_id": emoji_id,
         }
         result = await _call_onebot_api("unset_msg_emoji_like", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"取消消息表情回应失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result

@@ -45,10 +45,7 @@ class GetAiCharactersTool(BaseTool):
         if chat_type:
             params["chat_type"] = chat_type
         result = await _call_onebot_api("get_ai_characters", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取AI语音角色失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetAiRecordTool(BaseTool):
@@ -74,10 +71,7 @@ class GetAiRecordTool(BaseTool):
             "text": text,
         }
         result = await _call_onebot_api("get_ai_record", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"生成AI语音失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SendGroupAiRecordTool(BaseTool):
@@ -95,7 +89,7 @@ class SendGroupAiRecordTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
         character: Annotated[str, "语音角色名称"],
         text: Annotated[str, "语音合成文本内容"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行发送群AI语音。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -103,6 +97,4 @@ class SendGroupAiRecordTool(BaseTool):
             "text": text,
         }
         result = await _call_onebot_api("send_group_ai_record", params)
-        if result.get("status") == "ok":
-            return True, f"AI语音已发送到群 {group_id}"
-        return False, f"发送群AI语音失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result

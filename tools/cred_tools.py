@@ -48,10 +48,7 @@ class GetClientkeyTool(BaseTool):
         """执行获取clientkey。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_clientkey", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取clientkey失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetCredentialsTool(BaseTool):
@@ -71,10 +68,7 @@ class GetCredentialsTool(BaseTool):
         """执行获取凭证。"""
         params: dict[str, Any] = {"domain": domain}
         result = await _call_onebot_api("get_credentials", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取凭证失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetRkeyTool(BaseTool):
@@ -93,10 +87,7 @@ class GetRkeyTool(BaseTool):
         """执行获取rkey。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_rkey", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取rkey失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetRkeyServerTool(BaseTool):
@@ -115,10 +106,7 @@ class GetRkeyServerTool(BaseTool):
         """执行获取rkey服务器信息。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("get_rkey_server", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取rkey服务器信息失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class CheckUrlSafelyTool(BaseTool):
@@ -134,17 +122,11 @@ class CheckUrlSafelyTool(BaseTool):
     async def execute(
         self,
         url: Annotated[str, "目标URL"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行检查链接安全性。"""
         params: dict[str, Any] = {"url": url}
         result = await _call_onebot_api("check_url_safely", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            if isinstance(data, dict):
-                safe = data.get("safe", False)
-                return True, "链接安全" if safe else "链接不安全"
-            return True, str(data)
-        return False, f"检查链接安全性失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class OcrImageTool(BaseTool):
@@ -164,10 +146,7 @@ class OcrImageTool(BaseTool):
         """执行OCR图片。"""
         params: dict[str, Any] = {"image": image}
         result = await _call_onebot_api("ocr_image", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"OCR识别失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class DownloadFileTool(BaseTool):
@@ -193,10 +172,7 @@ class DownloadFileTool(BaseTool):
         if headers:
             params["headers"] = headers
         result = await _call_onebot_api("download_file", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"下载文件失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 class RequestDecryptKeyTool(BaseTool):
     """请求数据库解密密钥的 Tool（SnowLuma 扩展）。
@@ -214,7 +190,4 @@ class RequestDecryptKeyTool(BaseTool):
         """执行请求解密密钥。"""
         params: dict[str, Any] = {"db_path": db_path}
         result = await _call_onebot_api("request_decrypt_key", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"请求解密密钥失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result

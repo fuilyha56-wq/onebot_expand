@@ -2,12 +2,12 @@
 
 > OneBot v11 + NapCat 扩展 API 完整封装插件，通过 `onebot_adapter` 调用 NapCat / SnowLuma / LLOneBot 等协议端的全部扩展能力。
 
-> 老实说，我并不清楚这是否违背了我的中心，在最开始只是想提供一点方便的api供后续的插件调用。不过……在这次执行中，我提供了一套简易的message id和对应的适配，让llm更方便的构建消息类型和使用工具。
+> **原样透传铁律（SKILL.md §11）**：所有参数原样透传给协议端，协议端响应原样透传给调用方——不拦截、不改写、不清洗、不提取、不摘要。返回的格式与原内容与协议端直接返回完全一致；协议端不支持的动作也照发，由协议端自行返回错误。例外仅限：别名解析、文件传输适配（用户显式开启）、QZone 内部兼容能力、Tool 开关检查。
 
 | 指标 | 值 |
 |---|---|
-| 版本 | 1.0.20 |
-| Tool 组件 | **219** 个（默认关闭，可按需启用） |
+| 版本 | 1.0.22 |
+| Tool 组件 | **220** 个（默认关闭，可按需启用） |
 | Service 组件 | **23** 个（始终可用） |
 | 依赖插件 | `onebot_adapter` |
 | 协议端兼容 | NapCat · SnowLuma · LLOneBot（按 API 单独标记兼容性） |
@@ -27,7 +27,7 @@
 | NapCat 扩展 | 15 | NapcatExtService | Cookies、CSRF、状态、精华消息等 |
 | 群文件管理 | 13 | GroupFileService | 群文件 CRUD、文件夹、转存、永久保存 |
 | 群公告 | 3 | GroupNoticeService | 群公告发布/查询/删除 |
-| 群管理扩展 | 14 | GroupExtService | 群头像/备注/加群选项/签到/打卡列表/批量踢出/消息屏蔽 |
+| 群管理扩展 | 15 | GroupExtService | 群头像/备注/加群选项/签到/打卡列表/群分享链接/批量踢出/消息屏蔽 |
 | 请求处理 | 5 | RequestService | 好友/加群请求处理 |
 | 用户信息扩展 | 15 | UserExtService | 好友备注/分类/单向好友/资料/头像/点赞/个性装扮 |
 | 在线状态 | 4 | StatusService | 在线状态/DIY状态/输入状态 |
@@ -62,7 +62,7 @@ Cookie 不会写入配置、持久化状态或日志，也不会注册为新的 
 
 - **api_client 层**：`_call_onebot_api` 统一调用入口，Service 与 Tool 共用，不依赖任何一层
 - **Service 层**（23 个）：始终可用，供其他插件程序化调用，通过 `api_client` 调协议端
-- **Tool 层**（219 个）：供 LLM 直接调用，默认全部关闭，可按需启用
+- **Tool 层**（220 个）：供 LLM 直接调用，默认全部关闭，可按需启用
 
 **当前状态**：Service 与事件处理器始终注册；Tool 仅在总开关和对应独立开关同时开启时动态注册。
 
@@ -132,7 +132,7 @@ enable_send_group_msg = true     # 群聊消息发送（默认 false）
 
 [api_switches.qzone]
 enable_get_qzone_msg_list = true # QQ空间说说列表（默认 false）
-# ... 共 219 个独立开关
+# ... 共 220 个独立开关
 ```
 
 ✅ **Service 路径不受这些开关影响**——Service 方法始终可调用，供其他插件程序化使用。
@@ -141,7 +141,7 @@ enable_get_qzone_msg_list = true # QQ空间说说列表（默认 false）
 
 完整 API 名单见 [ACTION_INDEX.md](./docs/ACTION_INDEX.md)，按分类组织，含：
 
-- 主名 action 列表（219 个）
+- 主名 action 列表（220 个）
 - 别名映射表（18 个别名）
 - 每个 API 的来源标记、适配器兼容性
 - 按分类统计
@@ -159,11 +159,11 @@ enable_get_qzone_msg_list = true # QQ空间说说列表（默认 false）
 onebot_expand/
 ├── plugin.py              # 插件入口
 ├── config.py              # 配置定义
-├── api_defs.py            # API 元数据定义（219 个 APIDef）
+├── api_defs.py            # API 元数据定义（220 个 APIDef）
 ├── manifest.json          # 组件清单
 ├── path_mapper.py         # 文件路径映射
 ├── emoji_tables.py        # QQ 表情映射表
-├── tools/                 # 219 个 Tool 类
+├── tools/                 # 220 个 Tool 类
 │   ├── __init__.py        # Tool 注册 + 总开关包装器
 │   ├── message_tools.py
 │   ├── group_tools.py

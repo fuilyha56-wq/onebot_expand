@@ -1,6 +1,6 @@
 """onebot_expand 插件 Tool 组件包。
 
-导出全部 216 个 Tool 类，按功能域分组：
+导出全部 220 个 Tool 类，按功能域分组：
     - 消息相关 (20): message_tools
     - 群操作 (14): group_tools
     - 文件操作 (16): file_tools
@@ -8,7 +8,7 @@
     - NapCat 扩展 (15): napcat_tools
     - 群文件管理 (13): group_file_tools
     - 群公告 (3): group_notice_tools
-    - 群管理扩展 (14): group_ext_tools
+    - 群管理扩展 (15): group_ext_tools
     - 请求处理 (5): request_tools
     - 用户信息扩展 (14): user_ext_tools
     - 在线状态 (4): status_tools
@@ -132,7 +132,7 @@ __all__ = [
     "SendGroupNoticeTool",
     "GetGroupNoticeTool",
     "DelGroupNoticeTool",
-    # 群管理扩展 Tool (11)
+    # 群管理扩展 Tool (15)
     "SetGroupPortraitTool",
     "SetGroupRemarkTool",
     "SetGroupAddOptionTool",
@@ -143,6 +143,7 @@ __all__ = [
     "GetGroupIgnoredNotifiesTool",
     "GetGroupIgnoreAddRequestTool",
     "GetGroupInfoExTool",
+    "GetGroupShareLinkTool",
     "SetGroupSignTool",
     "GetGroupSignedListTool",
     # 请求处理 Tool (5)
@@ -375,6 +376,7 @@ from .group_ext_tools import (  # noqa: E402
     GetGroupIgnoreAddRequestTool,
     GetGroupInfoExTool,
     GetGroupShutListTool,
+    GetGroupShareLinkTool,
     GetGroupSignedListTool,
     SetGroupAddOptionTool,
     SetGroupKickMembersTool,
@@ -526,7 +528,7 @@ from .ark_tools import (  # noqa: E402
     SharePeerTool,
 )
 
-# 全部 216 个 Tool 类列表
+# 全部 220 个 Tool 类列表
 ALL_TOOLS: list[type] = [
     # 消息相关 (18)
     SendGroupMsgTool,
@@ -625,7 +627,7 @@ ALL_TOOLS: list[type] = [
     SendGroupNoticeTool,
     GetGroupNoticeTool,
     DelGroupNoticeTool,
-    # 群管理扩展 (11)
+    # 群管理扩展 (15)
     SetGroupPortraitTool,
     SetGroupRemarkTool,
     SetGroupAddOptionTool,
@@ -636,6 +638,7 @@ ALL_TOOLS: list[type] = [
     GetGroupIgnoredNotifiesTool,
     GetGroupIgnoreAddRequestTool,
     GetGroupInfoExTool,
+    GetGroupShareLinkTool,
     SetGroupSignTool,
     GetGroupSignedListTool,
     # 请求处理 (5)

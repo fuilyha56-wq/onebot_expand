@@ -62,10 +62,7 @@ class CreateFlashTaskTool(BaseTool):
         if name:
             params["name"] = name
         result = await _call_onebot_api("create_flash_task", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"创建闪传任务失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SendFlashMsgTool(BaseTool):
@@ -83,7 +80,7 @@ class SendFlashMsgTool(BaseTool):
         fileset_id: Annotated[str, "文件集ID"],
         user_id: Annotated[int, "目标用户QQ号（可选）"] = 0,
         group_id: Annotated[int, "目标群号（可选）"] = 0,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行发送闪传消息。"""
         params: dict[str, Any] = {"fileset_id": fileset_id}
         if user_id:
@@ -91,9 +88,7 @@ class SendFlashMsgTool(BaseTool):
         if group_id:
             params["group_id"] = group_id
         result = await _call_onebot_api("send_flash_msg", params)
-        if result.get("status") == "ok":
-            return True, "闪传消息已发送"
-        return False, f"发送闪传消息失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetFlashFileListTool(BaseTool):
@@ -113,10 +108,7 @@ class GetFlashFileListTool(BaseTool):
         """执行获取闪传文件列表。"""
         params: dict[str, Any] = {"fileset_id": fileset_id}
         result = await _call_onebot_api("get_flash_file_list", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"获取闪传文件列表失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetFlashFileUrlTool(BaseTool):
@@ -139,10 +131,7 @@ class GetFlashFileUrlTool(BaseTool):
         if file_name:
             params["file_name"] = file_name
         result = await _call_onebot_api("get_flash_file_url", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取闪传文件URL失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetShareLinkTool(BaseTool):
@@ -162,10 +151,7 @@ class GetShareLinkTool(BaseTool):
         """执行获取文件分享链接。"""
         params: dict[str, Any] = {"fileset_id": fileset_id}
         result = await _call_onebot_api("get_share_link", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取分享链接失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class DownloadFilesetTool(BaseTool):
@@ -185,10 +171,7 @@ class DownloadFilesetTool(BaseTool):
         """执行下载文件集。"""
         params: dict[str, Any] = {"fileset_id": fileset_id}
         result = await _call_onebot_api("download_fileset", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"下载文件集失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetFilesetInfoTool(BaseTool):
@@ -208,10 +191,7 @@ class GetFilesetInfoTool(BaseTool):
         """执行获取文件集信息。"""
         params: dict[str, Any] = {"fileset_id": fileset_id}
         result = await _call_onebot_api("get_fileset_info", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取文件集信息失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetFilesetIdTool(BaseTool):
@@ -231,10 +211,7 @@ class GetFilesetIdTool(BaseTool):
         """执行从分享码获取fileset_id。"""
         params: dict[str, Any] = {"share_code": share_code}
         result = await _call_onebot_api("get_fileset_id", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取fileset_id失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class ListFilesetsTool(BaseTool):
@@ -253,10 +230,7 @@ class ListFilesetsTool(BaseTool):
         """执行列出所有闪传文件集。"""
         params: dict[str, Any] = {}
         result = await _call_onebot_api("list_filesets", params)
-        if result.get("status") == "ok":
-            data = result.get("data", [])
-            return True, data
-        return False, f"列出闪传文件集失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class DeleteFlashFileTool(BaseTool):
@@ -272,13 +246,11 @@ class DeleteFlashFileTool(BaseTool):
     async def execute(
         self,
         fileset_id: Annotated[str, "文件集ID"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行删除闪传文件。"""
         params: dict[str, Any] = {"fileset_id": fileset_id}
         result = await _call_onebot_api("delete_flash_file", params)
-        if result.get("status") == "ok":
-            return True, f"已删除闪传文件 {fileset_id}"
-        return False, f"删除闪传文件失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class RenameFlashFileTool(BaseTool):
@@ -295,16 +267,14 @@ class RenameFlashFileTool(BaseTool):
         self,
         fileset_id: Annotated[str, "文件集ID"],
         new_name: Annotated[str, "新文件名"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行重命名闪传文件。"""
         params: dict[str, Any] = {
             "fileset_id": fileset_id,
             "new_name": new_name,
         }
         result = await _call_onebot_api("rename_flash_file", params)
-        if result.get("status") == "ok":
-            return True, f"已重命名闪传文件 {fileset_id}"
-        return False, f"重命名闪传文件失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetFlashFileDownloadUrlsTool(BaseTool):
@@ -320,16 +290,14 @@ class GetFlashFileDownloadUrlsTool(BaseTool):
         self,
         fileset_id: Annotated[str, "文件集ID"],
         share_link: Annotated[str, "分享链接"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行获取闪传文件集下载URL。"""
         params: dict[str, Any] = {
             "fileset_id": fileset_id,
             "share_link": share_link,
         }
         result = await _call_onebot_api("get_flash_file_download_urls", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"获取闪传文件集下载URL失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 
@@ -346,16 +314,14 @@ class UploadFlashFileTool(BaseTool):
         self,
         title: Annotated[str, "文件集标题"],
         paths: Annotated[list[str], "本地文件路径列表"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行上传闪传文件。"""
         params: dict[str, Any] = {
             "title": title,
             "paths": paths,
         }
         result = await _call_onebot_api("upload_flash_file", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"上传闪传文件失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 
@@ -372,15 +338,13 @@ class ReshareFlashFileTool(BaseTool):
         self,
         fileset_id: Annotated[str, "文件集ID"],
         share_link: Annotated[str, "分享链接"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行重新分享闪传文件。"""
         params: dict[str, Any] = {
             "fileset_id": fileset_id,
             "share_link": share_link,
         }
         result = await _call_onebot_api("reshare_flash_file", params)
-        if result.get("status") == "ok":
-            return True, str(result.get("data", ""))
-        return False, f"重新分享闪传文件失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 

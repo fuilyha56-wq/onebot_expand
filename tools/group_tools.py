@@ -60,7 +60,7 @@ class SetGroupKickTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
         user_id: Annotated[int, "要踢出的成员QQ号"],
         reject_add_request: Annotated[bool, "是否拒绝此人再次加群请求"] = False,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行踢出群成员。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -68,9 +68,7 @@ class SetGroupKickTool(BaseTool):
             "reject_add_request": reject_add_request,
         }
         result = await _call_onebot_api("set_group_kick", params)
-        if result.get("status") == "ok":
-            return True, f"已踢出群 {group_id} 中的成员 {user_id}"
-        return False, f"踢出群成员失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupBanTool(BaseTool):
@@ -88,7 +86,7 @@ class SetGroupBanTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
         user_id: Annotated[int, "要禁言的成员QQ号"],
         duration: Annotated[int, "禁言时长（秒），0表示解除禁言"] = 1800,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行禁言群成员。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -96,11 +94,7 @@ class SetGroupBanTool(BaseTool):
             "duration": duration,
         }
         result = await _call_onebot_api("set_group_ban", params)
-        if result.get("status") == "ok":
-            if duration == 0:
-                return True, f"已解除群 {group_id} 中成员 {user_id} 的禁言"
-            return True, f"已禁言群 {group_id} 中的成员 {user_id}，时长 {duration} 秒"
-        return False, f"禁言群成员失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupAnonymousBanTool(BaseTool):
@@ -122,7 +116,7 @@ class SetGroupAnonymousBanTool(BaseTool):
         anonymous: Annotated[
             dict[str, Any] | None, "匿名成员对象（可选，与flag二选一）"
         ] = None,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行禁言匿名群成员。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -134,11 +128,7 @@ class SetGroupAnonymousBanTool(BaseTool):
             params["anonymous_flag"] = anonymous_flag
 
         result = await _call_onebot_api("set_group_anonymous_ban", params)
-        if result.get("status") == "ok":
-            if duration == 0:
-                return True, f"已解除群 {group_id} 中匿名成员的禁言"
-            return True, f"已禁言群 {group_id} 中的匿名成员，时长 {duration} 秒"
-        return False, f"禁言匿名成员失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupWholeBanTool(BaseTool):
@@ -155,17 +145,14 @@ class SetGroupWholeBanTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         enable: Annotated[bool, "True为开启全体禁言，False为关闭"] = True,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行全体禁言。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "enable": enable,
         }
         result = await _call_onebot_api("set_group_whole_ban", params)
-        if result.get("status") == "ok":
-            action = "开启" if enable else "关闭"
-            return True, f"已{action}群 {group_id} 的全体禁言"
-        return False, f"全体禁言设置失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupAdminTool(BaseTool):
@@ -183,7 +170,7 @@ class SetGroupAdminTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
         user_id: Annotated[int, "目标成员QQ号"],
         enable: Annotated[bool, "True为设置管理员，False为取消管理员"] = True,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置/取消管理员。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -191,10 +178,7 @@ class SetGroupAdminTool(BaseTool):
             "enable": enable,
         }
         result = await _call_onebot_api("set_group_admin", params)
-        if result.get("status") == "ok":
-            action = "设置" if enable else "取消"
-            return True, f"已{action}群 {group_id} 中成员 {user_id} 的管理员身份"
-        return False, f"设置管理员失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupAnonymousTool(BaseTool):
@@ -211,17 +195,14 @@ class SetGroupAnonymousTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         enable: Annotated[bool, "True为开启匿名聊天，False为关闭"] = True,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行开启/关闭匿名聊天。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "enable": enable,
         }
         result = await _call_onebot_api("set_group_anonymous", params)
-        if result.get("status") == "ok":
-            action = "开启" if enable else "关闭"
-            return True, f"已{action}群 {group_id} 的匿名聊天"
-        return False, f"匿名聊天设置失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupCardTool(BaseTool):
@@ -239,7 +220,7 @@ class SetGroupCardTool(BaseTool):
         group_id: Annotated[int, "目标群号"],
         user_id: Annotated[int, "目标成员QQ号"],
         card: Annotated[str, "群名片内容，空字符串表示清空名片"] = "",
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置群名片。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -247,10 +228,7 @@ class SetGroupCardTool(BaseTool):
             "card": card,
         }
         result = await _call_onebot_api("set_group_card", params)
-        if result.get("status") == "ok":
-            card_desc = f'"{card}"' if card else "（已清空）"
-            return True, f"已设置群 {group_id} 中成员 {user_id} 的名片为 {card_desc}"
-        return False, f"设置群名片失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupNameTool(BaseTool):
@@ -267,16 +245,14 @@ class SetGroupNameTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         group_name: Annotated[str, "新的群名称"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置群名。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "group_name": group_name,
         }
         result = await _call_onebot_api("set_group_name", params)
-        if result.get("status") == "ok":
-            return True, f'已修改群 {group_id} 的名称为 "{group_name}"'
-        return False, f"设置群名失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupLeaveTool(BaseTool):
@@ -293,17 +269,14 @@ class SetGroupLeaveTool(BaseTool):
         self,
         group_id: Annotated[int, "目标群号"],
         is_dismiss: Annotated[bool, "是否解散群（仅群主有效）"] = False,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行退出群聊。"""
         params: dict[str, Any] = {
             "group_id": group_id,
             "is_dismiss": is_dismiss,
         }
         result = await _call_onebot_api("set_group_leave", params)
-        if result.get("status") == "ok":
-            action = "解散" if is_dismiss else "退出"
-            return True, f"已{action}群 {group_id}"
-        return False, f"退出群聊失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupSpecialTitleTool(BaseTool):
@@ -322,7 +295,7 @@ class SetGroupSpecialTitleTool(BaseTool):
         user_id: Annotated[int, "目标成员QQ号"],
         special_title: Annotated[str, "专属头衔内容，空字符串表示清空"],
         duration: Annotated[int, "头衔有效期（秒），-1表示永久"] = -1,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置专属头衔。"""
         params: dict[str, Any] = {
             "group_id": group_id,
@@ -331,10 +304,7 @@ class SetGroupSpecialTitleTool(BaseTool):
             "duration": duration,
         }
         result = await _call_onebot_api("set_group_special_title", params)
-        if result.get("status") == "ok":
-            title_desc = f'"{special_title}"' if special_title else "（已清空）"
-            return True, f"已设置群 {group_id} 中成员 {user_id} 的头衔为 {title_desc}"
-        return False, f"设置专属头衔失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupMemberInvitePolicyTool(BaseTool):
@@ -350,15 +320,13 @@ class SetGroupMemberInvitePolicyTool(BaseTool):
             str,
             "disabled/require_approval/no_approval/no_approval_under_100",
         ],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置群成员邀请策略。"""
         result = await _call_onebot_api(
             "set_group_member_invite_policy",
             {"group_id": group_id, "policy": policy},
         )
-        if result.get("status") == "ok":
-            return True, f"已设置群 {group_id} 的成员邀请策略"
-        return False, f"设置群成员邀请策略失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupMemberPermissionsTool(BaseTool):
@@ -379,7 +347,7 @@ class SetGroupMemberPermissionsTool(BaseTool):
         allow_member_create_group: Annotated[
             bool | None, "是否允许成员发起新群聊"
         ] = None,
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置群成员功能权限。"""
         params: dict[str, Any] = {"group_id": group_id}
         permissions = {
@@ -390,13 +358,9 @@ class SetGroupMemberPermissionsTool(BaseTool):
         params.update(
             {key: value for key, value in permissions.items() if value is not None}
         )
-        if len(params) == 1:
-            raise ValueError("至少需要提供一个群成员功能权限")
 
         result = await _call_onebot_api("set_group_member_permissions", params)
-        if result.get("status") == "ok":
-            return True, f"已设置群 {group_id} 的成员功能权限"
-        return False, f"设置群成员功能权限失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class SetGroupNewMemberHistoryVisibilityTool(BaseTool):
@@ -409,15 +373,13 @@ class SetGroupNewMemberHistoryVisibilityTool(BaseTool):
         self,
         group_id: Annotated[str, "目标群号"],
         visible: Annotated[bool, "新成员是否可见最近聊天记录"],
-    ) -> tuple[bool, str]:
+    ) -> tuple[bool, dict[str, Any]]:
         """执行设置新成员历史消息可见性。"""
         result = await _call_onebot_api(
             "set_group_new_member_history_visibility",
             {"group_id": group_id, "visible": visible},
         )
-        if result.get("status") == "ok":
-            return True, f"已设置群 {group_id} 的新成员历史消息可见性"
-        return False, f"设置新成员历史消息可见性失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
 
 
 class GetGroupAdminSettingsTool(BaseTool):
@@ -437,7 +399,4 @@ class GetGroupAdminSettingsTool(BaseTool):
         """执行获取群管理设置。"""
         params: dict[str, Any] = {"group_id": group_id}
         result = await _call_onebot_api("get_group_admin_settings", params)
-        if result.get("status") == "ok":
-            data = result.get("data", {})
-            return True, data
-        return False, f"获取群管理设置失败: {result.get('msg', '未知错误')}"
+        return result.get("status") == "ok", result
