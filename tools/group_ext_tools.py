@@ -1,6 +1,6 @@
 """群管理扩展 API 的 Tool 组件。
 
-包含 11 个群管理扩展 Tool：
+包含 15 个群管理扩展 Tool：
     - set_group_portrait: 设置群头像
     - set_group_remark: 设置群备注
     - set_group_add_option: 设置加群选项
@@ -11,6 +11,7 @@
     - get_group_ignored_notifies: 获取被过滤的入群请求
     - get_group_ignore_add_request: 获取被忽略的入群请求
     - get_group_info_ex: 获取群信息扩展
+    - get_group_share_link: 获取群分享链接
     - set_group_sign: 群签到
 
 Tool 不检查配置开关，配置开关由 Service 层统一检查。
@@ -35,6 +36,7 @@ __all__ = [
     "GetGroupIgnoredNotifiesTool",
     "GetGroupIgnoreAddRequestTool",
     "GetGroupInfoExTool",
+    "GetGroupShareLinkTool",
     "SetGroupSignTool",
     "GetGroupSignedListTool",
 "BatchDeleteGroupMemberTool",
@@ -265,6 +267,34 @@ class GetGroupInfoExTool(BaseTool):
             "group_id": group_id,
         }
         result = await _call_onebot_api("get_group_info_ex", params)
+        return result.get("status") == "ok", result
+
+
+class GetGroupShareLinkTool(BaseTool):
+    """获取群分享链接的 Tool。
+
+    对应 NapCat API: ``get_group_share_link``。
+    """
+
+    name = "get_group_share_link"
+    description = "获取群分享链接"
+
+    async def execute(
+        self,
+        group_id: Annotated[int | str, "目标群号"],
+        need_short_url: Annotated[bool | str | None, "是否返回短链"] = None,
+        src_id: Annotated[int | str | None, "分享来源 ID"] = None,
+        additional_param: Annotated[str | None, "附加参数"] = None,
+    ) -> tuple[bool, dict[str, Any]]:
+        """执行获取群分享链接。"""
+        params: dict[str, Any] = {"group_id": group_id}
+        if need_short_url is not None:
+            params["need_short_url"] = need_short_url
+        if src_id is not None:
+            params["src_id"] = src_id
+        if additional_param is not None:
+            params["additional_param"] = additional_param
+        result = await _call_onebot_api("get_group_share_link", params)
         return result.get("status") == "ok", result
 
 

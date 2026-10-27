@@ -12,6 +12,7 @@ from ..services import (
     emoji_ext_service,
     file_service,
     group_file_service,
+    group_ext_service,
     group_service,
     group_todo_service,
     misc_service,
@@ -21,6 +22,7 @@ from ..tools import (
     emoji_ext_tools,
     file_tools,
     group_file_tools,
+    group_ext_tools,
     group_tools,
     misc_tools,
     user_ext_tools,
@@ -109,6 +111,65 @@ async def test_20260827_new_action_payloads(
                 "summary": "[分享]",
                 "preview_url": "https://tangram-1251316161.file.myqcloud.com/files/20210721/e50a8e37e08f29bf1ffc7466e1950690.png",
                 "jump_url": "u",
+            },
+        ),
+    ]
+
+
+@pytest.mark.asyncio
+async def test_get_group_share_link_payloads(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """NapCat 群分享链接 API 应只透传调用方显式提供的字段。"""
+    calls: list[tuple[str, dict[str, Any]]] = []
+
+    async def fake_call(action: str, params: dict[str, Any]) -> dict[str, Any]:
+        calls.append((action, params))
+        return {"status": "ok", "retcode": 0, "data": {"url": "https://qm.qq.com/q/x"}}
+
+    monkeypatch.setattr(group_ext_service, "_call_onebot_api", fake_call)
+    monkeypatch.setattr(group_ext_tools, "_call_onebot_api", fake_call)
+
+    service = group_ext_service.GroupExtService(plugin=None)
+    await service.get_group_share_link("10001")
+    await service.get_group_share_link(
+        "10001",
+        need_short_url="false",
+        src_id="73",
+        additional_param="from-test",
+    )
+
+    config = OnebotExpandConfig()
+    config.api_switches.enable_all_tools = True
+    config.api_switches.enable_get_group_share_link = True
+    plugin = SimpleNamespace(config=config)
+    success, result = await group_ext_tools.GetGroupShareLinkTool(plugin=plugin).execute(
+        10001,
+        need_short_url=False,
+        src_id=73,
+        additional_param="from-tool",
+    )
+
+    assert success is True
+    assert result["data"]["url"] == "https://qm.qq.com/q/x"
+    assert calls == [
+        ("get_group_share_link", {"group_id": "10001"}),
+        (
+            "get_group_share_link",
+            {
+                "group_id": "10001",
+                "need_short_url": "false",
+                "src_id": "73",
+                "additional_param": "from-test",
+            },
+        ),
+        (
+            "get_group_share_link",
+            {
+                "group_id": 10001,
+                "need_short_url": False,
+                "src_id": 73,
+                "additional_param": "from-tool",
             },
         ),
     ]
